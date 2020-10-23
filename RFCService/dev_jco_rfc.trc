@@ -1,0 +1,88 @@
+
+**** Error file opened at 20201023 225150 Eastern European Summer Time Rel. 3.0.20 (2019-09-05) [721.1311]
+Error:   >Fri Oct 23 22:51:50,257<    >RfcGetException (rc=3) message: CPIC-CALL: CMRCV on convId: 53800862
+
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       connection to partner 'fd5f:551e:31f6:7777::a06:7d.3299'
+            broken
+TIME        Fri Oct 23 22:51:50 2020
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -6
+MODULE      nixxi.cpp
+LINE        4605
+DETAIL      NiIWrite: P=fd5f:551e:31f6:7777::a06:7d.3299;
+            L=2002:c2c5:3222:1000:185d:4c52:d50d:dbc6:53552
+SYSTEM CALL WSASend
+ERRNO       10054
+ERRNO TEXT  WSAECONNRESET: Connection reset by peer
+COUNTER     6
+
+<RfcGetException
+
+
+Error: [1]  >Fri Oct 23 22:51:50,281<    RfcException raised by system [TET|wsapvm117|00]:
+	message: CPIC-CALL: CMRCV on convId: 53800862
+
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       connection to partner 'fd5f:551e:31f6:7777::a06:7d.3299'
+            broken
+TIME        Fri Oct 23 22:51:50 2020
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -6
+MODULE      nixxi.cpp
+LINE        4605
+DETAIL      NiIWrite: P=fd5f:551e:31f6:7777::a06:7d.3299;
+            L=2002:c2c5:3222:1000:185d:4c52:d50d:dbc6:53552
+SYSTEM CALL WSASend
+ERRNO       10054
+ERRNO TEXT  WSAECONNRESET: Connection reset by peer
+COUNTER     6
+
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 102
+	key: RFC_ERROR_COMMUNICATION
+
+
+**** Error file opened at 20201023 231617 Eastern European Summer Time Rel. 3.0.20 (2019-09-05) [721.1311]
+Error: [1]  >Fri Oct 23 23:16:17,825<    RfcException raised by system [TET|wsapvm117|00] for user [WIHSUSIVI]:
+	message: Name or password is incorrect (repeat logon)
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+
+Error: [1]  >Fri Oct 23 23:16:39,486<    RfcException raised by system [TET|wsapvm117|00] for user [WIHSUSIVI]:
+	message: Name or password is incorrect (repeat logon)
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+
+
+**** Error file opened at 20201023 231750 Eastern European Summer Time Rel. 3.0.20 (2019-09-05) [721.1311]
+Error: [1]  >Fri Oct 23 23:17:50,461<    RfcException raised by system [TET|wsapvm117|00] for user [WIHSUSIVI]:
+	message: Name or password is incorrect (repeat logon)
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+
+Error: [1]  >Fri Oct 23 23:18:19,435<    RfcException raised by system [TET|wsapvm117|00] for user [WIHSUSIVI]:
+	message: Name or password is incorrect (repeat logon)
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+
+Error: [1]  >Fri Oct 23 23:19:20,415<    RfcException raised by system [TET|wsapvm117|00] for user [WIHSUSIVI]:
+	message: Name or password is incorrect (repeat logon)
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+
+Error: [1]  >Fri Oct 23 23:20:58,961<    RfcException raised by system [TET|wsapvm117|00] for user [WIHSUSIVI]:
+	message: Name or password is incorrect (repeat logon)
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="nz.net.ultraq.thymeleaf">
+	<div th:fragment="po" id="order" class="order_template" data-line_number="0">
+		<div class="order_controls">
+			<input type="button" class="btn_save_single" value="Save"/>
+			<label for="chk_testrun">Test run:</label><input id="chk_testrun" type="checkbox" class="chk_testrun" checked>
+			<input type="button" class="btn_remove_single" value="Del">
+		</div>
+		<div id="order_header" class="order_header">
+			<div>
+				<label for="document_number">PO:</label><input id="document_number" type="text" disabled>
+			</div>
+			<table class="header_table">
+				<tr>
+					<td>PO date:</td>
+					<td><input id="po_date" type="date"></td>
+					<td>Del. date:</td>
+					<td><input id="delivery_date" type="date"></td>
+				</tr>
+				<tr>
+					<td>Vendor:</td>
+					<td><input id="vendor" type="text"></td>
+					<td>Plant:</td>
+					<td><input id="plant" type="text"></td>
+				</tr>
+				<tr>
+					<td>Order type:</td>
+					<td><input id="order_type" type="text"></td>
+					<td>Storage loc.:</td>
+					<td><input id="storage_loc" type="text"></td>
+				</tr>
+				<tr>
+					<td>Purch. org.:</td>
+					<td><input id="purch_org" type="text"></td>
+					<td>Your ref.:</td>
+					<td><input id="your_reference" type="text"></td>
+				</tr>
+				<tr>
+					<td>Purch. group:</td>
+					<td><input id="purch_group" type="text"></td>
+					<td>Our ref.:</td>
+					<td><input id="our_reference" type="text"></td>
+				</tr>
+			</table>
+		</div>
+		<div id="order_items" class="order_items">
+			<div>
+				<input id="btn_add_row" type="button" value="Add row">
+			</div>
+			<table id="order_items_table" class="order_items_table">
+				<thead>
+					<tr>
+						<th>Item#</th>
+						<th>Material</th>
+						<th>Qty</th>
+						<th>Tax Code</th>
+						<th>Text</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><input id="item_no" type="number"></td>
+						<td><input id="material" type="text"></td>
+						<td><input id="quantity" type="number"></td>
+						<td><input id="tax_code" type="text"></td>
+						<td><textarea id="item_text"></textarea></td>
+						<td><input type="button" value="Del"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="bapi_messages">
+			<span>Return messages</span>
+			<table>
+				<thead>
+					<tr>
+						<th>Type</th>
+						<th>Num</th>
+						<th>ID</th>
+						<th>Row</th>
+						<th>Message</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</html>

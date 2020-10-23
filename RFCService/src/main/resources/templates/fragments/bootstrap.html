@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="nz.net.ultraq.thymeleaf">
+	<!-- Bootstrap Modal -->
+    <div th:fragment="login" id="sap_login_modal" class="modal fade" role="dialog">
+    	<div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+        	<div class="modal-header">
+        		<h4 class="modal-title">SAP Login</h4>
+            	<button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>             
+               	<div class="modal-body">
+                	<table>
+                    	<tbody>
+                    		<tr>
+                    			<td>
+                    				<label for="sap_client">SAP Client:</label>
+                    				<select id="sap_client" data-style="btn-new">
+                    					<option selected="selected">TET</option>
+                    					<option>TEP</option>
+                    				</select>
+                    			</td>
+                    		</tr>
+                        	<tr>
+                            	<td><input type="text" id="sap_username" placeholder="Username" /></td>
+                            </tr>
+                            <tr>
+                            	<td><span id="userNamSpan"></span></td>
+                           	</tr>
+                           	<tr>
+                           		<td><input type="password" id="sap_password" placeholder="Password" /></td>
+                            </tr>
+                                <tr>
+                                	<td><span id="passwordSpan"></span></td>
+                               	</tr>
+                            <tr>
+                            	<td><input type="button" id="sap_login_do" value="Login" /></td>
+                            </tr>
+                            <tr>
+                            	<td><span id="messageSpan"></span></td>
+                            </tr>
+                         </tbody>
+                   	</table>
+               	</div>
+                <div class="modal-footer">
+                	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+            <!-- END Modal content-->
+      	</div>
+    </div>
+    <!-- END Bootstrap Modal -->
+</html>
