@@ -3,7 +3,6 @@ package org.rfc.po;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.rfc.sap.SAPConnection;
 import org.rfc.sap.SapService;
 import org.rfc.sap.SapSystem;
 import org.rfc.sap.SapSystemFactory;
@@ -27,7 +26,7 @@ public class POServiceImpl implements POService {
 	
 	public final SapSystemFactory factory=new SapSystemFactory();
 	
-	public ResponseDTO saveOrder(PurchaseOrderDTO order,boolean test) {
+	public ResponseDTO saveOrder(PurchaseOrderDTO order) {
 		
 		//try to save order
 		ResponseDTO response=null;
@@ -35,7 +34,7 @@ public class POServiceImpl implements POService {
 		try {
 			//sap=factory.getSapSystem("TETCLNT280");
 			//if this is a new order...
-			response=createOrder(order,sap,test);
+			response=createOrder(order,sap);
 		} 
 		catch (JCoException e) {
 			// TODO Auto-generated catch block
@@ -45,16 +44,21 @@ public class POServiceImpl implements POService {
 		return response;
 	}
 	
-	private ResponseDTO createOrder(PurchaseOrderDTO order,SapSystem sap,boolean test) throws JCoException {
+	private ResponseDTO createOrder(PurchaseOrderDTO order,SapSystem sap) throws JCoException {
 		JCoDestination destination=sapService.getDestination();
 		ResponseDTO response=new ResponseDTO();
 		response.setMetaData(order.getMetaData());
-		response.setTest(test);
+		response.setTest(order.isTest());
 		
-		JCoFunctionTemplate functionTemplate=destination.getRepository().getFunctionTemplate("BAPI_PO_CREATE1");
+		JCoFunctionTemplate functionTemplate=null;
+		
+		functionTemplate=destination.getRepository().getFunctionTemplate("BAPI_PO_CREATE1");
 		JCoFunction fCreatePO=functionTemplate.getFunction();
+		functionTemplate=destination.getRepository().getFunctionTemplate("BAPI_TRANSACTION_COMMIT");
+		JCoFunction fCommit=functionTemplate.getFunction();
 		
 		JCoParameterList imports=fCreatePO.getImportParameterList();
+		JCoParameterList exports=fCreatePO.getExportParameterList();
 		JCoParameterList tables=fCreatePO.getTableParameterList();
 		
 		JCoStructure poHeader=imports.getStructure("POHEADER");
@@ -63,9 +67,11 @@ public class POServiceImpl implements POService {
 		JCoTable poItem=tables.getTable("POITEM");
 		JCoTable poItemX=tables.getTable("POITEMX");
 		
+		JCoTable poItemText=tables.getTable("POTEXTITEM");
+		
 		JCoTable messages=tables.getTable("RETURN");
 		
-		if(test) {
+		if(order.isTest()) {
 			imports.setValue("TESTRUN", "X");
 		}
 		
@@ -109,12 +115,27 @@ public class POServiceImpl implements POService {
 			poItemX.setValue("QUANTITY", "X");
 			poItemX.setValue("VAL_TYPE", "X");
 			poItemX.setValue("TAX_CODE", "X");
+			
+			for(POItemTextDTO textLine : item.getTextLines()) {
+				poItemText.appendRow();
+				poItemText.setValue("PO_ITEM",textLine.getItem());
+				poItemText.setValue("TEXT_ID", textLine.getTextId());
+				poItemText.setValue("TEXT_FORM", textLine.getTextForm());
+				poItemText.setValue("TEXT_LINE", textLine.getTextLine());
+			}
 		}
 		
 		JCoContext.begin(destination);
 		fCreatePO.execute(destination);
 		
 		response.setLines(createResponseLines(messages));
+		
+		String poNumber=exports.getString("EXPPURCHASEORDER");
+		System.out.println("PO created: "+poNumber);
+		if(poNumber!=null && !poNumber.isEmpty()) {
+			fCommit.execute(destination);
+			response.setPoNumber(Long.parseLong(poNumber));
+		}
 		
 		return response;
 	}

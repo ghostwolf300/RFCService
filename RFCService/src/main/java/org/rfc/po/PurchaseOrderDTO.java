@@ -11,7 +11,7 @@ public class PurchaseOrderDTO implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private int id;
+	private long id;
 	private String companyCode;
 	private String documentType;
 	private String purchasingOrg;
@@ -23,16 +23,17 @@ public class PurchaseOrderDTO implements Serializable {
 	private String yourReference;
 	private List<POItemDTO> lineItems=null;
 	private String metaData;
+	private boolean test=true;
 	
 	public PurchaseOrderDTO() {
 		super();
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -122,6 +123,14 @@ public class PurchaseOrderDTO implements Serializable {
 
 	public void setMetaData(String metaData) {
 		this.metaData = metaData;
+	}
+
+	public boolean isTest() {
+		return test;
+	}
+
+	public void setTest(boolean test) {
+		this.test = test;
 	}
 
 	public static long getSerialversionuid() {

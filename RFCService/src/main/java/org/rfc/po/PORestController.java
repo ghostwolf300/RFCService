@@ -18,7 +18,7 @@ public class PORestController {
 	@PostMapping(value="/po/save",consumes="application/json", produces="application/json")
 	@ResponseBody
 	public ResponseEntity<?> saveOrder(@RequestBody PurchaseOrderDTO order){
-		ResponseDTO response=poService.saveOrder(order, true);
+		ResponseDTO response=poService.saveOrder(order);
 		
 		for(ResponseLineDTO line : response.getLines()) {
 			System.out.println(line.getType()+"\t"+line.getNumber()+"\t"+line.getId()+"\t"+line.getRow()+"\t"+line.getMessage());

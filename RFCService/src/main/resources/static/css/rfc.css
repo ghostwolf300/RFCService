@@ -53,7 +53,7 @@ div.order_items{
 
 table.order_items_table{
 	table-layout: fixed;
-	width: 800px;
+	width: 900px;
 }
 
 table.order_items_table>thead{
@@ -79,6 +79,9 @@ table.order_items_table th:nth-child(5){
 	width: 200px;
 }
 table.order_items_table th:nth-child(6){
+	width: 300px;
+}
+table.order_items_table th:nth-child(7){
 	width: 40px;
 }
 

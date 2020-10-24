@@ -114,7 +114,7 @@ var PurchaseOrder=(function(){
 				'password'	: $('#sap_password').val()
 		}
 		
-		var url='/sap/login';
+		var url=contextPath+'sap/login';
 		var data=JSON.stringify(userJson);
 		console.log(data);
 		
@@ -262,10 +262,12 @@ var PurchaseOrder=(function(){
 	}
 	
 	function _addOrder(){
+		var orderNum=_getLineNumber();
 		$orderDiv=$('div.order_template').clone(true);
 		$orderDiv.removeClass('order_template');
 		$orderDiv.addClass('order');
-		$orderDiv.attr('data-line_number', _getLineNumber);
+		$orderDiv.attr('data-line_number', orderNum);
+		$orderDiv.find('input.btn_save_single').attr('onclick','PurchaseOrder.saveSingle('+orderNum+')');
 		$orderDiv.appendTo('div#orders');
 	}
 	
@@ -299,7 +301,7 @@ var PurchaseOrder=(function(){
 	}
 	
 	function _saveOrder(orderJson){
-		var url='/po/save';
+		var url=contextPath+'po/save';
 		var data=JSON.stringify(orderJson);
 		console.log(data);
 		
@@ -327,14 +329,18 @@ var PurchaseOrder=(function(){
 	
 	function _handleResponse(response){
 		var $orderDiv=$('div#orders').find("[data-line_number='"+response.metaData+"']")
-		$orderDiv.find('div#order_header').find('input#document_number').val(response.poId);
 		var $messageDiv=$orderDiv.find('div.bapi_messages');
-		$messageDiv.show();
 		var $tbody=$messageDiv.find('tbody');
+		
+		$messageDiv.show();
 		$tbody.empty();
 		response.lines.forEach(function(line,index){
 			$tbody.append(_createResponseMessageRow(line));
 		});
+		
+		if(response.poNumber!=-1){
+			$orderDiv.find('div#order_header').find('input#document_number').val(response.poNumber);
+		}
 	}
 	
 	function _createResponseMessageRow(line){
@@ -363,7 +369,9 @@ var PurchaseOrder=(function(){
 	function _getOrderJSON($orderDiv){
 		var $orderHeaderDiv=$orderDiv.find('div#order_header');
 		var $orderItemsDiv=$orderDiv.find('div#order_items');
-	
+		
+		var lineNumber=$orderDiv.attr('data-line_number');
+		
 		var orderJson={
 				'id'				: 	Number($orderHeaderDiv.find('input#document_number').val()),
 				'companyCode'		:	'07',
@@ -373,15 +381,16 @@ var PurchaseOrder=(function(){
 				'documentDate'		:	$orderHeaderDiv.find('input#po_date').val(),
 				'vendor'			:	$orderHeaderDiv.find('input#vendor').val(),
 				'supplierPlant'		:	$orderHeaderDiv.find('input#plant').val(),
-				'yourReference'		:	$orderHeaderDiv.find('input#yourReference').val(),
-				'ourReference'		:	$orderHeaderDiv.find('input#ourReference').val(),
+				'yourReference'		:	$orderHeaderDiv.find('input#your_reference').val(),
+				'ourReference'		:	$orderHeaderDiv.find('input#our_reference').val(),
 				'lineItems'			:	_getOrderLineItems(
 											$orderItemsDiv,
 											Number($orderHeaderDiv.find('input#document_number').val()),
 											$orderHeaderDiv.find('input#plant').val(),
 											$orderHeaderDiv.find('input#storage_loc').val()
 										),
-				'metaData'			:	$orderDiv.data('line_number')
+				'metaData'			:	lineNumber,
+				'test'				:	$orderDiv.find('input.chk_testrun').is(':checked')
 		}
 		
 		return orderJson;
@@ -423,7 +432,7 @@ var PurchaseOrder=(function(){
 			textLineJson={
 					'poId'		: po,
 					'item'		: itemNo,
-					'textId'	: 'HMMM',
+					'textId'	: 'F02',
 					'textForm'  : '*',
 					'textLine'	: lines[i]
 			}

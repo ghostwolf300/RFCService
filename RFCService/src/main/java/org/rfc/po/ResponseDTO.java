@@ -10,7 +10,7 @@ public class ResponseDTO implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private int poNumber;
+	private long poNumber=-1;
 	private int statuCode;
 	private String message;
 	private String metaData;
@@ -21,11 +21,11 @@ public class ResponseDTO implements Serializable {
 		super();
 	}
 
-	public int getPoNumber() {
+	public long getPoNumber() {
 		return poNumber;
 	}
 
-	public void setPoNumber(int poNumber) {
+	public void setPoNumber(long poNumber) {
 		this.poNumber = poNumber;
 	}
 
