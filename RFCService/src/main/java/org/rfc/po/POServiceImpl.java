@@ -30,11 +30,11 @@ public class POServiceImpl implements POService {
 		
 		//try to save order
 		ResponseDTO response=null;
-		SapSystem sap=null;
+	
 		try {
 			//sap=factory.getSapSystem("TETCLNT280");
 			//if this is a new order...
-			response=createOrder(order,sap);
+			response=createOrder(order);
 		} 
 		catch (JCoException e) {
 			// TODO Auto-generated catch block
@@ -44,7 +44,7 @@ public class POServiceImpl implements POService {
 		return response;
 	}
 	
-	private ResponseDTO createOrder(PurchaseOrderDTO order,SapSystem sap) throws JCoException {
+	private ResponseDTO createOrder(PurchaseOrderDTO order) throws JCoException {
 		JCoDestination destination=sapService.getDestination();
 		ResponseDTO response=new ResponseDTO();
 		response.setMetaData(order.getMetaData());
@@ -174,6 +174,47 @@ public class POServiceImpl implements POService {
 		
 		return lines;
 	}
+	
+	public PurchaseOrderDTO getDetails(long poId) {
+		PurchaseOrderDTO order=null;
+		
+		JCoFunctionTemplate functionTemplate=null;
+		JCoFunction fGetDetail=null;
+		JCoParameterList imports=null;
+		JCoParameterList exports=null;
+		JCoParameterList tables=null;
+		
+		JCoDestination destination=sapService.getDestination();
+		
+		try {
+			functionTemplate=destination.getRepository().getFunctionTemplate("BAPI_PO_GETDETAIL1");		
+		}
+		catch(JCoException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		fGetDetail=functionTemplate.getFunction();
+		imports=fGetDetail.getImportParameterList();
+		exports=fGetDetail.getExportParameterList();
+		tables=fGetDetail.getTableParameterList();
+		
+		imports.setValue("PURCHASEORDER", poId);
+		
+		JCoContext.begin(destination);
+		
+		try {
+			fGetDetail.execute(destination);
+		} 
+		catch (JCoException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		return order;
+	}
+	
+	
 
 	
 }

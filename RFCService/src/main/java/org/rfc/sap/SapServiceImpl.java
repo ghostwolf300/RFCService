@@ -8,9 +8,12 @@ import com.sap.conn.jco.JCoDestination;
 import com.sap.conn.jco.JCoDestinationManager;
 import com.sap.conn.jco.JCoException;
 import com.sap.conn.jco.ext.DestinationDataProvider;
+import com.sap.conn.jco.ext.Environment;
 
 @Service("sapService")
 public class SapServiceImpl implements SapService {
+	
+	private static CustomDestinationDataProvider dataProvider=null;
 	
 	private JCoDestination destination;
 	
@@ -19,17 +22,26 @@ public class SapServiceImpl implements SapService {
 		
 		Properties connProp=this.getConnectionProperties(user);
 		String destinationName=user.getUserName()+"_"+user.getClient();
-		CustomDestinationDataProvider dataProvider=new CustomDestinationDataProvider();
 		
-		try{
-			com.sap.conn.jco.ext.Environment.registerDestinationDataProvider(dataProvider);
+		if(Environment.isDestinationDataProviderRegistered()==false) {
+			dataProvider=new CustomDestinationDataProvider();
+			System.out.println("Registering data provider.");
+			try{
+				Environment.registerDestinationDataProvider(dataProvider);
+			}
+			catch(IllegalStateException e){
+				//already registered...
+				e.printStackTrace();
+				//System.out.println("Data provider already registered");
+			}
 		}
-		catch(IllegalStateException e){
-			//already registered...
-			System.out.println("Data provider already registered");
+		else {
+			System.out.println("Data provider is already registered.");
 		}
-		System.out.println("Setting properties...");
+		
+		System.out.println("Destination : "+destinationName+" setting properties");
 		dataProvider.setDestinationProperties(destinationName, connProp);
+		
 		
 		try {
 			System.out.println("Ping destination");
@@ -37,8 +49,7 @@ public class SapServiceImpl implements SapService {
 			destination.ping();
 		} 
 		catch (JCoException e) {
-			System.out.println("Ping failed. Unregistering data provider.");
-			
+			System.out.println("Ping failed!");
 			return false;
 		}
 
@@ -86,5 +97,5 @@ public class SapServiceImpl implements SapService {
 	public JCoDestination getDestination() {
 		return destination;
 	}
-
+	
 }

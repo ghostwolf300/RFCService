@@ -20,6 +20,7 @@ public class POItemDTO implements Serializable {
 	private String taxCode;
 	private List<POItemTextDTO> textLines;
 	private PODeliveryAddressDTO address;
+	private List<POConfirmationDTO> confirmations;
 	
 	public POItemDTO() {
 		super();
@@ -103,6 +104,14 @@ public class POItemDTO implements Serializable {
 
 	public void setAddress(PODeliveryAddressDTO address) {
 		this.address = address;
+	}
+
+	public List<POConfirmationDTO> getConfirmations() {
+		return confirmations;
+	}
+
+	public void setConfirmation(List<POConfirmationDTO> confirmations) {
+		this.confirmations = confirmations;
 	}
 
 	public static long getSerialversionuid() {

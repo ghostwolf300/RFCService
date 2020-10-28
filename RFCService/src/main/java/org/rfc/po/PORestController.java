@@ -20,12 +20,18 @@ public class PORestController {
 	public ResponseEntity<?> saveOrder(@RequestBody PurchaseOrderDTO order){
 		ResponseDTO response=poService.saveOrder(order);
 		
-		for(ResponseLineDTO line : response.getLines()) {
-			System.out.println(line.getType()+"\t"+line.getNumber()+"\t"+line.getId()+"\t"+line.getRow()+"\t"+line.getMessage());
-		}
+		//for(ResponseLineDTO line : response.getLines()) {
+		//	System.out.println(line.getType()+"\t"+line.getNumber()+"\t"+line.getId()+"\t"+line.getRow()+"\t"+line.getMessage());
+		//}
 		
 		return new ResponseEntity<ResponseDTO>(response,HttpStatus.OK);
 	}
+	
+	
+	public ResponseEntity<?> getConfirmations(){
+		return null;
+	}
+	
 	
 	
 	
