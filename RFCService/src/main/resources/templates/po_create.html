@@ -13,7 +13,8 @@
 			<button type="button" id="btn_login_sap" data-toggle="modal" data-target="#sap_login_modal">SAP Login</button>
 	     	<span id="sap_user">No SAP user</span>
 			<input type="file" id="btn_choose" value="Import"/>
-			<input type="button" id="btn_add" value="Add"/>
+			<input type="button" id="btn_export" value="Export data"/>
+			<input type="hidden" id="btn_add" value="Add"/>
 			<input type="button" id="btn_save_all" value="Save all"/>
 			<label for="btn_testrun">Test run:</label>
 			<input type="checkbox" id="chk_testrun_all" checked>
@@ -21,6 +22,8 @@
 		</div>
 	</div>
     <div th:replace="fragments/bootstrap :: login">
+    </div>
+    <div th:replace="fragments/bootstrap :: address">
     </div>
 	<div id="template">
 		<div th:replace="fragments/template :: po">

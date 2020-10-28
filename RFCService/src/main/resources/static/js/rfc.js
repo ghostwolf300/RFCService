@@ -87,9 +87,11 @@ var PurchaseOrder=(function(){
 	var $add;
 	var $login;
 	var $testrun;
+	var file;
 	
 	function init(){
 		$fileChooser=$('#btn_choose');
+		$export=$('#btn_export');
 		$saveAll=$('#btn_save_all');
 		$add=$('#btn_add');
 		$login=$('#sap_login_do');
@@ -102,6 +104,7 @@ var PurchaseOrder=(function(){
 		$saveAll.click(_saveAll);
 		$login.click(_loginSap);
 		$fileChooser.change(_importFile);
+		$export.click(_exportData);
 		$testrun.change(_setTestRunAll);
 		$('input.chk_testrun').change(_setTestRunSingle);
 	}
@@ -138,7 +141,7 @@ var PurchaseOrder=(function(){
 	}
 	
 	function _importFile(){
-		var file=$fileChooser[0].files[0]
+		file=$fileChooser[0].files[0]
 		
 		var reader=new FileReader();
 		
@@ -154,6 +157,47 @@ var PurchaseOrder=(function(){
 		}
 		_clearOrders();
 		reader.readAsArrayBuffer(file);
+	}
+	
+	function _exportData(){
+		var reader=new FileReader();
+		
+		reader.onloadend=function(event){
+			var arrayBuffer=reader.result;
+			var options={type : 'array'};
+			var workbook=XLSX.read(arrayBuffer,options);
+			var sheetName=workbook.SheetNames;
+			var sheet=workbook.Sheets[sheetName];
+			var rows=XLSX.utils.sheet_to_row_object_array(sheet);
+			var idMap=_getPurchaseOrderIds();
+			console.log(idMap);
+			for(var i=0;i<rows.length;i++){
+				let row=rows[i];
+				let poId=idMap.get(row.orderNum);
+				if(poId){
+					console.log(row);
+					sheet[XLSX.utils.encode_cell({r: i+1, c: 0})] = {t: 's', v: poId};
+				}
+			}
+			XLSX.writeFile(workbook,'Create PO - results.xlsx');
+		}
+		
+		if(file){
+			reader.readAsArrayBuffer(file);
+		}
+	}
+	
+	function _getPurchaseOrderIds(){
+		var idMap=new Map();
+		
+		$('div#orders>div#order').each(function(){
+			let lineNumber=$(this).data('line_number');
+			let poId=$(this).find('div#order_header input#document_number').val();
+			//console.log(lineNumber+' '+poId);
+			idMap.set(lineNumber,poId);
+		});
+		
+		return idMap;
 	}
 	
 	function _setTestRunAll(){
@@ -247,17 +291,39 @@ var PurchaseOrder=(function(){
 		else{
 			itemNo=rowCount*10+10;
 		}
-		$tbody.append(_getItemRow(item,itemNo));
+		$tbody.append(_getItemRow(item,orderNum,itemNo));
 		
 	}
 	
-	function _getItemRow(item,itemNo){
+	function _getItemRow(item,orderNum,itemNum){
 		$tr=$('div.order_template').find('table.order_items_table tbody>tr').clone();
-		$tr.find('input#item_no').val(itemNo);
+		$tr.find('input#item_no').val(itemNum);
 		$tr.find('input#material').val(item.material);
 		$tr.find('input#quantity').val(item.qty);
 		$tr.find('input#tax_code').val(item.taxCode);
 		$tr.find('textarea#item_text').text(item.text);
+		var $address=$tr.find('a#address');
+		var addressJson={
+				'title'			: item.title,
+				'name1'			: item.name1,
+				'name2'			: item.name2,
+				'street'		: item.street,
+				'houseNumber'	: item.houseNumber,
+				'postCode'		: item.postCode,
+				'city'			: item.city,
+				'countryCode'	: item.countryCode
+		}
+		
+		$address.data('json',addressJson);
+		$address.text(addressJson.name1+' '
+						+((addressJson.name2) ? addressJson.name2 + ' ' : '' )
+						+addressJson.street+' '
+						+addressJson.houseNumber+' '
+						+addressJson.postCode+' '
+						+addressJson.city);
+		$address.on('click',{orderNum : orderNum,itemNum : itemNum},_changeAddress);
+		
+		//$address.attr('onclick','PurchaseOrder.changeAddress('+orderNum+')');
 		return $tr;
 	}
 	
@@ -294,6 +360,7 @@ var PurchaseOrder=(function(){
 	}
 	
 	function saveSingle(lineNum){
+		
 		console.log('Saving order '+lineNum);
 		var $orderDiv=$('div#orders').find("[data-line_number='"+lineNum+"']")
 		var orderJson=_getOrderJSON($orderDiv);
@@ -414,7 +481,8 @@ var PurchaseOrder=(function(){
 					'quantity'			:	Number($(this).find('input#quantity').val()),
 					'valuationType'		:	'',
 					'taxCode'			:	$(this).find('input#tax_code').val(),
-					'textLines'			: _getItemTextLines(po,itemNo,$(this).find('textarea#item_text'))
+					'textLines'			: _getItemTextLines(po,itemNo,$(this).find('textarea#item_text')),
+					'address'			: $(this).find('a#address').data('json')
 			}
 			itemsArr.push(lineItemJson);
 		});
@@ -442,9 +510,14 @@ var PurchaseOrder=(function(){
 		return textArr;
 	}
 	
+	function _changeAddress(event){
+		var $address=$(event.target);
+		var addressJson=$address.data('json');
+	}
+	
 	return{
-		init : init,
-		saveSingle : saveSingle
+		init 			: init,
+		saveSingle 		: saveSingle
 	}
 	
 })();

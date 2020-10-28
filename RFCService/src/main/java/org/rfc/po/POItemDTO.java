@@ -19,6 +19,7 @@ public class POItemDTO implements Serializable {
 	private String valuationType;
 	private String taxCode;
 	private List<POItemTextDTO> textLines;
+	private PODeliveryAddressDTO address;
 	
 	public POItemDTO() {
 		super();
@@ -94,6 +95,14 @@ public class POItemDTO implements Serializable {
 
 	public void setTextLines(List<POItemTextDTO> textLines) {
 		this.textLines = textLines;
+	}
+
+	public PODeliveryAddressDTO getAddress() {
+		return address;
+	}
+
+	public void setAddress(PODeliveryAddressDTO address) {
+		this.address = address;
 	}
 
 	public static long getSerialversionuid() {

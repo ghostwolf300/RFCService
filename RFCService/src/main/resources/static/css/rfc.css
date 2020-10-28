@@ -53,7 +53,7 @@ div.order_items{
 
 table.order_items_table{
 	table-layout: fixed;
-	width: 900px;
+	width: 1100px;
 }
 
 table.order_items_table>thead{
@@ -61,7 +61,7 @@ table.order_items_table>thead{
 }
 
 table.order_items_table th:nth-child(1){
-	width: 40px;
+	width: 60px;
 }
 
 table.order_items_table th:nth-child(2){
@@ -79,10 +79,14 @@ table.order_items_table th:nth-child(5){
 	width: 200px;
 }
 table.order_items_table th:nth-child(6){
-	width: 300px;
+	width: 400px;
 }
 table.order_items_table th:nth-child(7){
 	width: 40px;
+}
+
+table.order_items_table tr{
+	vertical-align: top;
 }
 
 td>input{
@@ -171,5 +175,36 @@ div#ajaxInner{
             color: #f00;
             padding-left: 23px;
         }
+
+#address_change_modal {
+    color: #1fa67b;
+}
+
+    #address_change_modal table {
+        position: relative;
+        margin: auto;
+    }
+
+        #address_change_modal table input {
+            border-radius: 5px;
+            border: solid 1px #CCC;
+            margin: 10px;
+            padding: 3px 10px;
+            color: #000;
+        }
+
+            #address_change_modal table input[type="button"] {
+                width: 94%;
+                background: #1fa67b;
+                color: #FFF;
+            }
+
+        #address_change_modal table span {
+            float: left;
+            font-size: 12px;
+            color: #f00;
+            padding-left: 23px;
+        }
+
 
 /* End Bootstrap */

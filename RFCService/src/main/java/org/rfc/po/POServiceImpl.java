@@ -68,14 +68,13 @@ public class POServiceImpl implements POService {
 		JCoTable poItemX=tables.getTable("POITEMX");
 		
 		JCoTable poItemText=tables.getTable("POTEXTITEM");
+		JCoTable poAddressDelivery=tables.getTable("POADDRDELIVERY");
 		
 		JCoTable messages=tables.getTable("RETURN");
 		
 		if(order.isTest()) {
 			imports.setValue("TESTRUN", "X");
 		}
-		
-		System.out.println("POHEADER fields: "+poHeader.getFieldCount());
 		
 		poHeader.setValue("COMP_CODE", order.getCompanyCode());
 		poHeader.setValue("DOC_TYPE", order.getDocumentType());
@@ -122,6 +121,20 @@ public class POServiceImpl implements POService {
 				poItemText.setValue("TEXT_ID", textLine.getTextId());
 				poItemText.setValue("TEXT_FORM", textLine.getTextForm());
 				poItemText.setValue("TEXT_LINE", textLine.getTextLine());
+			}
+			
+			if(item.getAddress()!=null) {
+				PODeliveryAddressDTO address=item.getAddress();
+				poAddressDelivery.appendRow();
+				poAddressDelivery.setValue("PO_ITEM", item.getItem());
+				poAddressDelivery.setValue("FORMOFADDR", address.getTitle());
+				poAddressDelivery.setValue("NAME", address.getName1());
+				poAddressDelivery.setValue("NAME_2", address.getName2());
+				poAddressDelivery.setValue("STREET", address.getStreet());
+				poAddressDelivery.setValue("HOUSE_NO", address.getHouseNumber());
+				poAddressDelivery.setValue("POSTL_COD1", address.getPostCode());
+				poAddressDelivery.setValue("CITY", address.getCity());
+				poAddressDelivery.setValue("COUNTRY",address.getCountryCode());
 			}
 		}
 		

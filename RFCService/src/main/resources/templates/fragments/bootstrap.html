@@ -50,4 +50,56 @@
       	</div>
     </div>
     <!-- END Bootstrap Modal -->
+    <div th:fragment="address" id="address_change_modal" class="modal fade" role="dialog">
+    	<div class="modal-dialog">
+    		<div class="modal-content">
+		    	<div class="modal-header">
+		    		<h4 class="modal-title">Change address</h4>
+		            <button type="button" class="close" data-dismiss="modal">&times;</button>
+		    	</div>
+		    	<div class="modal-body">
+		    		<table>
+		    			<tbody>
+		    				<tr>
+		    					<td>Title:</td>
+		    					<td><input id="address_title" type="text"></td>
+		    					<td></td>
+		    				</tr>
+		    				<tr>
+		    					<td>Name 1:</td>
+		    					<td><input id="address_name1" type="text"></td>
+		    					<td></td>
+		    				</tr>
+		    				<tr>
+		    					<td>Name 2:</td>
+		    					<td><input id="address_name2" type="text"></td>
+		    					<td></td>
+		    				</tr>
+		    				<tr>
+		    					<td>Street:</td>
+		    					<td><input id="address_street" type="text"></td>
+		    					<td><input id="address_street_num" type="text"></td>
+		    				</tr>
+		    				<tr>
+		    					<td>Postcode:</td>
+		    					<td><input id="address_postcode" type="text"></td>
+		    					<td></td>
+		    				</tr>
+		    				<tr>
+		    					<td>City:</td>
+		    					<td><input id="address_city" type="text"></td>
+		    					<td></td>
+		    				</tr>
+		    				<tr>
+		    					<td><input id="btn_save_address" type="button" value="Save"></td>
+		    				</tr>
+		    			</tbody>
+		    		</table>
+		    	</div>
+		    	<div class="modal-footer">
+		    		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		    	</div>
+	    	</div>
+    	</div>
+    </div>
 </html>

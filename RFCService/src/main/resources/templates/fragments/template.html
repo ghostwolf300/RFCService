@@ -4,7 +4,7 @@
 		<div class="order_controls">
 			<input type="button" class="btn_save_single" value="Save"/>
 			<label for="chk_testrun">Test run:</label><input id="chk_testrun" type="checkbox" class="chk_testrun" checked>
-			<input type="button" class="btn_remove_single" value="Del">
+			<input type="hidden" class="btn_remove_single" value="Del">
 		</div>
 		<div id="order_header" class="order_header">
 			<div>
@@ -45,7 +45,7 @@
 		</div>
 		<div id="order_items" class="order_items">
 			<div>
-				<input id="btn_add_row" type="button" value="Add row">
+				<input id="btn_add_row" type="hidden" value="Add row">
 			</div>
 			<table id="order_items_table" class="order_items_table">
 				<thead>
@@ -62,13 +62,13 @@
 				</thead>
 				<tbody>
 					<tr>
-						<td><input id="item_no" type="number"></td>
+						<td><input id="item_no" type="number" disabled></td>
 						<td><input id="material" type="text"></td>
 						<td><input id="quantity" type="number"></td>
 						<td><input id="tax_code" type="text"></td>
 						<td><textarea id="item_text"></textarea></td>
-						<td><input id="address_text" type="text" value="Wihuri Oy;Manttaalitie 9;01530;Vantaa"></td>
-						<td><input type="button" value="Del"></td>
+						<td><a href="#" id="address" data-json="" data-toggle="modal" data-target="#address_change_modal">Text here</a></td>
+						<td><input type="hidden" value="Del"></td>
 					</tr>
 				</tbody>
 			</table>
