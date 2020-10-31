@@ -1,8 +1,7 @@
 package org.rfc.exception;
 
 
-
-public class RFCException extends Exception {
+public class RFCException extends RuntimeException {
 
 	/**
 	 * 
@@ -16,8 +15,8 @@ public class RFCException extends Exception {
 		this.code=code;
 	}
 	
-	public RFCException(int code,String message,Throwable err) {
-		super(message,err);
+	public RFCException(int code,String message,Throwable cause) {
+		super(message,cause);
 		this.code=code;
 	}
 

@@ -24,29 +24,16 @@ public class PORestController {
 	@ResponseBody
 	public ResponseEntity<?> saveOrder(@RequestBody PurchaseOrderDTO order){
 		ResponseDTO response=null;
-		try {
-			response = poService.saveOrder(order);
-			return new ResponseEntity<ResponseDTO>(response,HttpStatus.OK);
-		} 
-		catch (RFCException e) {
-			ExceptionDTO ex=new ExceptionDTO(e);
-			return new ResponseEntity<ExceptionDTO>(ex,HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		response = poService.saveOrder(order);
+		return new ResponseEntity<ResponseDTO>(response,HttpStatus.OK);
 	}
 	
 	@GetMapping(value="/po/find",produces="application/json")
 	@ResponseBody
 	public ResponseEntity<?> getConfirmations(@RequestParam long poId){
 		PurchaseOrderDTO order=null;
-		try {
-			order = poService.getDetails(poId);
-			return new ResponseEntity<PurchaseOrderDTO>(order,HttpStatus.OK);
-		} 
-		catch (RFCException e) {
-			ExceptionDTO ex=new ExceptionDTO(e);
-			return new ResponseEntity<ExceptionDTO>(ex,HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		
+		order = poService.getDetails(poId);
+		return new ResponseEntity<PurchaseOrderDTO>(order,HttpStatus.OK);
 	}
 	
 	
