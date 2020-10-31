@@ -2,6 +2,7 @@ package org.rfc.sap;
 
 import java.util.Properties;
 
+import org.rfc.exception.RFCException;
 import org.springframework.stereotype.Service;
 
 import com.sap.conn.jco.JCoDestination;
@@ -94,8 +95,24 @@ public class SapServiceImpl implements SapService {
 	}
 
 	@Override
-	public JCoDestination getDestination() {
+	public JCoDestination getDestination() throws RFCException {
+		if(destination==null) {
+			throw new RFCException(90,"No SAP system!");
+		}
+		else if(destinationIsAlive()==false) {
+			throw new RFCException(95,"SAP system not reachable!");
+		}
 		return destination;
+	}
+	
+	private boolean destinationIsAlive() {
+		try {
+			destination.ping();
+		} 
+		catch (JCoException e) {
+			return false;
+		}
+		return true;
 	}
 	
 }

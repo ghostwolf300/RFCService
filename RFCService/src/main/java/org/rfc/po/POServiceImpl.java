@@ -1,8 +1,13 @@
 package org.rfc.po;
 
+import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.rfc.exception.RFCException;
 import org.rfc.sap.SapService;
 import org.rfc.sap.SapSystem;
 import org.rfc.sap.SapSystemFactory;
@@ -26,40 +31,41 @@ public class POServiceImpl implements POService {
 	
 	public final SapSystemFactory factory=new SapSystemFactory();
 	
-	public ResponseDTO saveOrder(PurchaseOrderDTO order) {
-		
-		//try to save order
+	public ResponseDTO saveOrder(PurchaseOrderDTO order) throws RFCException{
 		ResponseDTO response=null;
-	
-		try {
-			//sap=factory.getSapSystem("TETCLNT280");
-			//if this is a new order...
-			response=createOrder(order);
-		} 
-		catch (JCoException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+		response=createOrder(order);
 		return response;
 	}
 	
-	private ResponseDTO createOrder(PurchaseOrderDTO order) throws JCoException {
-		JCoDestination destination=sapService.getDestination();
-		ResponseDTO response=new ResponseDTO();
-		response.setMetaData(order.getMetaData());
-		response.setTest(order.isTest());
+	private ResponseDTO createOrder(PurchaseOrderDTO order) throws RFCException {
 		
 		JCoFunctionTemplate functionTemplate=null;
+		JCoFunction fCreatePO=null;
+		JCoFunction fCommit=null;
+		JCoParameterList imports=null;
+		JCoParameterList exports=null;
+		JCoParameterList tables=null;
 		
-		functionTemplate=destination.getRepository().getFunctionTemplate("BAPI_PO_CREATE1");
-		JCoFunction fCreatePO=functionTemplate.getFunction();
-		functionTemplate=destination.getRepository().getFunctionTemplate("BAPI_TRANSACTION_COMMIT");
-		JCoFunction fCommit=functionTemplate.getFunction();
+		JCoDestination destination=sapService.getDestination();
 		
-		JCoParameterList imports=fCreatePO.getImportParameterList();
-		JCoParameterList exports=fCreatePO.getExportParameterList();
-		JCoParameterList tables=fCreatePO.getTableParameterList();
+		try {
+			functionTemplate=destination.getRepository().getFunctionTemplate("BAPI_PO_CREATE1");
+			fCreatePO=functionTemplate.getFunction();
+		}
+		catch(JCoException e) {
+			throw new RFCException(120,"Function BAPI_PO_CREATE1 not found!",e);
+		}
+		try {
+			functionTemplate=destination.getRepository().getFunctionTemplate("BAPI_TRANSACTION_COMMIT");
+			fCommit=functionTemplate.getFunction();
+		}
+		catch(JCoException e) {
+			throw new RFCException(120,"Function BAPI_TRANSACTION_COMMIT not found!",e);
+		}
+		
+		imports=fCreatePO.getImportParameterList();
+		exports=fCreatePO.getExportParameterList();
+		tables=fCreatePO.getTableParameterList();
 		
 		JCoStructure poHeader=imports.getStructure("POHEADER");
 		JCoStructure poHeaderX=imports.getStructure("POHEADERX");
@@ -138,15 +144,32 @@ public class POServiceImpl implements POService {
 			}
 		}
 		
-		JCoContext.begin(destination);
-		fCreatePO.execute(destination);
+		try {
+			JCoContext.begin(destination);
+			fCreatePO.execute(destination);
+			fCommit.execute(destination);
+		}
+		catch(JCoException e) {
+			throw new RFCException(130,"RFC call failed!",e);
+		}
+		finally {
+			try {
+				JCoContext.end(destination);
+			} 
+			catch (JCoException e) {
+				throw new RFCException(140,"Encountered error when closing connection.",e);
+			}
+		}
 		
+		ResponseDTO response=new ResponseDTO();
+		response.setMetaData(order.getMetaData());
+		response.setTest(order.isTest());
 		response.setLines(createResponseLines(messages));
 		
 		String poNumber=exports.getString("EXPPURCHASEORDER");
 		System.out.println("PO created: "+poNumber);
 		if(poNumber!=null && !poNumber.isEmpty()) {
-			fCommit.execute(destination);
+			
 			response.setPoNumber(Long.parseLong(poNumber));
 		}
 		
@@ -175,7 +198,8 @@ public class POServiceImpl implements POService {
 		return lines;
 	}
 	
-	public PurchaseOrderDTO getDetails(long poId) {
+	public PurchaseOrderDTO getDetails(long poId) throws RFCException {
+		
 		PurchaseOrderDTO order=null;
 		
 		JCoFunctionTemplate functionTemplate=null;
@@ -191,7 +215,7 @@ public class POServiceImpl implements POService {
 		}
 		catch(JCoException e) {
 			e.printStackTrace();
-			return null;
+			throw new RFCException(120,"Function BAPI_PO_GETDETAIL1 not found!",e);
 		}
 		
 		fGetDetail=functionTemplate.getFunction();
@@ -199,19 +223,114 @@ public class POServiceImpl implements POService {
 		exports=fGetDetail.getExportParameterList();
 		tables=fGetDetail.getTableParameterList();
 		
+		JCoStructure hdr=exports.getStructure("POHEADER");
+		JCoTable it=tables.getTable("POITEM");
+		JCoTable ct=tables.getTable("POCONFIRMATION");
+		JCoTable rt=tables.getTable("RETURN");
+		
 		imports.setValue("PURCHASEORDER", poId);
 		
-		JCoContext.begin(destination);
 		
 		try {
+			JCoContext.begin(destination);
 			fGetDetail.execute(destination);
-		} 
-		catch (JCoException e) {
-			e.printStackTrace();
-			return null;
+		}
+		catch(JCoException e){
+			throw new RFCException(130,"RFC call failed!",e);
+		}
+		finally {
+			try {
+				JCoContext.end(destination);
+			} 
+			catch (JCoException e) {
+				throw new RFCException(140,"Encountered error when closing connection.",e);
+			}
 		}
 		
+		if(rt.getNumRows()>0) {
+			String message=rt.getString("MESSAGE");
+			throw new RFCException(310,message);
+		}
+		
+		order=createPurchaseOrder(hdr,it,ct);
+		
 		return order;
+	}
+	
+	private PurchaseOrderDTO createPurchaseOrder(JCoStructure hdr,JCoTable items,JCoTable confirmations) {
+		PurchaseOrderDTO order=new PurchaseOrderDTO();
+		order.setId(hdr.getLong("PO_NUMBER"));
+		order.setCompanyCode(hdr.getString("COMP_CODE"));
+		order.setDocumentType(hdr.getString("DOC_TYPE"));
+		order.setStatus(hdr.getString("STATUS"));
+		order.setCreatedDate(new Date(hdr.getDate("CREAT_DATE").getTime()));
+		order.setCreatedBy(hdr.getString("CREATED_BY"));
+		order.setVendor(hdr.getString("VENDOR"));
+		order.setPurchasingOrg(hdr.getString("PURCH_ORG"));
+		order.setPurchasingGroup(hdr.getString("PUR_GROUP"));
+		order.setDocumentDate(new Date(hdr.getDate("DOC_DATE").getTime()));
+		
+		Map<Integer,POItemDTO> itemMap=createItemMap(items);
+		Map<Integer,List<POConfirmationDTO>> confMap=createConfirmationsMap(confirmations);
+		
+		for(Integer itemNum : itemMap.keySet()) {
+			POItemDTO item=itemMap.get(itemNum);
+			item.setConfirmations(confMap.get(itemNum));
+		}
+		
+		List<Integer> sortedKeys=new ArrayList<Integer>(itemMap.keySet());
+		Collections.sort(sortedKeys);
+		
+		List<POItemDTO> itemList=new ArrayList<POItemDTO>();
+		
+		for(Integer itemNum : sortedKeys) {
+			itemList.add(itemMap.get(itemNum));
+		}
+		
+		order.setLineItems(itemList);
+	
+		return order;
+	}
+	
+	private Map<Integer,POItemDTO> createItemMap(JCoTable it){
+		Map<Integer,POItemDTO> itemMap=new HashMap<Integer,POItemDTO>();
+		do {
+			POItemDTO item=new POItemDTO();
+			item.setItem(it.getInt("PO_ITEM"));
+			item.setMaterial(it.getString("MATERIAL"));
+			item.setQuantity(it.getDouble("QUANTITY"));
+			item.setPlant(it.getString("PLANT"));
+			item.setStorageLocation(it.getString("STGE_LOC"));
+			item.setTaxCode(it.getString("TAX_CODE"));
+			itemMap.put(item.getItem(), item);
+		}
+		while(it.nextRow());
+		
+		return itemMap;
+	}
+	
+	private Map<Integer,List<POConfirmationDTO>> createConfirmationsMap(JCoTable ct){
+		Map<Integer,List<POConfirmationDTO>> confMap=new HashMap<Integer,List<POConfirmationDTO>>();
+		do {
+			int itemNum=ct.getInt("PO_ITEM");
+			List<POConfirmationDTO> confList=confMap.get(itemNum);
+			if(confList==null) {
+				confList=new ArrayList<POConfirmationDTO>();
+				confMap.put(itemNum, confList);
+			}
+			POConfirmationDTO conf=new POConfirmationDTO();
+			conf.setItem(itemNum);
+			conf.setControlKey(ct.getString("CONF_SER"));
+			conf.setType(ct.getString("CONF_TYPE"));
+			conf.setName(ct.getString("CONF_NAME"));
+			conf.setQuantity(ct.getDouble("QUANTITY"));
+			conf.setDeliveryDate(new Date(ct.getDate("DELIV_DATE").getTime()));
+			conf.setReferenceDoc(ct.getString("EXT_DOC_LONG"));
+			confList.add(conf);
+		}
+		while(ct.nextRow());
+		
+		return confMap;
 	}
 	
 	

@@ -110,7 +110,7 @@ public class POItemDTO implements Serializable {
 		return confirmations;
 	}
 
-	public void setConfirmation(List<POConfirmationDTO> confirmations) {
+	public void setConfirmations(List<POConfirmationDTO> confirmations) {
 		this.confirmations = confirmations;
 	}
 

@@ -11,6 +11,12 @@ div#top{
     padding: 6px;
 }
 
+div.sap_connection{
+	margin-top: 10px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
 div#orders{
 	margin-left: 10px;
 }

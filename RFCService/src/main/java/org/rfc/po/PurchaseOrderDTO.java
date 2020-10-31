@@ -24,6 +24,9 @@ public class PurchaseOrderDTO implements Serializable {
 	private List<POItemDTO> lineItems=null;
 	private String metaData;
 	private boolean test=true;
+	private Date createdDate;
+	private String createdBy;
+	private String status;
 	
 	public PurchaseOrderDTO() {
 		super();
@@ -131,6 +134,30 @@ public class PurchaseOrderDTO implements Serializable {
 
 	public void setTest(boolean test) {
 		this.test = test;
+	}
+
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	public static long getSerialversionuid() {

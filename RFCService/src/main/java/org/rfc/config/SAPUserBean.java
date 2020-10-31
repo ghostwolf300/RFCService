@@ -1,20 +1,24 @@
-package org.rfc.sap;
+package org.rfc.config;
 
-import java.io.Serializable;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.SessionScope;
 
-public class SapUserDTO implements Serializable {
-	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+@Component("sapUserBean")
+@SessionScope
+public class SAPUserBean {
 	
 	private String userName;
 	private String password;
 	private String client;
 	
-	public SapUserDTO() {
+	public SAPUserBean() {
 		super();
+	}
+	
+	public SAPUserBean(String userName,String password,String client) {
+		this.userName=userName;
+		this.password=password;
+		this.client=client;
 	}
 
 	public String getUserName() {
@@ -41,18 +45,12 @@ public class SapUserDTO implements Serializable {
 		this.client = client;
 	}
 	
-	public void copyUser(SapUserDTO user) {
-		this.userName=user.userName;
-		this.password=user.password;
-		this.client=user.client;
-	}
-	
 	public String getUserString() {
-		if(this.userName!=null && this.client!=null) {
-			return userName+"_"+client;
+		if(userName==null) {
+			return "No SAP user!";
 		}
 		else {
-			return "No SAP user!";
+			return userName+"_"+client;
 		}
 	}
 	

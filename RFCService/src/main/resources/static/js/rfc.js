@@ -38,10 +38,17 @@ function initPage(){
  	}
  	else if(viewId==2){
  		MessageBar.init();
+ 		SAPConnection.init();
  		PurchaseOrder.init();
- 		console.log('po');
+ 		console.log('create po');
  	}
-	
+ 	else if(viewId==3){
+ 		MessageBar.init();
+ 		SAPConnection.init();
+ 		PODetails.init();
+ 		console.log('view po');
+ 	}
+ 	
 }
 
 var MessageBar=(function(){
@@ -249,10 +256,10 @@ var PurchaseOrder=(function(){
 		
 		$orderHeaderDiv.find('input#vendor').val(header.supplier);
 		$orderHeaderDiv.find('input#order_type').val(header.orderType);
-		$orderHeaderDiv.find('input#po_date').val(_getHtmlDate(header.poDate));
+		$orderHeaderDiv.find('input#po_date').val(Util.getHtmlDate(header.poDate));
 		$orderHeaderDiv.find('input#purch_org').val(header.purchOrg);
 		$orderHeaderDiv.find('input#purch_group').val(header.purchGroup);
-		$orderHeaderDiv.find('input#delivery_date').val(_getHtmlDate(header.deliveryDate));
+		$orderHeaderDiv.find('input#delivery_date').val(Util.getHtmlDate(header.deliveryDate));
 		$orderHeaderDiv.find('input#plant').val(header.plant);
 		$orderHeaderDiv.find('input#storage_loc').val(header.storageLoc);
 		$orderHeaderDiv.find('input#your_reference').val(header.yourReference);
@@ -262,20 +269,6 @@ var PurchaseOrder=(function(){
 		$tbody.empty();
 		
 		$orderDiv.appendTo('div#orders');
-	}
-	
-	function _getHtmlDate(dateValue){
-		var d=_convertExcelDateValue(dateValue);
-		var day=("0" + d.getDate()).slice(-2);
-		var month=("0" + (d.getMonth() + 1)).slice(-2);
-		var dateString=d.getFullYear()+"-"+month+"-"+day
-		console.log(dateString);
-		return dateString;
-		
-	}
-	
-	function _convertExcelDateValue(dateValue){
-		return new Date((dateValue - (25567 + 1))*86400*1000)
 	}
 	
 	function _createOrderItem(orderNum,item){
@@ -518,6 +511,174 @@ var PurchaseOrder=(function(){
 	return{
 		init 			: init,
 		saveSingle 		: saveSingle
+	}
+	
+})();
+
+var PODetails=(function(){
+	
+	var $btnFind;
+	
+	function init(){
+		console.log('PODetails.init')
+		$btnFind=$('input#btn_find_po');
+		_bindEventHandlers();
+	}
+	
+	function _bindEventHandlers(){
+		$btnFind.click(_findPO);
+	}
+	
+	function _findPO(){
+		
+		console.log('find PO');
+		
+		var url=contextPath+'po/find';
+		var poId=$('input#fld_find_po').val();
+		
+		$.ajax({
+			url : url,
+			method : "GET",
+			data : {
+				poId : poId
+			},
+			dataType : "json"
+		}).done(function(po){
+			_handleResponse(po);
+		}).fail(function(e){
+			let err=e.responseJSON;
+			MessageBar.showError(err.code+' : '+err.message);
+		}).always(function(){
+			
+		});
+	}
+	
+	function _handleResponse(po){
+		console.log(po);
+		$header=$('div#header');
+		$header.find('span#po').text(po.id);
+		$header.find('input#created_date').val(Util.getHtmlDate2(po.createdDate));
+		$header.find('input#created_by').val(po.createdBy);
+		$header.find('input#vendor').val(po.vendor);
+		$header.find('input#order_type').val(po.documentType);
+		$header.find('input#po_date').val(Util.getHtmlDate2(po.documentDate));
+		$header.find('input#purch_org').val(po.purchasingOrg);
+		$header.find('input#purch_group').val(po.purchasingGroup);
+		$header.find('input#your_reference').val(po.yourReference);
+		$header.find('input#our_reference').val(po.ourReference);
+		
+		$items=$('div#items table#item_table>tbody');
+		$items.empty();
+		
+		po.lineItems.forEach(function(item){
+			$items.append(_getItemRow(item));
+		});
+		
+	}
+	
+	function _getItemRow(item){
+		var $row=$('<tr>'
+					+'<td>'+item.item+'</td>'
+					+'<td>'+item.material+'</td>'
+					+'<td>'+item.quantity+'</td>'
+					+'<td>'+item.plant+'</td>'
+					+'<td>'+item.storageLocation+'</td>'
+					+'<td>'+item.deliveryDate+'</td>'
+					+'<td>'+item.taxCode+'</td>'
+				+'</tr>');
+		return $row;
+	}
+	
+	return{
+		init : init
+	}
+	
+})();
+
+var Util=(function(){
+	
+	function getHtmlDate(dateValue){
+		var d=_convertExcelDateValue(dateValue);
+		var day=("0" + d.getDate()).slice(-2);
+		var month=("0" + (d.getMonth() + 1)).slice(-2);
+		var dateString=d.getFullYear()+"-"+month+"-"+day
+		//console.log(dateString);
+		return dateString;
+		
+	}
+	
+	function getHtmlDate2(ms){
+		var d=new Date(ms);
+		var day=("0" + d.getDate()).slice(-2);
+		var month=("0" + (d.getMonth() + 1)).slice(-2);
+		var dateString=d.getFullYear()+"-"+month+"-"+day
+		//console.log(dateString);
+		return dateString;
+	}
+	
+	function _convertExcelDateValue(dateValue){
+		//console.log(dateValue);
+		return new Date((dateValue - 25569)*86400*1000);
+	}
+	
+	return{
+		getHtmlDate : getHtmlDate,
+		getHtmlDate2 : getHtmlDate2
+	}
+	
+})();
+
+var SAPConnection=(function(){
+
+	var $btnLogin;
+	var $cmbClient;
+	var $fldUser;
+	var $fldPassword;
+	
+	function init(){
+		console.log('SAPConnection.init');
+		$btnLogin=$('div#sap_login_modal input#sap_login_do');
+		$cmbClient=$('div#sap_login_modal select#sap_client');
+		$fldUser=$('div#sap_login_modal input#sap_username');
+		$fldPassword=$('div#sap_login_modal input#sap_password');
+		_bindEventHandlers();
+	}
+	
+	function _bindEventHandlers(){
+		$btnLogin.click(_loginSAP);
+	}
+	
+	function _loginSAP(){
+		console.log('Login...');
+		var userJson={
+				'client' 	:	$cmbClient.val(),
+				'userName'	: 	$fldUser.val(),
+				'password'	: 	$fldPassword.val()
+		}
+		
+		var url=contextPath+'sap/login';
+		var data=JSON.stringify(userJson);
+		console.log(data);
+		
+		$.ajax({
+			url : url,
+			method : "POST",
+			data : data,
+			dataType : "json"
+		}).done(function(user){
+			console.log("Logged in");
+			MessageBar.showSuccess("Logged in");
+			$('span#sap_user').text(user.userName+" "+user.client);
+		}).fail(function(error){
+			console.log(error);
+			MessageBar.showError(error.status+": "+error.responseText);
+		}).always(function(){
+			$('div#sap_login_modal').modal('hide');
+		});
+	}
+	
+	return{
+		init : init
 	}
 	
 })();
