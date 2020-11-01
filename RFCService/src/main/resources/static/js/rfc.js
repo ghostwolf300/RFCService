@@ -53,30 +53,36 @@ function initPage(){
 
 var MessageBar=(function(){
 	
+	var $messageDiv;
 	var $messageBar;
-	var errorClass='error';
-	var successClass='success';
+	var errorClass='errorMessage';
+	var successClass='successMessage';
+	var infoClass='infoMessage';
+	var warningClass='warningClass'
 	
 	function init(){
-		$messageBar=$('#messages');
-		$messageBar.removeClass(errorClass);
-		$messageBar.removeClass(successClass);
+		$messageDiv=$('div#message_container');
+		$messageBar=$('span#message_line');
+		$messageDiv.removeClass(errorClass);
+		$messageDiv.removeClass(successClass);
+		$messageDiv.removeClass(infoClass);
+		$messageDiv.removeClass(warningClass);
 		$messageBar.text('');
-		$messageBar.hide();
+		$messageDiv.hide();
 	}
 	
 	function showSuccess(txt){
-		$messageBar.show();
+		$messageDiv.show();
 		$messageBar.text(txt);
-		$messageBar.addClass(successClass);
-		$messageBar.removeClass(errorClass);
+		$messageDiv.addClass(successClass);
+		$messageDiv.removeClass(errorClass);
 	}
 	
 	function showError(txt){
-		$messageBar.show();
+		$messageDiv.show();
 		$messageBar.text(txt);
-		$messageBar.addClass(errorClass);
-		$messageBar.removeClass(successClass);
+		$messageDiv.addClass(errorClass);
+		$messageDiv.removeClass(successClass);
 	}
 	
 	return{
@@ -109,42 +115,10 @@ var PurchaseOrder=(function(){
 	function _bindEventHandlers(){
 		$add.click(_addOrder);
 		$saveAll.click(_saveAll);
-		$login.click(_loginSap);
 		$fileChooser.change(_importFile);
 		$export.click(_exportData);
 		$testrun.change(_setTestRunAll);
 		$('input.chk_testrun').change(_setTestRunSingle);
-	}
-	
-	function _loginSap(){
-		
-		var userJson={
-				'client' 	: $('#sap_client').val(),
-				'userName'	: $('#sap_username').val(),
-				'password'	: $('#sap_password').val()
-		}
-		
-		var url=contextPath+'sap/login';
-		var data=JSON.stringify(userJson);
-		console.log(data);
-		
-		$.ajax({
-			url : url,
-			method : "POST",
-			data : data,
-			dataType : "json"
-		}).done(function(user){
-			console.log("Logged in");
-			MessageBar.showSuccess("Logged in");
-			$('#sap_user').text(user.userName+" "+user.client);
-		}).fail(function(error){
-			console.log(error);
-			MessageBar.showError(error.status+": "+error.responseText);
-		}).always(function(){
-			$('#sap_login_modal').modal('hide');
-		});
-		
-		
 	}
 	
 	function _importFile(){
@@ -371,12 +345,9 @@ var PurchaseOrder=(function(){
 			data : data,
 			dataType : "json"
 		}).done(function(response){
-			console.log("PO saved");
-			MessageBar.showSuccess("PO saved");
 			_handleResponse(response);
-		}).fail(function(error){
-			console.log(error);
-			MessageBar.showError(error.status+": "+error.responseText);
+		}).fail(function(e){
+			ErrorHandler.handle(e);
 		}).always(function(){
 			
 		});
@@ -388,6 +359,14 @@ var PurchaseOrder=(function(){
 	}
 	
 	function _handleResponse(response){
+		
+		if(response.test){
+			MessageBar.showSuccess("PO created in test mode");
+		}
+		else{
+			MessageBar.showSuccess("PO created: "+response.poNumber);
+		}
+		
 		var $orderDiv=$('div#orders').find("[data-line_number='"+response.metaData+"']")
 		var $messageDiv=$orderDiv.find('div.bapi_messages');
 		var $tbody=$messageDiv.find('tbody');
@@ -546,14 +525,14 @@ var PODetails=(function(){
 		}).done(function(po){
 			_handleResponse(po);
 		}).fail(function(e){
-			let err=e.responseJSON;
-			MessageBar.showError(err.code+' : '+err.message);
+			ErrorHandler.handle(e);
 		}).always(function(){
 			
 		});
 	}
 	
 	function _handleResponse(po){
+		MessageBar.showSuccess("PO document found");
 		console.log(po);
 		$header=$('div#header');
 		$header.find('span#po').text(po.id);
@@ -631,12 +610,14 @@ var Util=(function(){
 var SAPConnection=(function(){
 
 	var $btnLogin;
+	var $loginModal;
 	var $cmbClient;
 	var $fldUser;
 	var $fldPassword;
 	
 	function init(){
 		console.log('SAPConnection.init');
+		$loginModal=$('div#sap_login_modal');
 		$btnLogin=$('div#sap_login_modal input#sap_login_do');
 		$cmbClient=$('div#sap_login_modal select#sap_client');
 		$fldUser=$('div#sap_login_modal input#sap_username');
@@ -669,16 +650,42 @@ var SAPConnection=(function(){
 			console.log("Logged in");
 			MessageBar.showSuccess("Logged in");
 			$('span#sap_user').text(user.userName+" "+user.client);
-		}).fail(function(error){
-			console.log(error);
-			MessageBar.showError(error.status+": "+error.responseText);
+		}).fail(function(e){
+			ErrorHandler.handle(e);
 		}).always(function(){
 			$('div#sap_login_modal').modal('hide');
 		});
 	}
 	
+	function showLogin(){
+		$loginModal.modal('show');
+	}
+	
 	return{
-		init : init
+		init : init,
+		showLogin : showLogin
+	}
+	
+})();
+
+var ErrorHandler=(function(){
+	
+	function init(){
+		
+	}
+	
+	function handle(e){
+		let err=e.responseJSON;
+		MessageBar.showError(err.code+' : '+err.message);
+		if(err.code==90){
+			console.log('No sap!!!');
+			SAPConnection.showLogin();
+		}
+	}
+	
+	return{
+		init 		: init,
+		handle		: handle
 	}
 	
 })();

@@ -5,20 +5,66 @@ body{
 	margin-left: 10px;
 }
 
+div#message_container{
+	margin-left: 10px;
+	margin-right: 6px;
+	
+}
+
+span#message_line{
+	padding-left: 6px;
+}
+
+.errorMessage{
+	background-color: red;
+	color: white;
+	animation: flyIn 0.5s ease-out;
+}
+
+.successMessage{
+	background-color: green;
+	color: white;
+}
+
+.warningMessage{
+	background-color: yellow;
+	color: black;
+}
+
+.infoMessage{
+	background-color: blue;
+	color: white;
+}
+
+@keyframes 
+flyIn{
+	0%   { 
+ 		transform: translateX(200%); 		
+ 	}
+ 	100% { 
+ 		transform: translateX(0%); 
+ 	}
+}
+
+div.content{
+	margin-left: 10px;
+	margin-right: 6px;
+}
+
 div#top{
 	border: 1px solid black;
-    margin-left: 10px;
+    /*margin-left: 10px;*/
     padding: 6px;
 }
 
 div.sap_connection{
 	margin-top: 10px;
-    margin-left: 10px;
+    /*margin-left: 10px;*/
     margin-bottom: 10px;
 }
 
 div#orders{
-	margin-left: 10px;
+	/*margin-left: 10px;*/
 }
 
 div.order_template{
@@ -28,17 +74,18 @@ div.order_template{
 div.order{
 	border: 1px solid black;
     margin-top: 10px;
+    padding: 6px
 }
 
 div.order_controls{
 	margin-top: 4px;
-	margin-left: 6px;
+	/*margin-left: 6px;*/
 }
 
 div.order_header{
 	margin-top: 4px;
-    margin-left: 6px;
-    margin-right: 6px;
+    /*margin-left: 6px;*/
+    /*margin-right: 6px;*/
     border: 1px solid black;
     padding: 4px;
 }
@@ -52,7 +99,7 @@ div.order_items{
 	margin-left: 30px;
     margin-bottom: 30px;
     margin-top: 10px;
-    margin-right: 6px;
+    /*margin-right: 6px;*/
     border: 1px solid black;
     padding: 4px;
 }

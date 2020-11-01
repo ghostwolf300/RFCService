@@ -185,3 +185,11 @@ Error: [1]  >Sat Oct 31 18:37:19,491<    RfcException raised by system [TET|wsap
 	error group: 103
 	key: RFC_ERROR_LOGON_FAILURE
 
+
+**** Error file opened at 20201101 213900 Eastern European Standard Time Rel. 3.0.20 (2019-09-05) [721.1311]
+Error: [1]  >Sun Nov 01 21:39:00,461<    RfcException raised by system [TET|wsapvm117|00] for user [SA]:
+	message: Name or password is incorrect (repeat logon)
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+
