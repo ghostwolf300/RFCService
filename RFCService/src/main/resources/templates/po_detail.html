@@ -53,23 +53,34 @@
 			</table>
 		</div>
 		<div id="items" class="order_items">
-			<table id="item_table">
-				<thead>
-					<tr>
-						<th>Item</th>
-						<th>Material</th>
-						<th>Qty</th>
-						<th>Plant</th>
-						<th>Strg. loc.</th>
-						<th>Del. date</th>
-						<th>Tax code</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-					</tr>
-				</tbody>
-			</table>
+			<div>
+				<label for="cmb_conf_ctrl_key">Order conf. key:</label>
+				<select id="cmb_conf_ctrl_key" class="browser-default custom-select">
+					<option value="1">0001 - Confirmations</option>
+					<option value="2" selected>Z004 - Inbound delivery</option>
+				</select>
+				<input id="btn_import_from_excel" type="button" value="Import">
+				<input id="btn_save_confirmations" type="button" value="Save">
+			</div>
+			<div>
+				<table id="item_table">
+					<thead>
+						<tr>
+							<th>Item</th>
+							<th>Material</th>
+							<th>Qty</th>
+							<th>Plant</th>
+							<th>Strg. loc.</th>
+							<th>Del. date</th>
+							<th>Tax code</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 		</div>
 	</div>
 </div>

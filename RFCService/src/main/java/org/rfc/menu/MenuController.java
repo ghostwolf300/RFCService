@@ -44,5 +44,25 @@ public class MenuController {
 		mv.setViewName("po_detail");
 		return mv;
 	}
+	
+	@RequestMapping("/material/salesPrice")
+	public ModelAndView salesPrice() {
+		ModelAndView mv=new ModelAndView();
+		mv.addObject("viewName", "Change sales price");
+		mv.addObject("viewId",4);
+		mv.addObject("sapUser",sapUser.getUserString());
+		mv.setViewName("sales_price");
+		return mv;
+	}
+	
+	@RequestMapping("/po/confirmations")
+	public ModelAndView confirmations() {
+		ModelAndView mv=new ModelAndView();
+		mv.addObject("viewName", "Order Confirmations");
+		mv.addObject("viewId",5);
+		mv.addObject("sapUser",sapUser.getUserString());
+		mv.setViewName("confirmations");
+		return mv;
+	}
 
 }

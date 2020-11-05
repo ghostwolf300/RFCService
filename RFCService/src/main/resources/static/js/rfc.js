@@ -21,8 +21,8 @@ function _globalSetup(){
 	$.ajaxSetup({
         headers:
         { 
-        	'Accept': 'application/json',
-	        'Content-Type': 'application/json'
+        	'Accept': 'application/json'
+	        //'Content-Type': 'application/json' <==what if you want to send formdata?! this defaults every ajax call to application/json!
         }
     });
 	contextPath=$('#contextPath').val();
@@ -48,6 +48,19 @@ function initPage(){
  		PODetails.init();
  		console.log('view po');
  	}
+ 	else if(viewId==4){
+ 		MessageBar.init();
+ 		SAPConnection.init();
+ 		SalesPrice.init();
+ 		console.log('change sales price');
+ 	}
+ 	else if(viewId==5){
+ 		MessageBar.init();
+ 		SAPConnection.init();
+ 		Confirmations.init();
+ 		console.log('order confirmations');
+ 	}
+ 	
  	
 }
 
@@ -267,6 +280,7 @@ var PurchaseOrder=(function(){
 		$tr.find('input#item_no').val(itemNum);
 		$tr.find('input#material').val(item.material);
 		$tr.find('input#quantity').val(item.qty);
+		$tr.find('input#net_price').val(item.netPrice);
 		$tr.find('input#tax_code').val(item.taxCode);
 		$tr.find('textarea#item_text').text(item.text);
 		var $address=$tr.find('a#address');
@@ -426,7 +440,8 @@ var PurchaseOrder=(function(){
 											$orderItemsDiv,
 											Number($orderHeaderDiv.find('input#document_number').val()),
 											$orderHeaderDiv.find('input#plant').val(),
-											$orderHeaderDiv.find('input#storage_loc').val()
+											$orderHeaderDiv.find('input#storage_loc').val(),
+											$orderHeaderDiv.find('input#delivery_date').val()
 										),
 				'metaData'			:	lineNumber,
 				'test'				:	$orderDiv.find('input.chk_testrun').is(':checked')
@@ -436,7 +451,7 @@ var PurchaseOrder=(function(){
 
 	}
 	
-	function _getOrderLineItems($orderItemsDiv, po, plant, storageLoc){
+	function _getOrderLineItems($orderItemsDiv, po, plant, storageLoc,deliveryDate){
 		var itemsArr=[];
 		var lineItemJson;
 		
@@ -451,10 +466,12 @@ var PurchaseOrder=(function(){
 					'plant'				:	plant,
 					'storageLocation'	:	storageLoc,
 					'quantity'			:	Number($(this).find('input#quantity').val()),
+					'netPrice'			:	Number($(this).find('input#net_price').val()),
 					'valuationType'		:	'',
 					'taxCode'			:	$(this).find('input#tax_code').val(),
 					'textLines'			: _getItemTextLines(po,itemNo,$(this).find('textarea#item_text')),
-					'address'			: $(this).find('a#address').data('json')
+					'address'			: $(this).find('a#address').data('json'),
+					'deliveryDate'		: deliveryDate
 			}
 			itemsArr.push(lineItemJson);
 		});
@@ -521,9 +538,29 @@ var PODetails=(function(){
 			data : {
 				poId : poId
 			},
+			contentType: 'application/json',
 			dataType : "json"
 		}).done(function(po){
 			_handleResponse(po);
+		}).fail(function(e){
+			ErrorHandler.handle(e);
+		}).always(function(){
+			
+		});
+	}
+	
+	function findPO(poId,_callback){
+		
+		var url=contextPath+'po/find';
+		$.ajax({
+			url : url,
+			method : "GET",
+			data : {
+				poId : poId
+			},
+			contentType: 'application/json'
+		}).done(function(po){
+			_callback(po);
 		}).fail(function(e){
 			ErrorHandler.handle(e);
 		}).always(function(){
@@ -569,7 +606,8 @@ var PODetails=(function(){
 	}
 	
 	return{
-		init : init
+		init : init,
+		findPO : findPO
 	}
 	
 })();
@@ -603,6 +641,140 @@ var Util=(function(){
 	return{
 		getHtmlDate : getHtmlDate,
 		getHtmlDate2 : getHtmlDate2
+	}
+	
+})();
+
+var SalesPrice=(function(){
+	
+	var $btnTest;
+	
+	function init(){
+		$btnTest=$('input#btn_test');
+		_bindEventHandlers();
+	}
+	
+	function _bindEventHandlers(){
+		$btnTest.click(_test);
+	}
+	
+	function _test(){
+		console.log('Sales Price Test');
+		
+		var url=contextPath+'material/salesPrice/test';
+		
+		$.ajax({
+			url : url,
+			method : "GET",
+			dataType : "json"
+		}).done(function(response){
+			console.log(response);
+		}).fail(function(e){
+			ErrorHandler.handle(e);
+		}).always(function(){
+			
+		});
+	}
+	
+	return{
+		init : init
+	}
+	
+})();
+
+var Confirmations=(function(){
+	
+	var $fileImport;
+	var $btnSend;
+	var $btnFindPO;
+	
+	function init(){
+		console.log('Confirmations.init');
+		$btnSend=$('#btn_send');
+		$btnFindPO=$('input#btn_find_po');
+		$fileImport=$('input#file_import_pdf');
+		_bindEventHandlers();
+	}
+	
+	function _bindEventHandlers(){
+		$fileImport.change(_displayFile);
+		$btnSend.click(_uploadFile);
+		$btnFindPO.click(_findPO);
+	}
+	
+	function _displayFile(event){
+		var file=event.target.files[0];
+		var reader=new FileReader();
+		reader.onload=function(e){
+			$('#pdf').attr('src',e.target.result);
+		}
+		reader.readAsDataURL(file);
+	}
+	
+	function _findPO(event){
+		var poId=$('span#po').text();
+		PODetails.findPO(poId,function(po){
+			console.log(po);
+		});
+	}
+	
+	function _uploadFile(event){
+		
+		var fileInput=document.getElementById('file_import_pdf');
+		var data=new FormData();
+		
+		data.append('file',fileInput.files[0]);
+		data.append('type','pdf');
+	
+		_sendFile(data);
+			
+	}
+	
+	function _sendFile(data){
+		var url=contextPath+'po/confirmations/uploadFile';
+		
+		console.log(data.get('file')+' '+data.get('type'));
+			
+		$.ajax({
+			type 			: 'POST',
+			url				: url,
+			data			: data,
+			processData		: false,
+			contentType		: false
+		}).done(function(c){
+			_handleResponse(c);
+		}).fail(function(e){
+			ErrorHandler.handle(e);
+		}).always(function(){
+			
+		});
+	}
+	
+	function _handleResponse(c){
+		$('span#po').text(c.customerOrderId);
+		$tbody=$('table#supplier_conf_table>tbody');
+		$tbody.empty();
+		c.items.forEach(function(item){
+			$tbody.append(_getSupplierItemRow(item));
+		});
+		console.log(c);
+	}
+	
+	function _getSupplierItemRow(item){
+		var $row=$('<tr>'
+					+'<td>'+item.itemNumber+'</td>'
+					+'<td>'+item.supplierId+'</td>'
+					+'<td>'+item.customerId+'</td>'
+					+'<td>'+item.orderedQuantity+'</td>'
+					+'<td>'+Util.getHtmlDate2(item.confirmedDate)+'</td>'
+					+'<td>'+item.unitNetPrice+'</td>'
+					+'<td>'+item.totalNetPrice+'</td>'
+				+'</tr>');
+		return $row;
+	}
+	
+	return{
+		init : init
 	}
 	
 })();
@@ -645,7 +817,8 @@ var SAPConnection=(function(){
 			url : url,
 			method : "POST",
 			data : data,
-			dataType : "json"
+			dataType : "json",
+			contentType: 'application/json'
 		}).done(function(user){
 			console.log("Logged in");
 			MessageBar.showSuccess("Logged in");
@@ -675,11 +848,19 @@ var ErrorHandler=(function(){
 	}
 	
 	function handle(e){
+		
 		let err=e.responseJSON;
-		MessageBar.showError(err.code+' : '+err.message);
-		if(err.code==90){
-			console.log('No sap!!!');
-			SAPConnection.showLogin();
+		if(err){
+			console.log(err.code+' : '+err.message);
+			MessageBar.showError(err.code+' : '+err.message);
+			if(err.code==90){
+				console.log('No sap!!!');
+				SAPConnection.showLogin();
+			}
+		}
+		else{
+			console.log(e.responseText);
+			MessageBar.showError(e.responseText);
 		}
 	}
 	

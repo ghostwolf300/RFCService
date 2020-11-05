@@ -1,6 +1,7 @@
 package org.rfc.po;
 
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.rfc.exception.RFCException;
+import org.rfc.orderconf.POConfirmationDTO;
 import org.rfc.sap.SapService;
 import org.rfc.sap.SapSystem;
 import org.rfc.sap.SapSystemFactory;
@@ -73,14 +75,25 @@ public class POServiceImpl implements POService {
 		JCoTable poItem=tables.getTable("POITEM");
 		JCoTable poItemX=tables.getTable("POITEMX");
 		
+		JCoTable poSchedule=tables.getTable("POSCHEDULE");
+		JCoTable poScheduleX=tables.getTable("POSCHEDULEX");
+		
+		//JCoTable poCond=tables.getTable("POCOND");
+		//JCoTable poCondX=tables.getTable("POCONDX");
+		
 		JCoTable poItemText=tables.getTable("POTEXTITEM");
 		JCoTable poAddressDelivery=tables.getTable("POADDRDELIVERY");
 		
 		JCoTable messages=tables.getTable("RETURN");
 		
+		SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
+		
 		if(order.isTest()) {
 			imports.setValue("TESTRUN", "X");
 		}
+		
+		//No price calculation based on previous POs
+		imports.setValue("NO_PRICE_FROM_PO", "X");
 		
 		poHeader.setValue("COMP_CODE", order.getCompanyCode());
 		poHeader.setValue("DOC_TYPE", order.getDocumentType());
@@ -109,6 +122,7 @@ public class POServiceImpl implements POService {
 			poItem.setValue("PLANT", item.getPlant());
 			poItem.setValue("STGE_LOC", item.getStorageLocation());
 			poItem.setValue("QUANTITY", item.getQuantity());
+			poItem.setValue("NET_PRICE", item.getNetPrice());
 			poItem.setValue("VAL_TYPE", item.getValuationType());
 			poItem.setValue("TAX_CODE", item.getTaxCode());
 			
@@ -118,8 +132,35 @@ public class POServiceImpl implements POService {
 			poItemX.setValue("PLANT", "X");
 			poItemX.setValue("STGE_LOC", "X");
 			poItemX.setValue("QUANTITY", "X");
+			poItemX.setValue("NET_PRICE", "X");
 			poItemX.setValue("VAL_TYPE", "X");
 			poItemX.setValue("TAX_CODE", "X");
+			
+			poSchedule.appendRow();
+			poSchedule.setValue("PO_ITEM", item.getItem());
+			poSchedule.setValue("SCHED_LINE", "0001");
+			poSchedule.setValue("DELIVERY_DATE",formatter.format(item.getDeliveryDate()));
+			
+			poScheduleX.appendRow();
+			poScheduleX.setValue("PO_ITEM", item.getItem());
+			poScheduleX.setValue("SCHED_LINE", "0001");
+			poScheduleX.setValue("DELIVERY_DATE", "X");
+			
+//			poCond.appendRow();
+//			poCond.setValue("ITM_NUMBER", item.getItem());
+//			poCond.setValue("COND_ST_NO", "001");
+//			poCond.setValue("COND_TYPE", "PB00");
+//			poCond.setValue("COND_VALUE", item.getNetPrice());
+//			poCond.setValue("CURRENCY", "EUR");
+//			poCond.setValue("CURRENCY_ISO", "EUR");
+//			
+//			poCondX.appendRow();
+//			poCondX.setValue("ITM_NUMBER", item.getItem());
+//			poCondX.setValue("COND_ST_NO", "001");
+//			poCondX.setValue("COND_TYPE", "X");
+//			poCondX.setValue("COND_VALUE", "X");
+//			poCondX.setValue("CURRENCY", "X");
+//			poCondX.setValue("CURRENCY_ISO", "X");
 			
 			for(POItemTextDTO textLine : item.getTextLines()) {
 				poItemText.appendRow();
@@ -142,6 +183,7 @@ public class POServiceImpl implements POService {
 				poAddressDelivery.setValue("CITY", address.getCity());
 				poAddressDelivery.setValue("COUNTRY",address.getCountryCode());
 			}
+			
 		}
 		
 		try {
@@ -271,11 +313,14 @@ public class POServiceImpl implements POService {
 		order.setDocumentDate(new Date(hdr.getDate("DOC_DATE").getTime()));
 		
 		Map<Integer,POItemDTO> itemMap=createItemMap(items);
-		Map<Integer,List<POConfirmationDTO>> confMap=createConfirmationsMap(confirmations);
 		
-		for(Integer itemNum : itemMap.keySet()) {
-			POItemDTO item=itemMap.get(itemNum);
-			item.setConfirmations(confMap.get(itemNum));
+		if(confirmations.isEmpty()==false) {
+			Map<Integer,List<POConfirmationDTO>> confMap=createConfirmationsMap(confirmations);
+			
+			for(Integer itemNum : itemMap.keySet()) {
+				POItemDTO item=itemMap.get(itemNum);
+				item.setConfirmations(confMap.get(itemNum));
+			}
 		}
 		
 		List<Integer> sortedKeys=new ArrayList<Integer>(itemMap.keySet());

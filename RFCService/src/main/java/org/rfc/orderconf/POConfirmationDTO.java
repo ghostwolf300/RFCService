@@ -1,4 +1,4 @@
-package org.rfc.po;
+package org.rfc.orderconf;
 
 import java.io.Serializable;
 import java.sql.Date;

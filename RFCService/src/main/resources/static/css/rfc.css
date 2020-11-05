@@ -36,8 +36,7 @@ span#message_line{
 	color: white;
 }
 
-@keyframes 
-flyIn{
+@keyframes flyIn{
 	0%   { 
  		transform: translateX(200%); 		
  	}
@@ -126,15 +125,19 @@ table.order_items_table th:nth-child(3){
 }
 
 table.order_items_table th:nth-child(4){
+	width: 100px;
+}
+
+table.order_items_table th:nth-child(5){
 	width: 40px;
 }
-table.order_items_table th:nth-child(5){
+table.order_items_table th:nth-child(6){
 	width: 200px;
 }
-table.order_items_table th:nth-child(6){
+table.order_items_table th:nth-child(7){
 	width: 400px;
 }
-table.order_items_table th:nth-child(7){
+table.order_items_table th:nth-child(8){
 	width: 40px;
 }
 

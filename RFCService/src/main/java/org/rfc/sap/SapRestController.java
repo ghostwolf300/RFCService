@@ -2,6 +2,8 @@ package org.rfc.sap;
 
 import javax.annotation.Resource;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.rfc.config.SAPUserBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SapRestController {
 	
+	private static final Logger logger = LogManager.getLogger(SapRestController.class);
+	
 	@Autowired
 	private SapService sapService;
 	
@@ -23,22 +27,14 @@ public class SapRestController {
 	@PostMapping(value="/sap/login",consumes="application/json", produces="application/json")
 	@ResponseBody
 	public ResponseEntity<?> login(@RequestBody SapUserDTO user){
-		if(sapUser.getUserName()==null) {
-			System.out.println("no sapUser");
-		}
-		else {
-			System.out.println("sapUser : "+sapUser.getUserName()+"_"+sapUser.getClient());
-		}
+		
 		boolean ok=sapService.loginUser(user);
-		if(ok) {
-			sapUser.setUserName(user.getUserName());
-			sapUser.setClient(user.getClient());
-			sapUser.setPassword(user.getPassword());
-			return new ResponseEntity<SapUserDTO>(user,HttpStatus.OK);
-		}
-		else {
-			return new ResponseEntity<String>("Login failed!",HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+		sapUser.setUserName(user.getUserName());
+		sapUser.setClient(user.getClient());
+		sapUser.setPassword(user.getPassword());
+		logger.info("SAP destination set: "+sapUser.getUserString());
+		return new ResponseEntity<SapUserDTO>(user,HttpStatus.OK);
+		
 	}
 	
 	@PostMapping(value="/sap/logout")

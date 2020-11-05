@@ -2,6 +2,8 @@ package org.rfc.sap;
 
 import java.util.Properties;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.rfc.exception.RFCException;
 import org.springframework.stereotype.Service;
 
@@ -14,44 +16,43 @@ import com.sap.conn.jco.ext.Environment;
 @Service("sapService")
 public class SapServiceImpl implements SapService {
 	
+	private static final Logger logger = LogManager.getLogger(SapServiceImpl.class);
+	
 	private static CustomDestinationDataProvider dataProvider=null;
 	
 	private JCoDestination destination;
 	
 	@Override
-	public boolean loginUser(SapUserDTO user) {
+	public boolean loginUser(SapUserDTO user) throws RFCException {
 		
 		Properties connProp=this.getConnectionProperties(user);
 		String destinationName=user.getUserName()+"_"+user.getClient();
 		
-		if(Environment.isDestinationDataProviderRegistered()==false) {
+		if(Environment.isDestinationDataProviderRegistered()==false || dataProvider==null) {
 			dataProvider=new CustomDestinationDataProvider();
-			System.out.println("Registering data provider.");
 			try{
 				Environment.registerDestinationDataProvider(dataProvider);
 			}
 			catch(IllegalStateException e){
-				//already registered...
+				logger.warn("Data provider is already registered.");
 				e.printStackTrace();
-				//System.out.println("Data provider already registered");
 			}
 		}
 		else {
-			System.out.println("Data provider is already registered.");
+			logger.warn("Data provider is already registered.");
 		}
 		
-		System.out.println("Destination : "+destinationName+" setting properties");
+		
+		logger.info("SAP destination: "+destinationName+", checking connection...");
 		dataProvider.setDestinationProperties(destinationName, connProp);
 		
-		
 		try {
-			System.out.println("Ping destination");
 			destination=JCoDestinationManager.getDestination(destinationName);
 			destination.ping();
 		} 
 		catch (JCoException e) {
-			System.out.println("Ping failed!");
-			return false;
+			e.printStackTrace();
+			throw new RFCException(95,"SAP system not reachable!",e);
 		}
 
 		return true;

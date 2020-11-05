@@ -1,7 +1,10 @@
 package org.rfc.po;
 
 import java.io.Serializable;
+import java.sql.Date;
 import java.util.List;
+
+import org.rfc.orderconf.POConfirmationDTO;
 
 public class POItemDTO implements Serializable {
 
@@ -17,7 +20,9 @@ public class POItemDTO implements Serializable {
 	private String storageLocation;
 	private double quantity;
 	private String valuationType;
+	private double netPrice;
 	private String taxCode;
+	private Date deliveryDate;
 	private List<POItemTextDTO> textLines;
 	private PODeliveryAddressDTO address;
 	private List<POConfirmationDTO> confirmations;
@@ -82,12 +87,28 @@ public class POItemDTO implements Serializable {
 		this.valuationType = valuationType;
 	}
 
+	public double getNetPrice() {
+		return netPrice;
+	}
+
+	public void setNetPrice(double netPrice) {
+		this.netPrice = netPrice;
+	}
+
 	public String getTaxCode() {
 		return taxCode;
 	}
 
 	public void setTaxCode(String taxCode) {
 		this.taxCode = taxCode;
+	}
+
+	public Date getDeliveryDate() {
+		return deliveryDate;
+	}
+
+	public void setDeliveryDate(Date deliveryDate) {
+		this.deliveryDate = deliveryDate;
 	}
 
 	public List<POItemTextDTO> getTextLines() {
