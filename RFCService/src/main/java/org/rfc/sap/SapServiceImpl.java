@@ -86,6 +86,26 @@ public class SapServiceImpl implements SapService {
 			connProp.setProperty(DestinationDataProvider.JCO_PASSWD, user.getPassword());
 			connProp.setProperty(DestinationDataProvider.JCO_LANG,   "en");
 		}
+		else if(user.getClient().equals("WT2")) {
+			connProp.setProperty(DestinationDataProvider.JCO_MSHOST, "wt2");
+			connProp.setProperty(DestinationDataProvider.JCO_MSSERV, "3601");
+			connProp.setProperty(DestinationDataProvider.JCO_GROUP, "WT2");
+			connProp.setProperty(DestinationDataProvider.JCO_CLIENT, "280");
+			connProp.setProperty(DestinationDataProvider.JCO_SAPROUTER, "/H/wt2");
+			connProp.setProperty(DestinationDataProvider.JCO_USER,   user.getUserName());
+			connProp.setProperty(DestinationDataProvider.JCO_PASSWD, user.getPassword());
+			connProp.setProperty(DestinationDataProvider.JCO_LANG,   "en");
+		}
+		else if(user.getClient().equals("WP2")) {
+			connProp.setProperty(DestinationDataProvider.JCO_MSHOST, "wp2");
+			connProp.setProperty(DestinationDataProvider.JCO_MSSERV, "3601");
+			connProp.setProperty(DestinationDataProvider.JCO_GROUP, "WP2");
+			connProp.setProperty(DestinationDataProvider.JCO_CLIENT, "280");
+			connProp.setProperty(DestinationDataProvider.JCO_SAPROUTER, "/H/wp2");
+			connProp.setProperty(DestinationDataProvider.JCO_USER,   user.getUserName());
+			connProp.setProperty(DestinationDataProvider.JCO_PASSWD, user.getPassword());
+			connProp.setProperty(DestinationDataProvider.JCO_LANG,   "en");
+		}
 		return connProp;
 	}
 

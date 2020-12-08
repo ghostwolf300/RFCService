@@ -302,3 +302,11 @@ COUNTER     1
 	error group: 102
 	key: RFC_ERROR_COMMUNICATION
 
+
+**** Error file opened at 20201112 155834 Eastern European Standard Time Rel. 3.0.20 (2019-09-05) [721.1311]
+Error: [1]  >Thu Nov 12 15:58:34,538<    RfcException raised by system [TEP|wsapvm119|00] for user [WIHSUSIVI]:
+	message: Name or password is incorrect (repeat logon)
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+
