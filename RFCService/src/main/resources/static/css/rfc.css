@@ -200,6 +200,44 @@ div#ajaxInner{
 	margin: 0 auto;
 }
 
+/* Create Material */
+
+.bapi-field-list-container{
+	display: table;
+	border-collapse:separate;
+	border-spacing: 5px;
+}
+
+.babi-field-list-container-row{
+	display: table-row;	
+}
+
+.babi-field-list{
+	display: table-cell;
+	width: 33%;
+	border: 1px solid black;
+	border-radius: 10px;
+	padding: 10px;
+}
+
+.bapi-field-list-controls{
+	display: flex;
+    justify-content: flex-end;
+    outline: 2px dashed blue;
+    margin-bottom: 10px;	
+}
+
+.bapi-field-list-fields{
+	
+}
+
+.bapi-add-table-entry{
+	background: gray;
+}
+
+
+/* End Create Material */
+
 /* Bootstrap */
 
 #sap_login_modal {

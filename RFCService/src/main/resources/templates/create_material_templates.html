@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+<div class="content-container" layout:fragment="content">
+	<div id="top">
+		<div>
+			<h4>Create Material - Templates</h4>
+		</div>
+		<div>
+			<ul class="nav nav-tabs">
+  				<li class="nav-item">
+   					<a data-toggle="tab" class="nav-link active" aria-current="page" href="#headdata">HEADDATA</a>
+  				</li>
+  				<li class="nav-item">
+    				<a data-toggle="tab" class="nav-link" href="#clientdata">CLIENTDATA</a>
+  				</li>
+  				<li class="nav-item">
+    				<a data-toggle="tab" class="nav-link" href="#materialdescription">MATERIALDESCRIPTION</a>
+  				</li>
+  				<li class="nav-item">
+    				<a data-toggle="tab" class="nav-link" href="#unitsofmeasure">UNITSOFMEASURE</a>
+  				</li>
+  				<li class="nav-item">
+    				<a data-toggle="tab" class="nav-link" href="#salesdata">SALESDATA</a>
+  				</li>
+  				<li class="nav-item">
+    				<a data-toggle="tab" class="nav-link" href="#taxclassifications">TAXCLASSIFICATIONS</a>
+  				</li>
+  				<li class="nav-item">
+    				<a data-toggle="tab" class="nav-link" href="#plantdata">PLANTDATA</a>
+  				</li>
+  				<li class="nav-item">
+    				<a data-toggle="tab" class="nav-link" href="#valuationdata">VALUATIONDATA</a>
+  				</li>
+  				<li class="nav-item">
+    				<a data-toggle="tab" class="nav-link" href="#storagelocationdata">STORAGELOCATIONDATA</a>
+  				</li>
+  				<li class="nav-item">
+    				<a data-toggle="tab" class="nav-link" href="#forecastparameters">FORECASTPARAMETERS</a>
+  				</li>
+			</ul>
+		</div>
+		<div class="tab-content">
+			<div th:replace="fragments/material :: input_field_list(name='headdata',fields=${fieldMap.get('HEADDATA')},isTableEntry=false,active=true)"></div>
+			<div th:replace="fragments/material :: input_field_list(name='clientdata',fields=${fieldMap.get('CLIENTDATA')},isTableEntry=false,active=false)"></div>
+			<div th:replace="fragments/material :: input_field_list(name='materialdescription',fields=${fieldMap.get('MATERIALDESCRIPTION')},isTableEntry=true,active=false)"></div>
+			<div th:replace="fragments/material :: input_field_list(name='unitsofmeasure',fields=${fieldMap.get('UNITSOFMEASURE')},isTableEntry=false,active=false)"></div>
+			<div th:replace="fragments/material :: input_field_list(name='salesdata',fields=${fieldMap.get('SALESDATA')},isTableEntry=true,active=false)"></div>
+			<div th:replace="fragments/material :: input_field_list(name='taxclassifications',fields=${fieldMap.get('TAXCLASSIFICATIONS')},isTableEntry=false,active=false)"></div>
+			<div th:replace="fragments/material :: input_field_list(name='plantdata',fields=${fieldMap.get('PLANTDATA')},isTableEntry=true,active=false)"></div>
+			<div th:replace="fragments/material :: input_field_list(name='valuationdata',fields=${fieldMap.get('VALUATIONDATA')},isTableEntry=true,active=false)"></div>
+			<div th:replace="fragments/material :: input_field_list(name='storagelocationdata',fields=${fieldMap.get('STORAGELOCATIONDATA')},isTableEntry=true,active=false)"></div>
+			<div th:replace="fragments/material :: input_field_list(name='forecastparameters',fields=${fieldMap.get('FORECASTPARAMETERS')},isTableEntry=true,active=false)"></div>
+		</div>
+	</div>
+</div>
+</html>

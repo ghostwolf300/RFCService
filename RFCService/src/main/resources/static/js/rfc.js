@@ -60,6 +60,18 @@ function initPage(){
  		Confirmations.init();
  		console.log('order confirmations');
  	}
+ 	else if(viewId==6){
+ 		
+ 	}
+ 	else if(viewId==7){
+ 		MessageBar.init();
+ 		SAPConnection.init();
+ 		MaterialCreate.init();
+ 	}
+ 	else if(viewId==8){
+ 		MessageBar.init();
+ 		MaterialTemplates.init();
+ 	}
  	
  	
 }
@@ -674,6 +686,60 @@ var SalesPrice=(function(){
 		}).always(function(){
 			
 		});
+	}
+	
+	return{
+		init : init
+	}
+	
+})();
+
+var MaterialTemplates=(function(){
+	
+	function init(){
+		console.log('MaterialTemplates.init');
+		_bindEventHandlers();
+	}
+	
+	function _bindEventHandlers(){
+		$('select.function-field-input-type').on('change',_functionFieldInputType);
+	}
+
+	
+	function _functionFieldInputType(event){
+		var inputType=$(event.target).val();
+		var $tdInputType=$(event.target).parent();
+		var $tr=$tdInputType.parent();
+		var $input;
+		
+		$tdInputValue=$tr.find('td.input-value');
+		$tdInputValue.empty();
+		if(inputType=='FIELD'){
+			console.log('FIELD');
+			$input=$('<input type="number" min="0" max="255">')
+		}
+		else if(inputType=='CONSTANT'){
+			console.log('CONSTANT');
+			$input=$('<input type="text">')
+		}
+		$tdInputValue.append($input);
+	}
+	
+	return{
+		init : init
+	}
+	
+})();
+
+var MaterialCreate=(function(){
+	
+	function init(){
+		console.log('MaterialCreate.init')
+		_bindEventHandlers();
+	}
+	
+	function _bindEventHandlers(){
+		
 	}
 	
 	return{
