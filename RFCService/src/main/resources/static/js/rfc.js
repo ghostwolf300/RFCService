@@ -22,7 +22,7 @@ function _globalSetup(){
         headers:
         { 
         	'Accept': 'application/json'
-	        //'Content-Type': 'application/json' <==what if you want to send formdata?! this defaults every ajax call to application/json!
+	        //'Content-Type': 'application/json' //<==what if you want to send formdata?! this defaults every ajax call to application/json!
         }
     });
 	contextPath=$('#contextPath').val();
@@ -703,6 +703,9 @@ var MaterialTemplates=(function(){
 	
 	function _bindEventHandlers(){
 		$('select.function-field-input-type').on('change',_functionFieldInputType);
+		$('button.add-bapi-table-entry').click(_addTableEntry);
+		$('button.del-bapi-table-entry').click(_delTableEntry);
+		$('button#btn_save_template').click(_saveTemplate);
 	}
 
 	
@@ -724,6 +727,113 @@ var MaterialTemplates=(function(){
 		}
 		$tdInputValue.append($input);
 	}
+	
+	function _addTableEntry(event){
+		console.log('add table entry');
+		var $btn=$(event.target);
+		var $entryDiv=$btn.parent();
+		var id=$entryDiv.attr('id');
+		console.log('entry div: '+id);
+		var $rowDiv=$entryDiv.parent();
+		var $fieldsDiv=$rowDiv.find('.babi-field-list:not(.bapi-add-table-entry)').first().clone(true);
+		$fieldsDiv.insertBefore('#'+id);
+	}
+	
+	function _delTableEntry(event){
+		var $btn=$(event.target);
+		var $controlDiv=$btn.parent();
+		var $fieldsDiv=$controlDiv.parent();
+		$fieldsDiv.remove();
+	}
+	
+	function _saveTemplate(){
+		var templateJson=_getTemplateJSON();
+		var url=contextPath+'material/saveMaterialTemplate';
+		var data=JSON.stringify(templateJson);
+		console.log(data);
+		
+		$.ajax({
+			url : url,
+			method : "POST",
+			headers : {
+				'Content-Type': 'application/json'
+			},
+			data : data,
+			dataType : "json"
+		}).done(function(response){
+			MessageBar.showSuccess(response.message);
+		}).fail(function(e){
+			console.log('failed '+e.responseText);
+		}).always(function(){
+			
+		});
+	}
+	
+	function _getTemplateJSON(){
+		var template={
+				'id'						: 1,
+				'name' 						: 'test template',
+				'headData'					: _getSimpleData('headdata'),
+				'clientData'				: _getSimpleData('clientdata'),
+				'materialDescriptionList'	: _getTableData('materialdescription'),
+				'unitsOfMeasure'			: _getSimpleData('unitsofmeasure'),
+				'salesDataList'				: _getTableData('salesdata'),
+				'taxClassifications'		: _getSimpleData('taxclassifications'),
+				'plantDataList'				: _getTableData('plantdata'),
+				'valuationDataList'			: _getTableData('valuationdata'),
+				'storageLocationDataList'	: _getTableData('storagelocationdata'),
+				'forecastParametersList'	: _getTableData('forecastparameters')
+		}
+		return template;
+		
+	}
+	
+	function _getSimpleData(name){
+		var simpleData={};
+		var $divRow=$('div#'+name+'>div.bapi-field-list-viewport>div.bapi-field-list-container>div.bapi-field-list-container-row');
+		var $tbodies=$divRow.find('div#list_'+name+'>div.babi-field-list-fields>table>tbody');
+		$tbodies.each(function(index,tbody){
+			var $rows=$(tbody).find('tr');
+			$rows.each(function(index,tr){
+				let propertyName=$(tr).attr('data-propertyname');
+				let valueType=$(tr).find('td.input-type>select').val();
+				let value=$(tr).find('td.input-value>input').val();
+				if(valueType=='FIELD'){
+					value=parseInt(value);
+				}
+				simpleData[propertyName]={
+						'valueType' : valueType,
+						'value'		: value
+				};
+			});
+		});
+		return simpleData;
+	}
+	
+	function _getTableData(name){
+		var tableData=[];
+		var $divRow=$('div#'+name+'>div.bapi-field-list-viewport>div.bapi-field-list-container>div.bapi-field-list-container-row');
+		var $tbodies=$divRow.find('div#list_'+name+'>div.babi-field-list-fields>table>tbody');
+		$tbodies.each(function(index,tbody){
+			var $rows=$(tbody).find('tr');
+			var templateData={};
+			$rows.each(function(index,tr){
+				let propertyName=$(tr).attr('data-propertyname');
+				let valueType=$(tr).find('td.input-type>select').val();
+				let value=$(tr).find('td.input-value>input').val();
+				if(valueType=='FIELD'){
+					value=parseInt(value);
+				}
+				templateData[propertyName]={
+						'valueType' : valueType,
+						'value'		: value
+				};
+			});
+			tableData.push(templateData);
+		});
+		return tableData;
+	}
+	
 	
 	return{
 		init : init

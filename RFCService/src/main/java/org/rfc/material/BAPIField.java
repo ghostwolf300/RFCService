@@ -3,6 +3,7 @@ package org.rfc.material;
 public class BAPIField {
 	
 	private String fieldName;
+	private String propertyName;
 	private int length;
 	private String type;
 	private String info;
@@ -12,27 +13,31 @@ public class BAPIField {
 		super();
 	}
 	
-	public BAPIField(String fieldName) {
+	public BAPIField(String fieldName,String propertyName) {
 		super();
 		this.fieldName=fieldName;
+		this.propertyName=propertyName;
 	}
 	
-	public BAPIField(String fieldName,int length) {
+	public BAPIField(String fieldName,String propertyName,int length) {
 		super();
 		this.fieldName=fieldName;
+		this.propertyName=propertyName;
 		this.length=length;
 	}
 	
-	public BAPIField(String fieldName,int length,String type) {
+	public BAPIField(String fieldName,String propertyName,int length,String type) {
 		super();
 		this.fieldName=fieldName;
+		this.propertyName=propertyName;
 		this.length=length;
 		this.type=type;
 	}
 	
-	public BAPIField(String fieldName,int length,String type,boolean mandatory) {
+	public BAPIField(String fieldName,String propertyName,int length,String type,boolean mandatory) {
 		super();
 		this.fieldName=fieldName;
+		this.propertyName=propertyName;
 		this.length=length;
 		this.type=type;
 		this.mandatory=mandatory;
@@ -44,6 +49,14 @@ public class BAPIField {
 
 	public void setFieldName(String fieldName) {
 		this.fieldName = fieldName;
+	}
+
+	public String getPropertyName() {
+		return propertyName;
+	}
+
+	public void setPropertyName(String propertyName) {
+		this.propertyName = propertyName;
 	}
 
 	public int getLength() {
