@@ -1,10 +1,13 @@
 package org.rfc.material;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.rfc.material.dto.MaterialDescriptionDTO;
+import org.rfc.material.dto.FieldValueDTO;
 import org.rfc.material.dto.MaterialTemplateDTO;
 import org.rfc.material.dto.ResponseDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +22,9 @@ public class MaterialRestController {
 	
 	private static final Logger logger = LogManager.getLogger(MaterialRestController.class);
 	
+	@Autowired
+	private MaterialService materialService;
+	
 	@GetMapping(value="/material/getMaterialTemplate",produces="application/json")
 	@ResponseBody
 	public ResponseEntity<?> getMaterialTemplate(@RequestParam("templateId") int id){
@@ -30,9 +36,8 @@ public class MaterialRestController {
 	public ResponseEntity<?> saveMaterialTemplate(@RequestBody MaterialTemplateDTO template){
 		System.out.println("id: "+template.getId());
 		System.out.println("name: "+template.getName());
-		for(MaterialDescriptionDTO md : template.getMaterialDescriptionList()) {
-			System.out.println(md.getLangu().getValue()+"\t"+md.getMatlDesc().getValue());
-		}
+		
+		materialService.saveMaterialTemplate(template);
 		
 		return new ResponseEntity<ResponseDTO>(new ResponseDTO(111,"template received"),HttpStatus.OK);
 	}

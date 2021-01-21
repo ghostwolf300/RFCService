@@ -773,63 +773,79 @@ var MaterialTemplates=(function(){
 		var template={
 				'id'						: 1,
 				'name' 						: 'test template',
-				'headData'					: _getSimpleData('headdata'),
-				'clientData'				: _getSimpleData('clientdata'),
-				'materialDescriptionList'	: _getTableData('materialdescription'),
-				'unitsOfMeasure'			: _getSimpleData('unitsofmeasure'),
-				'salesDataList'				: _getTableData('salesdata'),
-				'taxClassifications'		: _getSimpleData('taxclassifications'),
-				'plantDataList'				: _getTableData('plantdata'),
-				'valuationDataList'			: _getTableData('valuationdata'),
-				'storageLocationDataList'	: _getTableData('storagelocationdata'),
-				'forecastParametersList'	: _getTableData('forecastparameters')
+				'headData'					: _getStructureData('headdata'),
+				'clientData'				: _getStructureData('clientdata'),
+				'materialDescription'		: _getTableData('materialdescription'),
+				'unitsOfMeasure'			: _getStructureData('unitsofmeasure'),
+				'salesData'					: _getTableData('salesdata'),
+				'taxClassifications'		: _getStructureData('taxclassifications'),
+				'plantData'					: _getTableData('plantdata'),
+				'valuationData'				: _getTableData('valuationdata'),
+				'storageLocationData'		: _getTableData('storagelocationdata'),
+				'forecastParameters'		: _getTableData('forecastparameters')
 		}
 		return template;
 		
 	}
 	
-	function _getSimpleData(name){
-		var simpleData={};
+	function _getStructureData(name){
+		var structureData={
+				'name'		: name.toUpperCase(),
+				'fields'	: []
+		};
 		var $divRow=$('div#'+name+'>div.bapi-field-list-viewport>div.bapi-field-list-container>div.bapi-field-list-container-row');
 		var $tbodies=$divRow.find('div#list_'+name+'>div.babi-field-list-fields>table>tbody');
 		$tbodies.each(function(index,tbody){
 			var $rows=$(tbody).find('tr');
 			$rows.each(function(index,tr){
+				let field=$(tr).find('td.function-field').text();
 				let propertyName=$(tr).attr('data-propertyname');
 				let valueType=$(tr).find('td.input-type>select').val();
 				let value=$(tr).find('td.input-value>input').val();
 				if(valueType=='FIELD'){
 					value=parseInt(value);
 				}
-				simpleData[propertyName]={
+				let fieldValue={
+						'field'		: field,
 						'valueType' : valueType,
 						'value'		: value
 				};
+				structureData.fields.push(fieldValue);
 			});
 		});
-		return simpleData;
+		return structureData;
 	}
 	
 	function _getTableData(name){
-		var tableData=[];
+		var tableData={
+				'name'		: name.toUpperCase(),
+				'rows'		: []
+		};
 		var $divRow=$('div#'+name+'>div.bapi-field-list-viewport>div.bapi-field-list-container>div.bapi-field-list-container-row');
 		var $tbodies=$divRow.find('div#list_'+name+'>div.babi-field-list-fields>table>tbody');
+		var index=0;
 		$tbodies.each(function(index,tbody){
 			var $rows=$(tbody).find('tr');
 			var templateData={};
+			var fieldValueArr=[];
 			$rows.each(function(index,tr){
+				let field=$(tr).find('td.function-field').text();
 				let propertyName=$(tr).attr('data-propertyname');
 				let valueType=$(tr).find('td.input-type>select').val();
 				let value=$(tr).find('td.input-value>input').val();
 				if(valueType=='FIELD'){
 					value=parseInt(value);
 				}
-				templateData[propertyName]={
+				let fieldValue={
+						'field'		: field,
 						'valueType' : valueType,
 						'value'		: value
 				};
+				fieldValueArr.push(fieldValue);
+				
 			});
-			tableData.push(templateData);
+			tableData.rows[index]=fieldValueArr;
+			index++;
 		});
 		return tableData;
 	}

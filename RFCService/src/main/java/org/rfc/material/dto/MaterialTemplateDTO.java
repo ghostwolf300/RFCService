@@ -12,16 +12,16 @@ public class MaterialTemplateDTO implements Serializable {
 
 	private int id;
 	private String name;
-	private HeadDataDTO headData;
-	private ClientDataDTO clientData;
-	private UnitsOfMeasureDTO unitsOfMeasure;
-	private TaxClassificationsDTO taxClassifications;
-	private List<MaterialDescriptionDTO> materialDescriptionList;
-	private List<SalesDataDTO> salesDataList;
-	private List<PlantDataDTO> plantDataList;
-	private List<ValuationDataDTO> valuationDataList;
-	private List<StorageLocationDataDTO> storageLocationDataList;
-	private List<ForecastParametersDTO> forecastParametersList;	
+	private BAPIStructureDTO headData;
+	private BAPIStructureDTO clientData;
+	private BAPIStructureDTO  unitsOfMeasure;
+	private BAPIStructureDTO  taxClassifications;
+	private BAPITableDTO  materialDescription;
+	private BAPITableDTO salesData;
+	private BAPITableDTO plantData;
+	private BAPITableDTO valuationData;
+	private BAPITableDTO storageLocationData;
+	private BAPITableDTO forecastParameters;	
 
 	public MaterialTemplateDTO() {
 		super();
@@ -43,84 +43,84 @@ public class MaterialTemplateDTO implements Serializable {
 		this.name = name;
 	}
 
-	public HeadDataDTO getHeadData() {
+	public BAPIStructureDTO getHeadData() {
 		return headData;
 	}
 
-	public void setHeadData(HeadDataDTO headData) {
+	public void setHeadData(BAPIStructureDTO headData) {
 		this.headData = headData;
 	}
 
-	public ClientDataDTO getClientData() {
+	public BAPIStructureDTO getClientData() {
 		return clientData;
 	}
 
-	public void setClientData(ClientDataDTO clientData) {
+	public void setClientData(BAPIStructureDTO clientData) {
 		this.clientData = clientData;
 	}
 
-	public UnitsOfMeasureDTO getUnitsOfMeasure() {
+	public BAPIStructureDTO getUnitsOfMeasure() {
 		return unitsOfMeasure;
 	}
 
-	public void setUnitsOfMeasure(UnitsOfMeasureDTO unitsOfMeasure) {
+	public void setUnitsOfMeasure(BAPIStructureDTO unitsOfMeasure) {
 		this.unitsOfMeasure = unitsOfMeasure;
 	}
 
-	public TaxClassificationsDTO getTaxClassifications() {
+	public BAPIStructureDTO getTaxClassifications() {
 		return taxClassifications;
 	}
 
-	public void setTaxClassifications(TaxClassificationsDTO taxClassifications) {
+	public void setTaxClassifications(BAPIStructureDTO taxClassifications) {
 		this.taxClassifications = taxClassifications;
 	}
 
-	public List<MaterialDescriptionDTO> getMaterialDescriptionList() {
-		return materialDescriptionList;
+	public BAPITableDTO getMaterialDescription() {
+		return materialDescription;
 	}
 
-	public void setMaterialDescriptionList(List<MaterialDescriptionDTO> materialDescriptionList) {
-		this.materialDescriptionList = materialDescriptionList;
+	public void setMaterialDescription(BAPITableDTO materialDescription) {
+		this.materialDescription = materialDescription;
 	}
 
-	public List<SalesDataDTO> getSalesDataList() {
-		return salesDataList;
+	public BAPITableDTO getSalesData() {
+		return salesData;
 	}
 
-	public void setSalesDataList(List<SalesDataDTO> salesDataList) {
-		this.salesDataList = salesDataList;
+	public void setSalesData(BAPITableDTO salesData) {
+		this.salesData = salesData;
 	}
 
-	public List<PlantDataDTO> getPlantDataList() {
-		return plantDataList;
+	public BAPITableDTO getPlantData() {
+		return plantData;
 	}
 
-	public void setPlantDataList(List<PlantDataDTO> plantDataList) {
-		this.plantDataList = plantDataList;
+	public void setPlantData(BAPITableDTO plantData) {
+		this.plantData = plantData;
 	}
 
-	public List<ValuationDataDTO> getValuationDataList() {
-		return valuationDataList;
+	public BAPITableDTO getValuationData() {
+		return valuationData;
 	}
 
-	public void setValuationDataList(List<ValuationDataDTO> valuationDataList) {
-		this.valuationDataList = valuationDataList;
+	public void setValuationData(BAPITableDTO valuationData) {
+		this.valuationData = valuationData;
 	}
 
-	public List<StorageLocationDataDTO> getStorageLocationDataList() {
-		return storageLocationDataList;
+	public BAPITableDTO getStorageLocationData() {
+		return storageLocationData;
 	}
 
-	public void setStorageLocationDataList(List<StorageLocationDataDTO> storageLocationDataList) {
-		this.storageLocationDataList = storageLocationDataList;
+	public void setStorageLocationData(BAPITableDTO storageLocationData) {
+		this.storageLocationData = storageLocationData;
 	}
 
-	public List<ForecastParametersDTO> getForecastParametersList() {
-		return forecastParametersList;
+	public BAPITableDTO getForecastParameters() {
+		return forecastParameters;
 	}
 
-	public void setForecastParametersList(List<ForecastParametersDTO> forecastParametersList) {
-		this.forecastParametersList = forecastParametersList;
+	public void setForecastParameters(BAPITableDTO forecastParameters) {
+		this.forecastParameters = forecastParameters;
 	}
 
 }

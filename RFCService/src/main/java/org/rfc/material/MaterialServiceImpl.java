@@ -2,15 +2,27 @@ package org.rfc.material;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.rfc.material.dto.FieldValueDTO;
+import org.rfc.material.dto.MaterialTemplateDTO;
+import org.rfc.material.dto.ResponseDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("materialService")
 public class MaterialServiceImpl implements MaterialService {
 	
 	private Map<String,List<BAPIField>> fieldMap;
+	
+	@Autowired
+	private MaterialTemplateRepository templateRepo;
+	
+	@Autowired
+	private MaterialTemplateValueRepository templateValueRepo;
 
 	public Map<String,List<BAPIField>> getFieldMap(){
 		if(fieldMap==null) {
@@ -123,6 +135,85 @@ public class MaterialServiceImpl implements MaterialService {
 		fieldsFORECASTPARAMETERS.add(new BAPIField("TRACKLIMIT","trackLimit",5));
 		fieldsFORECASTPARAMETERS.add(new BAPIField("MODEL_SP","modelSp",1));
 		fieldMap.put("FORECASTPARAMETERS", fieldsFORECASTPARAMETERS);
+		
+	}
+
+	@Override
+	public ResponseDTO saveMaterialTemplate(MaterialTemplateDTO dto) {
+		MaterialTemplate template=new MaterialTemplate(dto);
+		
+		templateRepo.saveAndFlush(template);
+		
+		String dataTypeName=null;
+		int rowIndex;
+		dataTypeName=dto.getHeadData().getName();
+		for(FieldValueDTO fv : dto.getHeadData().getFields()) {
+			saveStructureValue(template.getId(),dataTypeName,fv);
+		}
+		dataTypeName=dto.getClientData().getName();
+		for(FieldValueDTO fv : dto.getClientData().getFields()) {
+			saveStructureValue(template.getId(),dataTypeName,fv);
+		}
+		dataTypeName=dto.getMaterialDescription().getName();
+		rowIndex=0;
+		for(List<FieldValueDTO> fvList : dto.getMaterialDescription().getRows()) {
+			saveTableEntries(template.getId(),dataTypeName,rowIndex,fvList);
+			rowIndex++;
+		}
+		dataTypeName=dto.getUnitsOfMeasure().getName();
+		for(FieldValueDTO fv : dto.getUnitsOfMeasure().getFields()) {
+			saveStructureValue(template.getId(),dataTypeName,fv);
+		}
+		System.out.println(dto.getSalesData().getName());
+		dataTypeName=dto.getSalesData().getName();
+		
+		rowIndex=0;
+		for(List<FieldValueDTO> fvList : dto.getSalesData().getRows()) {
+			saveTableEntries(template.getId(),dataTypeName,rowIndex,fvList);
+			rowIndex++;
+		}
+		dataTypeName=dto.getTaxClassifications().getName();
+		for(FieldValueDTO fv : dto.getTaxClassifications().getFields()) {
+			saveStructureValue(template.getId(),dataTypeName,fv);
+		}
+		dataTypeName=dto.getPlantData().getName();
+		rowIndex=0;
+		for(List<FieldValueDTO> fvList : dto.getPlantData().getRows()) {
+			saveTableEntries(template.getId(),dataTypeName,rowIndex,fvList);
+			rowIndex++;
+		}
+		dataTypeName=dto.getValuationData().getName();
+		rowIndex=0;
+		for(List<FieldValueDTO> fvList : dto.getValuationData().getRows()) {
+			saveTableEntries(template.getId(),dataTypeName,rowIndex,fvList);
+			rowIndex++;
+		}
+		dataTypeName=dto.getStorageLocationData().getName();
+		rowIndex=0;
+		for(List<FieldValueDTO> fvList : dto.getStorageLocationData().getRows()) {
+			saveTableEntries(template.getId(),dataTypeName,rowIndex,fvList);
+			rowIndex++;
+		}
+		dataTypeName=dto.getForecastParameters().getName();
+		rowIndex=0;
+		for(List<FieldValueDTO> fvList : dto.getForecastParameters().getRows()) {
+			saveTableEntries(template.getId(),dataTypeName,rowIndex,fvList);
+			rowIndex++;
+		}
+		
+		return null;
+	}
+	
+	private void saveStructureValue(int templateId,String dataTypeName,FieldValueDTO fv) {
+		MaterialTemplateValue mtv=new MaterialTemplateValue(templateId,dataTypeName,0,fv);
+		templateValueRepo.saveAndFlush(mtv);
+	}
+	
+	private void saveTableEntries(int templateId,String dataTypeName,int rowIndex,List<FieldValueDTO> fvList) {
+		for(FieldValueDTO fv : fvList) {
+			MaterialTemplateValue mtv=new MaterialTemplateValue(templateId,dataTypeName,rowIndex,fv);
+			templateValueRepo.saveAndFlush(mtv);
+		}
 		
 	}
 	
