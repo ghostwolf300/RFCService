@@ -225,6 +225,14 @@ div#ajaxInner{
 	padding: 10px;
 }
 
+.hidden-fields{
+	display: none;
+}
+
+.visible-fields{
+	display: table-cell;
+}
+
 .bapi-field-list-controls{
 	display: flex;
     justify-content: flex-end;
@@ -237,6 +245,31 @@ div#ajaxInner{
 
 .bapi-add-table-entry{
 	background: gray;
+}
+
+div.template-controls{
+	display: table;
+	border-collapse: separate;
+  	border-spacing: 10px;
+}
+
+div.template-controls-row{
+	display: table-row;
+}
+
+div.template-controls-cell{
+	display: table-cell;
+}
+
+
+div.upload-template{
+	overflow-y:auto;
+	font-size: 10px;
+}
+
+tr.center-text{
+	text-align: center;
+	vertical-align:middle;
 }
 
 

@@ -5,10 +5,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.rfc.material.dto.FieldValueDTO;
-import org.rfc.material.dto.MaterialTemplateDTO;
+import org.rfc.material.dto.HeaderColumnDTO;
+import org.rfc.material.dto.TemplateDTO;
 import org.rfc.material.dto.ResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,10 +21,10 @@ public class MaterialServiceImpl implements MaterialService {
 	private Map<String,List<BAPIField>> fieldMap;
 	
 	@Autowired
-	private MaterialTemplateRepository templateRepo;
+	private TemplateRepository templateRepo;
 	
 	@Autowired
-	private MaterialTemplateValueRepository templateValueRepo;
+	private TemplateValueRepository templateValueRepo;
 
 	public Map<String,List<BAPIField>> getFieldMap(){
 		if(fieldMap==null) {
@@ -139,8 +141,8 @@ public class MaterialServiceImpl implements MaterialService {
 	}
 
 	@Override
-	public ResponseDTO saveMaterialTemplate(MaterialTemplateDTO dto) {
-		MaterialTemplate template=new MaterialTemplate(dto);
+	public ResponseDTO saveTemplate(TemplateDTO dto) {
+		Template template=new Template(dto);
 		
 		templateRepo.saveAndFlush(template);
 		
@@ -205,16 +207,91 @@ public class MaterialServiceImpl implements MaterialService {
 	}
 	
 	private void saveStructureValue(int templateId,String dataTypeName,FieldValueDTO fv) {
-		MaterialTemplateValue mtv=new MaterialTemplateValue(templateId,dataTypeName,0,fv);
+		TemplateValue mtv=new TemplateValue(templateId,dataTypeName,0,fv);
 		templateValueRepo.saveAndFlush(mtv);
 	}
 	
 	private void saveTableEntries(int templateId,String dataTypeName,int rowIndex,List<FieldValueDTO> fvList) {
 		for(FieldValueDTO fv : fvList) {
-			MaterialTemplateValue mtv=new MaterialTemplateValue(templateId,dataTypeName,rowIndex,fv);
+			TemplateValue mtv=new TemplateValue(templateId,dataTypeName,rowIndex,fv);
 			templateValueRepo.saveAndFlush(mtv);
 		}
 		
+	}
+
+	@Override
+	public List<TemplateDTO> getTemplates() {
+		List<Template> templates=templateRepo.findAll();
+		List<TemplateDTO> dtoList=new ArrayList<TemplateDTO>();
+		for(Template t : templates) {
+			dtoList.add(new TemplateDTO(t));
+		}
+		return dtoList;
+	}
+
+	@Override
+	public TemplateDTO getTemplate(int id) {
+		Optional<Template> template=templateRepo.findById(id);
+		if(template.isPresent()) {
+			Template t=template.get();
+			System.out.println("Field values size: "+t.getFieldValues().size());
+			TemplateDTO dto=new TemplateDTO(t);
+			return dto;
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public List<HeaderColumnDTO> getUploadHeaders(int templateId) {
+		List<HeaderColumnDTO> headerColumns=templateRepo.getUploadHeader(templateId);
+		List<HeaderColumnDTO> combinedColumns=combineHeaderColumns(headerColumns);
+		return combinedColumns;
+	}
+	
+	private List<HeaderColumnDTO> combineHeaderColumns(List<HeaderColumnDTO> headerColumns){
+		Map<Integer,List<String>> columnMap=new HashMap<Integer,List<String>>();
+		List<HeaderColumnDTO> combinedColumns=new ArrayList<HeaderColumnDTO>();
+		int fieldIndex;
+		
+		for(HeaderColumnDTO hdrCol : headerColumns) {
+			fieldIndex=hdrCol.getFieldIndex();
+			if(columnMap.containsKey(fieldIndex)) {
+				columnMap.get(fieldIndex).add(hdrCol.getHeaderText());
+			}
+			else {
+				List<String> hdrTexts = new ArrayList<String>();
+				hdrTexts.add(hdrCol.getHeaderText());
+				columnMap.put(fieldIndex, hdrTexts);
+			}
+		}
+		
+		Set<Integer> indexes=columnMap.keySet();
+		HeaderColumnDTO hc=null;
+		for(int i : indexes) {	
+			String combinedText=null;
+			List<String> hdrTexts=columnMap.get(i);
+			if(hdrTexts.size()>1) {
+				combinedText=null;
+				for(String hdrText : columnMap.get(i)) {
+					if(combinedText==null) {
+						combinedText=hdrText;
+					}
+					else {
+						combinedText=combinedText+"\r\nAnd\r\n"+hdrText;
+					}
+				}
+				hc=new HeaderColumnDTO(combinedText,i);
+			}
+			else {
+				hc=new HeaderColumnDTO(hdrTexts.get(0),i);
+			}
+			combinedColumns.add(hc);
+			
+		}
+		
+		return combinedColumns;
 	}
 	
 }

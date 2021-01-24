@@ -5,14 +5,14 @@
 		<div class="bapi-field-list-viewport">
 			<div class="bapi-field-list-container">
 				<div class="bapi-field-list-container-row">
-					<div th:id="'list_'+${name}" class="babi-field-list">
+					<div th:id="'list_'+${name}+'_template'" class="babi-field-list hidden-fields" th:attr="data-row=0">
 						<div class="bapi-field-list-controls">
 							<button th:if="${isTableEntry}" class="btn btn-danger del-bapi-table-entry" type="button">Del</button>
 						</div>
 						<div class="babi-field-list-fields">
 							<table>
 								<tbody>
-									<tr th:each="fld : ${fields}" th:include="fragments/material :: input_row" th:with="fieldName=${fld}" th:class="'row-'+${fld.fieldName}" th:attr="data-length=${fld.length},data-type=${fld.type},data-propertyname=${fld.propertyName}"></tr>
+									<tr th:id="${#strings.toUpperCase(name)}+'_'+${fld.fieldName}" th:each="fld : ${fields}" th:include="fragments/material :: input_row" th:with="fieldName=${fld}" th:class="'row-'+${fld.fieldName}" th:attr="data-length=${fld.length},data-type=${fld.type},data-propertyname=${fld.propertyName},data-row=0"></tr>
 								</tbody>
 							</table>
 						</div>

@@ -1,9 +1,17 @@
 package org.rfc.material.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public class MaterialTemplateDTO implements Serializable {
+import org.rfc.material.Template;
+import org.rfc.material.TemplateValue;
+
+public class TemplateDTO implements Serializable {
 
 	/**
 	 * 
@@ -23,8 +31,61 @@ public class MaterialTemplateDTO implements Serializable {
 	private BAPITableDTO storageLocationData;
 	private BAPITableDTO forecastParameters;	
 
-	public MaterialTemplateDTO() {
+	public TemplateDTO() {
 		super();
+	}
+	
+	public TemplateDTO(Template template) {
+		super();
+		this.id=template.getId();
+		this.name=template.getName();
+		createFieldValues(template.getFieldValues());
+	}
+	
+	private void createFieldValues(Set<TemplateValue> templateValues) {
+		Map<String,Set<TemplateValue>> valueMap=new HashMap<String,Set<TemplateValue>>();
+		for(TemplateValue tv : templateValues) {
+			String struct=tv.getKey().getBapiStructure();
+			if(!valueMap.containsKey(struct)) {
+				valueMap.put(struct,new HashSet<TemplateValue>());
+			}
+			valueMap.get(struct).add(tv);
+		}
+		this.headData=createStructure("HEADDATA",valueMap.get("HEADDATA"));
+		this.clientData=createStructure("CLIENTDATA",valueMap.get("CLIENTDATA"));
+		this.unitsOfMeasure=createStructure("UNITSOFMEASURE",valueMap.get("UNITSOFMEASURE"));
+		this.taxClassifications=createStructure("TAXCLASSIFICATIONS",valueMap.get("TAXCLASSIFICATIONS"));
+		this.materialDescription=createTable("MATERIALDESCRIPTION",valueMap.get("MATERIALDESCRIPTION"));
+		this.salesData=createTable("SALESDATA",valueMap.get("SALESDATA"));
+		this.plantData=createTable("PLANTDATA",valueMap.get("PLANTDATA"));
+		this.valuationData=createTable("VALUATIONDATA",valueMap.get("VALUATIONDATA"));
+		this.storageLocationData=createTable("STORAGELOCATIONDATA",valueMap.get("STORAGELOCATIONDATA"));
+		this.forecastParameters=createTable("FORECASTPARAMETERS",valueMap.get("FORECASTPARAMETERS"));
+	}
+	
+	private BAPIStructureDTO createStructure(String name,Set<TemplateValue> values) {
+		List<FieldValueDTO> fields=new ArrayList<FieldValueDTO>();
+		for(TemplateValue tv : values) {
+			fields.add(new FieldValueDTO(tv));
+		}
+		BAPIStructureDTO structure=new BAPIStructureDTO(name, fields);
+		return structure;
+	}
+	
+	private BAPITableDTO createTable(String name,Set<TemplateValue> values) {
+		Map<Integer,List<FieldValueDTO>> rowMap=new HashMap<Integer,List<FieldValueDTO>>();
+		for(TemplateValue tv : values) {
+			if(!rowMap.containsKey(tv.getKey().getRowId())) {
+				rowMap.put(tv.getKey().getRowId(), new ArrayList<FieldValueDTO>());
+			}
+			rowMap.get(tv.getKey().getRowId()).add(new FieldValueDTO(tv));
+		}
+		List<FieldValueDTO>[] rows=new ArrayList[rowMap.keySet().size()];
+		for(int i=0;i<rows.length;i++) {
+			rows[i]=rowMap.get(i);
+		}
+		BAPITableDTO table=new BAPITableDTO(name,rows);
+		return table;
 	}
 
 	public int getId() {

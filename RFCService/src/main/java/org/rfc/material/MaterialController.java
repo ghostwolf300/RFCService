@@ -43,6 +43,7 @@ public class MaterialController {
 		mv.addObject("viewId",8);
 		mv.addObject("sapUser",sapUser.getUserString());
 		mv.addObject("fieldMap", materialService.getFieldMap());
+		mv.addObject("templates",materialService.getTemplates());
 		mv.setViewName("create_material_templates");
 		return mv;
 	}

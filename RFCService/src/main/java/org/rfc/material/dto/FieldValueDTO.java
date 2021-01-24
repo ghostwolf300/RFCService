@@ -2,6 +2,8 @@ package org.rfc.material.dto;
 
 import java.io.Serializable;
 
+import org.rfc.material.TemplateValue;
+
 public class FieldValueDTO implements Serializable {
 
 	/**
@@ -22,6 +24,19 @@ public class FieldValueDTO implements Serializable {
 		this.field=field;
 		this.valueType=valueType;
 		this.value=value;
+	}
+	
+	public FieldValueDTO(TemplateValue tv) {
+		super();
+		this.field=tv.getKey().getBapiField();
+		if(tv.getInputType()==1) {
+			this.valueType="FIELD";
+			this.value=String.valueOf(tv.getFieldIndex());
+		}
+		else if(tv.getInputType()==2) {
+			this.valueType="CONSTANT";
+			this.value=tv.getConstantValue();
+		}
 	}
 
 	public String getField() {

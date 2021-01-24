@@ -14,7 +14,7 @@ import org.rfc.material.dto.FieldValueDTO;
 
 @Entity
 @Table(name="t_material_template_values")
-public class MaterialTemplateValue implements Serializable {
+public class TemplateValue implements Serializable {
 	
 	/**
 	 * 
@@ -22,7 +22,7 @@ public class MaterialTemplateValue implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@EmbeddedId
-	private MaterialTemplateValueKey key;
+	private TemplateValueKey key;
 	@Column(name="input_type")
 	private int inputType;
 	@Column(name="field_index")
@@ -31,14 +31,14 @@ public class MaterialTemplateValue implements Serializable {
 	private String constantValue;
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="template_id",nullable=false,insertable=false,updatable=false)
-	private MaterialTemplate template;
+	private Template template;
 	
-	public MaterialTemplateValue() {
+	public TemplateValue() {
 		super();
 	}
 	
-	public MaterialTemplateValue(int templateId,String babiStructure,int rowId,FieldValueDTO fieldValue) {
-		key=new MaterialTemplateValueKey(templateId,babiStructure,rowId,fieldValue.getField());
+	public TemplateValue(int templateId,String babiStructure,int rowId,FieldValueDTO fieldValue) {
+		key=new TemplateValueKey(templateId,babiStructure,rowId,fieldValue.getField());
 		inputType=(fieldValue.getValueType().equals("FIELD") ? 1 : 2);
 		if(inputType==1) {
 			fieldIndex=Integer.parseInt(fieldValue.getValue());
@@ -48,11 +48,11 @@ public class MaterialTemplateValue implements Serializable {
 		}
 	}
 
-	public MaterialTemplateValueKey getKey() {
+	public TemplateValueKey getKey() {
 		return key;
 	}
 
-	public void setKey(MaterialTemplateValueKey key) {
+	public void setKey(TemplateValueKey key) {
 		this.key = key;
 	}
 

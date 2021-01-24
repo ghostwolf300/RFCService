@@ -6,7 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 @Embeddable
-public class MaterialTemplateValueKey implements Serializable {
+public class TemplateValueKey implements Serializable {
 
 	/**
 	 * 
@@ -22,11 +22,11 @@ public class MaterialTemplateValueKey implements Serializable {
 	@Column(name="bapi_field")
 	private String bapiField;
 	
-	public MaterialTemplateValueKey() {
+	public TemplateValueKey() {
 		super();
 	}
 
-	public MaterialTemplateValueKey(int templateId,String bapiStructure, int rowId, String bapiField) {
+	public TemplateValueKey(int templateId,String bapiStructure, int rowId, String bapiField) {
 		super();
 		this.bapiStructure = bapiStructure;
 		this.templateId = templateId;

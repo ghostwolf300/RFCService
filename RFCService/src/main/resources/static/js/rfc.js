@@ -702,12 +702,111 @@ var MaterialTemplates=(function(){
 	}
 	
 	function _bindEventHandlers(){
+		$('.template-link').click(_loadTemplate);
 		$('select.function-field-input-type').on('change',_functionFieldInputType);
 		$('button.add-bapi-table-entry').click(_addTableEntry);
 		$('button.del-bapi-table-entry').click(_delTableEntry);
 		$('button#btn_save_template').click(_saveTemplate);
+		//$('button#btn_test').click(_getUploadHeaders(1));
 	}
-
+	
+	function _loadTemplate(){
+		//var id=$(this).attr('data-id');
+		var id=$(this).data('id');
+		console.log('loading template: '+id);
+		var params={
+				'templateId' : id
+		}
+		AjaxUtil.get('material/getMaterialTemplate',params,'json',_displayTemplate,ErrorHandler.handle)
+	}
+	
+	function _displayTemplate(template){
+		console.log(JSON.stringify(template));
+		console.log('Displaying loaded template...');
+		$('input#template_id').val(template.id);
+		$('input#template_name').val(template.name);
+		_setStructValues(template.headData);
+		_setStructValues(template.clientData);
+		_setStructValues(template.unitsOfMeasure);
+		_setStructValues(template.taxClassifications);
+		_setTableValues(template.materialDescription);
+		_setTableValues(template.salesData);
+		_setTableValues(template.plantData);
+		_setTableValues(template.valuationData);
+		_setTableValues(template.storageLocationData);
+		_setTableValues(template.forecastParameters);
+		_getUploadHeaders(template.id);
+	}
+	
+	function _setStructValues(struct){
+		_clearFieldValues(struct);
+		_setFieldValues(struct,0);
+	}
+	
+	function _clearFieldValues(struct){
+		var structName=struct.name.toLowerCase();
+		$('div#list_'+structName).remove();
+	}
+	
+	function _setFieldValues(struct,rowIndex){
+		var structName=struct.name.toLowerCase();
+		var $templateList=$('div#list_'+structName+'_template');
+		var $fieldList=$templateList.clone(true);
+		$fieldList.attr('id','list_'+structName);
+		$fieldList.attr('data-row',rowIndex);
+		$fieldList.removeClass('hidden-fields');
+		$fieldList.insertAfter($templateList);
+		struct.fields.forEach(function(fld,index){
+			let id=struct.name+'_'+fld.field;
+			let $tr=$('tr#'+id+'[data-row='+rowIndex+']');
+			let $select=$('tr#'+id+'>td.input-type>select');
+			let $oldInput=$('tr#'+id+'>td.input-value>input');
+			let $newInput;
+			$select.val(fld.valueType);
+			
+			if(fld.valueType=='FIELD'){
+				$newInput=$('<input type="number" min="0" max="255">')
+			}
+			else if(fld.valueType=='CONSTANT'){
+				$newInput=$('<input type="text">')
+			}
+			$newInput.insertBefore($oldInput);
+			$newInput.val(fld.value);
+			$oldInput.remove();
+		});
+	}
+	
+	function _setTableValues(table){
+		_clearFieldValues(table);
+		var tableName=table.name.toLowerCase();
+		var $entryDiv=$('div#entry_'+tableName);
+		var $templateList=$('div#list_'+tableName+'_template');
+		table.rows.forEach(function(row,index){
+			var $fieldList=$templateList.clone(true);
+			$fieldList.attr('id','list_'+tableName);
+			$fieldList.attr('data-row',index);
+			$fieldList.removeClass('hidden-fields');
+			row.forEach(function(fld,index){
+				let id=table.name+'_'+fld.field;
+				let $tr=$fieldList.find('tr#'+id);
+				let $select=$fieldList.find('tr#'+id+'>td.input-type>select');
+				let $oldInput=$fieldList.find('tr#'+id+'>td.input-value>input');
+				let $newInput;
+				$select.val(fld.valueType);
+				
+				if(fld.valueType=='FIELD'){
+					$newInput=$('<input type="number" min="0" max="255">')
+				}
+				else if(fld.valueType=='CONSTANT'){
+					$newInput=$('<input type="text">')
+				}
+				$newInput.insertBefore($oldInput);
+				$newInput.val(fld.value);
+				$oldInput.remove();
+			});
+			$fieldList.insertBefore($entryDiv);
+		});
+	}
 	
 	function _functionFieldInputType(event){
 		var inputType=$(event.target).val();
@@ -850,6 +949,26 @@ var MaterialTemplates=(function(){
 		return tableData;
 	}
 	
+	function _getUploadHeaders(templateId){
+		var params={
+				'templateId' : templateId
+		}
+		AjaxUtil.get('material/getUploadHeaders',params,'param',_displayUploadHeaders,
+				function(error){
+					console.log('Failed!');
+				}
+		);
+	}
+	
+	function _displayUploadHeaders(headerColumns){
+		$headerRow=$('div#upload_template>table>thead>tr');
+		$indexRow=$('div#upload_template>table>tbody>tr');
+		headerColumns.forEach(function(hc){
+			$headerRow.append($('<th>'+hc.headerText+'</th>'));
+			$indexRow.append($('<td>'+hc.fieldIndex+'</td>'))
+		});	
+	}
+	
 	
 	return{
 		init : init
@@ -870,6 +989,55 @@ var MaterialCreate=(function(){
 	
 	return{
 		init : init
+	}
+	
+})();
+
+var AjaxUtil=(function(){
+	
+	function post(endPoint,data,dataType){
+		var url=contextPath+endPoint;
+		$.ajax({
+			url : url,
+			method : "POST",
+			headers : {
+				'Content-Type': 'application/json'
+			},
+			data : data,
+			dataType : "json"
+		}).done(function(response){
+			MessageBar.showSuccess(response.message);
+		}).fail(function(e){
+			console.log('failed '+e.responseText);
+		}).always(function(){
+			
+		});
+	}
+	
+	function get(endPoint,data,dataType,successHandler,failureHandler){
+		var url=contextPath+endPoint;
+		$.ajax({
+			url : url,
+			method : "GET",
+			data : data,
+			dataType : "json"
+		}).done(function(response){
+			successHandler(response);
+		}).fail(function(e){
+			if(failureHandler){
+				failureHandler(e);
+			}
+			else{
+				console.log('no failure handler');
+			}
+		}).always(function(){
+			
+		});
+	}
+	
+	return{
+		post 	: post,
+		get		: get
 	}
 	
 })();
@@ -1052,7 +1220,8 @@ var ErrorHandler=(function(){
 		}
 		else{
 			console.log(e.responseText);
-			MessageBar.showError(e.responseText);
+			console.log(e);
+			MessageBar.showError('HttpStatus: '+e.status+' '+e.statusText+'\t'+e.responseText);
 		}
 	}
 	
