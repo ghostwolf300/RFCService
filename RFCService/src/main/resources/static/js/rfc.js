@@ -4,12 +4,14 @@
 
 var $body;
 var contextPath;
-
+var spinnerDisabled=false;
 
 $(document).ready(initPage);
 $(document).on({
 	ajaxStart : function(){
-		$body.addClass('loading');
+		if(!spinnerDisabled){
+			$body.addClass('loading');
+		}
 	},
 	ajaxStop : function(){
 		$body.removeClass('loading');
@@ -66,7 +68,7 @@ function initPage(){
  	else if(viewId==7){
  		MessageBar.init();
  		SAPConnection.init();
- 		MaterialCreate.init();
+ 		MaterialRun.init();
  	}
  	else if(viewId==8){
  		MessageBar.init();
@@ -696,6 +698,20 @@ var SalesPrice=(function(){
 
 var MaterialTemplates=(function(){
 	
+	
+	var dataTableIds=[
+		'headdata',
+		'clientdata',
+		'materialdescription',
+		'unitsofmeasure',
+		'salesdata',
+		'taxclassifications',
+		'plantdata',
+		'valuationdata',
+		'storagelocationdata',
+		'forecastparameters'
+		];
+	
 	function init(){
 		console.log('MaterialTemplates.init');
 		_bindEventHandlers();
@@ -706,6 +722,7 @@ var MaterialTemplates=(function(){
 		$('select.function-field-input-type').on('change',_functionFieldInputType);
 		$('button.add-bapi-table-entry').click(_addTableEntry);
 		$('button.del-bapi-table-entry').click(_delTableEntry);
+		$('button#btn_new_template').click(_newTemplate);
 		$('button#btn_save_template').click(_saveTemplate);
 		//$('button#btn_test').click(_getUploadHeaders(1));
 	}
@@ -845,33 +862,48 @@ var MaterialTemplates=(function(){
 		$fieldsDiv.remove();
 	}
 	
-	function _saveTemplate(){
-		var templateJson=_getTemplateJSON();
-		var url=contextPath+'material/saveMaterialTemplate';
-		var data=JSON.stringify(templateJson);
-		console.log(data);
-		
-		$.ajax({
-			url : url,
-			method : "POST",
-			headers : {
-				'Content-Type': 'application/json'
-			},
-			data : data,
-			dataType : "json"
-		}).done(function(response){
-			MessageBar.showSuccess(response.message);
-		}).fail(function(e){
-			console.log('failed '+e.responseText);
-		}).always(function(){
+	function _newTemplate(){
+		dataTableIds.forEach(function(dataListId,index){
+			$('div#list_'+dataListId).remove();
+			let $templateList=$('div#list_'+dataListId+'_template');
+			let $dataList=$templateList.clone(true);
+			$dataList.attr('id','list_'+dataListId);
+			$dataList.attr('data-row',0);
+			$dataList.removeClass('hidden-fields');
+			$dataList.insertAfter($templateList);
 			
 		});
+		$('input#template_id').val('New');
+		$('input#template_name').val('');
+	}
+	
+	function _saveTemplate(){
+		var templateJson=_getTemplateJSON();
+		var data=JSON.stringify(templateJson);
+		console.log(data);
+		AjaxUtil.post('material/saveMaterialTemplate',data,'json',_test,ErrorHandler.handle);
+	}
+	
+	function _test(template){
+		MessageBar.showSuccess('Template saved');
+		if(template){
+			console.log('Template saved');
+			console.log(template);
+		}
 	}
 	
 	function _getTemplateJSON(){
+		var id;
+		if($('input#template_id').val()=='New'){
+			id=-1;
+		}
+		else{
+			id=parseInt($('input#template_id').val());
+		}
+		
 		var template={
-				'id'						: 1,
-				'name' 						: 'test template',
+				'id'						: id,
+				'name' 						: $('input#template_name').val(),
 				'headData'					: _getStructureData('headdata'),
 				'clientData'				: _getStructureData('clientdata'),
 				'materialDescription'		: _getTableData('materialdescription'),
@@ -976,6 +1008,247 @@ var MaterialTemplates=(function(){
 	
 })();
 
+var MaterialRun=(function(){
+	
+	var $modalDiv;
+	var $btnCreateRun;
+	var $runTableDiv;
+	var $dataFileInput;
+	var $btnSaveRun;
+	var $btnStartRun;
+	var $btnDeleteRun;
+	var $btnResetRun;
+	var $uploadProgressBar;
+	
+	function init(){
+		console.log('MaterialRun.init');
+		$modalDiv=$('div#create_run_modal');
+		$btnCreateRun=$('button#btn_create_run');
+		$runTableDiv=$('div#run_table');
+		$dataFileInput=$('input#customFile');
+		$btnSaveRun=$('button#btn_save_run');
+		$btnStartRun=$('button#btn_start_run');
+		$btnDeleteRun=$('button#btn_delete_run');
+		$btnResetRun=$('button#btn_reset_run');
+		$uploadProgressBar=$('div#upload_progress');
+		_bindEventHandlers();
+	}
+	
+	function _bindEventHandlers(){
+		$('.template-list-item').click(_selectTemplate);
+		$btnCreateRun.click(_initUploadProgressBar);
+		$dataFileInput.on('change',_selectFile);
+		$btnSaveRun.click(_saveRun);
+		$btnDeleteRun.click(_deleteRun);
+		$btnStartRun.click(_startRun);
+		$btnResetRun.click(_resetRun);
+	}
+	
+	function _selectTemplate(){
+		$('.template-list-item').removeClass('active');
+		$(this).addClass('active');
+		var templateId=parseInt($(this).attr('data-id'));
+		var params={
+				'templateId' : templateId
+		}
+		AjaxUtil.get('material/runs',params,'param',_displayRuns,ErrorHandler.handle);
+		
+	}
+	
+	function _displayRuns(runs){
+		_clearRuns();
+		runs.forEach(_addRun);
+	}
+	
+	function _clearRuns(){
+		$runTableDiv.find('div.run-table-row')
+			.not('div.add-entry-row')
+			.not('div#row_template')
+			.remove();
+	}
+	
+	function _addRun(run,index){
+		var $rowDiv=$('div#row_template').clone(true);
+		$rowDiv.attr('id','row-'+index);
+		$rowDiv.attr('data-run_id',run.id);
+		$rowDiv.removeClass('hidden-fields');
+		$rowDiv.addClass('run-table-row');
+		$rowDiv.find('h4').text(run.name);
+		$rowDiv.find('#btn_delete_run').attr('data-run_id',run.id);
+		$rowDiv.find('#btn_start_run').attr('data-run_id',run.id);
+		$rowDiv.find('#btn_reset_run').attr('data-run_id',run.id);
+		let text;
+		if(run.testRun){
+			text='TEST';
+		}
+		else{
+			text='PROD';
+		}
+		$rowDiv.find('#txt_testOrProd').text(text);
+		$runTableDiv.append($rowDiv);
+		console.log(run.name);
+	}
+	
+	function _selectFile(){
+        var fileName = $(this).val();
+        $(this).next('.custom-file-label').html(fileName);
+	}
+	
+	function _saveRun(){
+		console.log('saving run');
+		spinnerDisabled=true;
+		var runJson=_createRunJson();
+		console.log(runJson);
+		var data=JSON.stringify(runJson);
+		AjaxUtil.post('material/saveRun',data,'json',_saveData,ErrorHandler.handle);
+	}
+	
+	function _deleteRun(event){
+		var runId=$(this).data('run_id');
+		console.log(runId);
+		var params={
+				'runId' : runId
+		}
+		AjaxUtil.get('material/deleteRun',params,'param',function(){
+			MessageBar.showSuccess('Run id: '+runId+' deleted');
+			_refreshRuns();
+		},
+		ErrorHandler.handle
+		);
+	}
+	
+	function _refreshRuns(){
+		var params={
+			'templateId' : _getSelectedTemplateId()
+		}
+		AjaxUtil.get('material/runs',params,'param',_displayRuns,ErrorHandler.handle);
+	}
+	
+	function _getSelectedTemplateId(){
+		var templateId=parseInt($('.template-list-item.active').attr('data-id'));
+		return templateId;
+	}
+	
+	function _startRun(event){
+		var runId=$(this).data('run_id');
+		console.log(runId);
+	}
+	
+	function _resetRun(event){
+		var runId=$(this).data('run_id');
+		console.log(runId);
+	}
+	
+	function _createRunJson(){
+		var runJson={
+			'id'			: -1,
+			'name'			: $('#run_name').val(),
+			'templateId'	: parseInt($('.template-list-item.active').attr('data-id')),
+			'testRun'		: $('#chk_test_run').is(':checked')
+		}
+		return runJson;
+	}
+	
+	function _saveData(run){
+		MessageBar.showSuccess('Run id: '+run.id+" saved succesfully");
+		
+		var file=$dataFileInput[0].files[0];
+		var reader=new FileReader();
+		
+		reader.onload=function(event){
+			var csv=event.target.result;
+			console.log('File read succesfully');
+			var data=JSON.stringify(_csvToJsonArray(run.id,csv));
+			//console.log(data);
+			AjaxUtil.post('material/saveRunData',data,'json',_handleSuccess,ErrorHandler.handle,_uploadProgressHandler);
+		}
+		reader.onerror=function(event){
+			MessageBar.showError('Failed to read file!');
+		}
+		reader.readAsText(file);
+		
+	}
+	
+	function _initUploadProgressBar(){
+		$uploadProgressBar.attr('aria-valuenow',0);
+		$uploadProgressBar.width('0%');
+		$uploadProgressBar.removeClass('progress-bar-striped');
+		$uploadProgressBar.removeClass('progress-bar-animated');
+		$uploadProgressBar.text('');
+	}
+	
+	function _uploadProgressHandler(e){
+		var progress;
+		if(e.lengthComputable){
+			progress=Math.floor(100*(e.loaded/e.total));
+		}
+		if(progress<=100){
+			$uploadProgressBar.attr('aria-valuenow',progress);
+			$uploadProgressBar.width(progress+'%');
+		}
+		if(progress==100 && !$uploadProgressBar.hasClass('progress-bar-animated')){
+			$uploadProgressBar.addClass('progress-bar-striped');
+			$uploadProgressBar.addClass('progress-bar-animated');
+			$uploadProgressBar.text('Saving to database...');
+		}
+	}
+	
+	function _handleSuccess(response){
+		$modalDiv.modal('hide');
+		_refreshRuns();
+		MessageBar.showSuccess('Run data saved succesfully');
+		spinnerDisabled=false;
+		
+	}
+	
+	function _csvToArray(csv){
+		var allTextLines = csv.split(/\r\n|\n/);
+        var lines = [];
+        for (var i=0; i<allTextLines.length; i++) {
+            var data = allTextLines[i].split(';');
+                var tarr = [];
+                for (var j=0; j<data.length; j++) {
+                	data[j]=data[j].replace(/"/g, "");
+                    tarr.push(data[j]);
+                }
+                lines.push(tarr);
+        }
+        return lines;
+	}
+	
+	function _csvToJsonArray(runId,csv){
+		var allTextLines = csv.split(/\r\n|\n/);
+        var jsonArr = [];
+        var rowNumber=0;
+        for (var i=0; i<allTextLines.length; i++) {
+            var data = allTextLines[i].split(';');
+            if(data!=""){
+	            for (var j=0; j<data.length; j++) {
+	            	data[j]=data[j].replace(/"/g, "");
+	                jsonArr.push(_createDataJson(runId,rowNumber,j,data[j]));
+	            }
+            }
+            rowNumber++;
+        }
+        return jsonArr;
+	}
+	
+	function _createDataJson(runId,rowNumber,fieldIndex,value){
+		var dataJson={
+				'runId'		: runId,
+				'rowNumber'	: rowNumber,
+				'fieldIndex': fieldIndex,
+				'value'		: value
+		}
+		return dataJson;
+	}
+	
+	return{
+		init : init
+	}
+	
+})();
+
 var MaterialCreate=(function(){
 	
 	function init(){
@@ -995,7 +1268,7 @@ var MaterialCreate=(function(){
 
 var AjaxUtil=(function(){
 	
-	function post(endPoint,data,dataType){
+	function post(endPoint,data,dataType,successHandler,failureHandler,uploadProgressHandler){
 		var url=contextPath+endPoint;
 		$.ajax({
 			url : url,
@@ -1004,11 +1277,23 @@ var AjaxUtil=(function(){
 				'Content-Type': 'application/json'
 			},
 			data : data,
-			dataType : "json"
+			dataType : "json",
+			xhr : function(){
+				var xhr=$.ajaxSettings.xhr();
+				if(uploadProgressHandler){
+					xhr.upload.onprogress=uploadProgressHandler
+				}
+				return xhr;
+			}
 		}).done(function(response){
-			MessageBar.showSuccess(response.message);
+			successHandler(response);
 		}).fail(function(e){
-			console.log('failed '+e.responseText);
+			if(failureHandler){
+				failureHandler(e);
+			}
+			else{
+				console.log('no failure handler');
+			}
 		}).always(function(){
 			
 		});
@@ -1223,6 +1508,7 @@ var ErrorHandler=(function(){
 			console.log(e);
 			MessageBar.showError('HttpStatus: '+e.status+' '+e.statusText+'\t'+e.responseText);
 		}
+		spinnerDisabled=false;
 	}
 	
 	return{

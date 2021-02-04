@@ -6,6 +6,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.rfc.material.dto.HeaderColumnDTO;
 import org.rfc.material.dto.ResponseDTO;
+import org.rfc.material.dto.RunDTO;
+import org.rfc.material.dto.RunDataDTO;
+import org.rfc.material.dto.RunDataWrapperDTO;
 import org.rfc.material.dto.TemplateDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -54,12 +57,36 @@ public class MaterialRestController {
 		List<HeaderColumnDTO> headerColumns=materialService.getUploadHeaders(id);
 		return new ResponseEntity<List<HeaderColumnDTO>>(headerColumns,HttpStatus.OK);
 	}
-	
-	
-	@PostMapping(value="/material/uploadData",consumes="application/json", produces="application/json")
 	@ResponseBody
-	public ResponseEntity<?> uploadData(String[][] data){
-		return null;
+	@GetMapping(value="/material/runs",produces="application/json")
+	public ResponseEntity<?> getRuns(@RequestParam("templateId") int templateId){
+		List<RunDTO> runs=materialService.getRuns(templateId);
+		return new ResponseEntity<List<RunDTO>>(runs,HttpStatus.OK);
+	}
+	
+	@ResponseBody
+	@PostMapping(value="/material/saveRun",consumes="application/json",produces="application/json")
+	public ResponseEntity<?> saveRun(@RequestBody RunDTO run){
+		System.out.println(run.getId()+"\t"+run.getName()+"\t"+run.getTemplateId());
+		run=materialService.saveRun(run);
+		return new ResponseEntity<RunDTO>(run,HttpStatus.OK);
+	}
+	
+	@PostMapping(value="/material/saveRunData",consumes="application/json", produces="application/json")
+	@ResponseBody
+	public ResponseEntity<?> saveRunData(@RequestBody List<RunDataDTO> runDataList){
+		ResponseDTO response=materialService.saveRunData(runDataList);
+		if(response.getStatusCode()==999) {
+			return new ResponseEntity<ResponseDTO>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<ResponseDTO>(response,HttpStatus.OK);
+	}
+	
+	@GetMapping(value="/material/deleteRun",produces="application/json")
+	@ResponseBody
+	public ResponseEntity<?> deleteRun(@RequestParam int runId){
+		ResponseDTO response=materialService.deleteRun(runId);
+		return new ResponseEntity<ResponseDTO>(response,HttpStatus.OK);
 	}
 	
 	

@@ -1,9 +1,12 @@
-package org.rfc.material;
+package org.rfc.material.template;
 
 import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SqlResultSetMapping;
@@ -12,6 +15,8 @@ import javax.persistence.NamedNativeQuery;
 import javax.persistence.ConstructorResult;
 import javax.persistence.ColumnResult;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.rfc.material.dto.HeaderColumnDTO;
 import org.rfc.material.dto.TemplateDTO;
 
@@ -36,12 +41,15 @@ import org.rfc.material.dto.TemplateDTO;
 )
 public class Template {
 	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="id")
-	private int id;
+	private Integer id;
 	@Column(name="name")
 	private String name;
 	
-	@OneToMany(mappedBy="template")
+	//added @OnDelete and orphanRemoval
+	@OneToMany(mappedBy="template",orphanRemoval=true,fetch=FetchType.LAZY)
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Set<TemplateValue> fieldValues;
 	
 	public Template() {
@@ -49,15 +57,20 @@ public class Template {
 	}
 	
 	public Template(TemplateDTO dto) {
-		this.id=dto.getId();
+		if(dto.getId()==-1) {
+			this.id=null;
+		}
+		else {
+			this.id=dto.getId();
+		}
 		this.name=dto.getName();
 	}
 
-	public int getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 

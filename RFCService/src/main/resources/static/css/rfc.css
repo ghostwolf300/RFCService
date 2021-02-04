@@ -272,6 +272,43 @@ tr.center-text{
 	vertical-align:middle;
 }
 
+div.runs-container{
+	margin-top: 10px;
+}
+
+div.runs-templates{
+	width: 200px;
+    float: left;
+}
+
+div.runs-content{
+	margin-left: 210px;
+    padding: 10px;
+}
+
+div.run-table{
+	display: table;
+	border-collapse:separate;
+	border-spacing: 20px;
+}
+
+div.run-table-row{
+	display: table-row;
+}
+
+div.run-table-cell{
+	display: table-cell;
+}
+
+div.tile-create-run{
+	border: 4px dashed blue;
+    background-color: lightblue;
+    border-radius: 10px;
+    height: 100px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 100px;
+}
 
 /* End Create Material */
 

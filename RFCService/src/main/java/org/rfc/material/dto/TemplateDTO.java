@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.rfc.material.Template;
-import org.rfc.material.TemplateValue;
+import org.rfc.material.template.Template;
+import org.rfc.material.template.TemplateValue;
 
 public class TemplateDTO implements Serializable {
 

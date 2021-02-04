@@ -2,7 +2,7 @@ package org.rfc.material.dto;
 
 import java.io.Serializable;
 
-import org.rfc.material.TemplateValue;
+import org.rfc.material.template.TemplateValue;
 
 public class FieldValueDTO implements Serializable {
 

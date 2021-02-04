@@ -1,4 +1,4 @@
-package org.rfc.material;
+package org.rfc.material.template;
 
 import java.io.Serializable;
 
@@ -41,7 +41,7 @@ public class TemplateValue implements Serializable {
 		key=new TemplateValueKey(templateId,babiStructure,rowId,fieldValue.getField());
 		inputType=(fieldValue.getValueType().equals("FIELD") ? 1 : 2);
 		if(inputType==1) {
-			fieldIndex=Integer.parseInt(fieldValue.getValue());
+			fieldIndex=Integer.parseInt((fieldValue.getValue()==null ? "0" : fieldValue.getValue()));
 		}
 		else {
 			constantValue=fieldValue.getValue();

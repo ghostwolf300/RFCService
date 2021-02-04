@@ -29,10 +29,11 @@ public class MaterialController {
 	@RequestMapping("/create")
 	public ModelAndView createMaterialRun() {
 		ModelAndView mv=new ModelAndView();
-		mv.addObject("viewName", "Create Material - Run Function");
+		mv.addObject("viewName", "Create Material - Run settings");
 		mv.addObject("viewId",7);
 		mv.addObject("sapUser",sapUser.getUserString());
-		mv.setViewName("create_material_run");
+		mv.addObject("templates",materialService.getTemplates());
+		mv.setViewName("create_material_run_settings");
 		return mv;
 	}
 	

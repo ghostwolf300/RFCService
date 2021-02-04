@@ -1,5 +1,6 @@
 package org.rfc.material;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,7 +12,20 @@ import java.util.Set;
 import org.rfc.material.dto.FieldValueDTO;
 import org.rfc.material.dto.HeaderColumnDTO;
 import org.rfc.material.dto.TemplateDTO;
+import org.rfc.material.run.Run;
+import org.rfc.material.run.RunRepository;
+import org.rfc.material.rundata.RunData;
+import org.rfc.material.rundata.RunDataRepository;
+import org.rfc.material.runmaterial.RunMaterial;
+import org.rfc.material.runmaterial.RunMaterialRepository;
+import org.rfc.material.template.Template;
+import org.rfc.material.template.TemplateRepository;
+import org.rfc.material.template.TemplateValue;
+import org.rfc.material.template.TemplateValueRepository;
 import org.rfc.material.dto.ResponseDTO;
+import org.rfc.material.dto.RunDTO;
+import org.rfc.material.dto.RunDataDTO;
+import org.rfc.material.dto.RunMaterialDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +39,16 @@ public class MaterialServiceImpl implements MaterialService {
 	
 	@Autowired
 	private TemplateValueRepository templateValueRepo;
-
+	
+	@Autowired
+	private RunRepository runRepo;
+	
+	@Autowired
+	private RunDataRepository runDataRepo;
+	
+	@Autowired
+	private RunMaterialRepository runMaterialRepo;
+	
 	public Map<String,List<BAPIField>> getFieldMap(){
 		if(fieldMap==null) {
 			initFieldMap();
@@ -143,8 +166,9 @@ public class MaterialServiceImpl implements MaterialService {
 	@Override
 	public ResponseDTO saveTemplate(TemplateDTO dto) {
 		Template template=new Template(dto);
-		
+		System.out.println("id: "+template.getId()+"\t"+template.getName());
 		templateRepo.saveAndFlush(template);
+	
 		
 		String dataTypeName=null;
 		int rowIndex;
@@ -166,7 +190,6 @@ public class MaterialServiceImpl implements MaterialService {
 		for(FieldValueDTO fv : dto.getUnitsOfMeasure().getFields()) {
 			saveStructureValue(template.getId(),dataTypeName,fv);
 		}
-		System.out.println(dto.getSalesData().getName());
 		dataTypeName=dto.getSalesData().getName();
 		
 		rowIndex=0;
@@ -292,6 +315,54 @@ public class MaterialServiceImpl implements MaterialService {
 		}
 		
 		return combinedColumns;
+	}
+
+	@Override
+	public RunDTO saveRun(RunDTO dto) {
+		Run run=new Run(dto);
+		run=runRepo.saveAndFlush(run);
+		RunDTO savedRun=new RunDTO(run);
+		return savedRun;
+	}
+
+	@Override
+	public List<RunDTO> getRuns(int templateId) {
+		List<Run> runs=runRepo.findAllByTemplateId(templateId);
+		List<RunDTO> dtos=new ArrayList<RunDTO>();
+		for(Run run : runs) {
+			dtos.add(new RunDTO(run));
+		}
+		return dtos;
+	}
+
+	@Override
+	public ResponseDTO saveRunData(List<RunDataDTO> dtoList) {
+		List<RunData> runDataList=new ArrayList<RunData>();
+		for(RunDataDTO dto : dtoList) {
+			runDataList.add(new RunData(dto));
+		}
+		try {
+			runDataRepo.saveAll(runDataList);
+			int runId=dtoList.get(0).getRunId();
+			List<RunMaterialDTO> dtos=runDataRepo.getRunMaterials(runId);
+			List<RunMaterial> runMaterials=new ArrayList<RunMaterial>();
+			for(RunMaterialDTO dto : dtos) {
+				runMaterials.add(new RunMaterial(dto));
+			}
+			runMaterialRepo.saveAll(runMaterials);
+			runRepo.updateMaterialCount(runId, runMaterials.size());
+		}
+		catch(IllegalArgumentException ex) {
+			return new ResponseDTO(999,"Error when saving run data!");
+		}
+		
+		return new ResponseDTO(119,"Run data saved");
+	}
+
+	@Override
+	public ResponseDTO deleteRun(int runId) {
+		runRepo.deleteById(runId);
+		return new ResponseDTO(120,"Run id: "+runId+" deleted");
 	}
 	
 }

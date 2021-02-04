@@ -1,4 +1,4 @@
-package org.rfc.material;
+package org.rfc.material.template;
 
 import java.io.Serializable;
 
@@ -64,6 +64,43 @@ public class TemplateValueKey implements Serializable {
 
 	public void setBapiField(String babiField) {
 		this.bapiField = babiField;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((bapiField == null) ? 0 : bapiField.hashCode());
+		result = prime * result + ((bapiStructure == null) ? 0 : bapiStructure.hashCode());
+		result = prime * result + rowId;
+		result = prime * result + templateId;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TemplateValueKey other = (TemplateValueKey) obj;
+		if (bapiField == null) {
+			if (other.bapiField != null)
+				return false;
+		} else if (!bapiField.equals(other.bapiField))
+			return false;
+		if (bapiStructure == null) {
+			if (other.bapiStructure != null)
+				return false;
+		} else if (!bapiStructure.equals(other.bapiStructure))
+			return false;
+		if (rowId != other.rowId)
+			return false;
+		if (templateId != other.templateId)
+			return false;
+		return true;
 	}
 
 }

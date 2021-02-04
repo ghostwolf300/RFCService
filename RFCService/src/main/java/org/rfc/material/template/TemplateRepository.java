@@ -1,4 +1,4 @@
-package org.rfc.material;
+package org.rfc.material.template;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
