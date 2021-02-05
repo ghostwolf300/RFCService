@@ -5,6 +5,8 @@ import java.sql.Timestamp;
 
 import org.rfc.material.run.Run;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class RunDTO implements Serializable {
 
 	/**
@@ -98,6 +100,30 @@ public class RunDTO implements Serializable {
 
 	public void setTestRun(boolean testRun) {
 		this.testRun = testRun;
+	}
+	
+	@JsonProperty(value="progress",access=JsonProperty.Access.READ_ONLY)
+	public int getProgress() {
+		int progress=0;
+		if(materialCount>0) {
+			progress=(successCount+errorCount)/materialCount;
+		}
+		//progress=25;
+		return progress;
+	};
+	
+	@JsonProperty(value="progressCount",access=JsonProperty.Access.READ_ONLY)
+	public int getProgressCount(){
+		int progressCount=0;
+		progressCount=successCount+errorCount;
+		return progressCount;
+	}
+	
+	@JsonProperty(value="noRunCount",access=JsonProperty.Access.READ_ONLY)
+	public int getNoRunCount() {
+		int noRunCount=0;
+		noRunCount=materialCount-this.getProgressCount();
+		return noRunCount;
 	}
 
 }

@@ -19,5 +19,6 @@ public interface MaterialService {
 	public RunDTO saveRun(RunDTO run);
 	public ResponseDTO saveRunData(List<RunDataDTO> runDataList);
 	public ResponseDTO deleteRun(int runId);
+	public RunDTO getRun(int runId);
 	
 }

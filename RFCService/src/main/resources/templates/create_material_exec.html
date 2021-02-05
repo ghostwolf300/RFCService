@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+<div class="content-container" layout:fragment="content">
+	<div th:replace="fragments/sap_connection :: sap_connection"></div>
+	<div th:replace="fragments/bootstrap :: login"></div>
+	<div id="top">
+		<div id="run_id" th:attr="data-runid=${run.id}">
+			<h4 th:text="${run.name}"></h4>
+		</div>
+	</div>
+	<div id="run_statistics">
+		<div id="progress_overall" class="progress mt-2" style="height:32px">
+  			<div id="run_progress" class="progress-bar" role="progressbar" th:style="'width:'+${run.progress}+'%'" th:attr="aria-valuenow=${run.progress}" th:text="${run.progressCount}+'/'+${run.materialCount}" aria-valuemin="0" aria-valuemax="100"></div>
+		</div>
+		<div id="progress_details" class="container">
+			<div class="row">
+				<div id="chart" class="col-sm">
+					<canvas id="status_pie" width="400px" height="400px"></canvas>
+				</div>
+				<div id="data" class="col-sm my-auto">
+					<div class="input-group">
+						<div class="input-group-prepend" style="width:200px">
+							<span id="materialCountLabel" class="input-group-text" style="width:160px">Materials:</span>
+						</div>
+						<input id="material_count" type="text" class="form-control" aria-describedby="materialCountLabel" th:value="${run.materialCount}" readonly>
+						<div class="input-group-append">
+							<button id="btn_show_materials" class="btn btn-outline-secondary">Show</button>
+						</div>
+					</div>
+					<div class="input-group mt-2">
+						<div class="input-group-prepend" style="width:200px">
+							<span id="successCountLabel" class="input-group-text" style="width:160px">Success:</span>
+						</div>
+						<input id="success_count" type="text" class="form-control" aria-describedby="successCountLabel" th:value="${run.successCount}" readonly>
+						<div class="input-group-append">
+							<button id="btn_show_success" class="btn btn-outline-secondary">Show</button>
+						</div>
+					</div>
+					<div class="input-group mt-2">
+						<div class="input-group-prepend" style="width:200px">
+							<span id="errorCountLabel" class="input-group-text" style="width:160px">Errors:</span>
+						</div>
+						<input id="error_count" type="text" class="form-control" aria-describedby="errorCountLabel" th:value="${run.errorCount}" readonly>
+						<div class="input-group-append">
+							<button id="btn_show_errors" class="btn btn-outline-secondary">Show</button>
+						</div>
+					</div>
+					<div class="input-group mt-2">
+						<div class="input-group-prepend" style="width:200px">
+							<span id="progressCountLabel" class="input-group-text" style="width:160px">Progress:</span>
+						</div>
+						<input id="progress_count" type="text" class="form-control" aria-describedby="progressCountLabel" th:value="${run.progressCount}" readonly>
+					</div>
+					<div class="input-group mt-2">
+						<div class="input-group-prepend" style="width:200px">
+							<span id="noRunCountLabel" class="input-group-text" style="width:160px">No Run:</span>
+						</div>
+						<input id="norun_count" type="text" class="form-control" aria-describedby="noRunCountLabel" th:value="${run.noRunCount}" readonly>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="worker_creation" class="mt-2">
+		<div class="input-group" style="width:480px">
+			<div class="input-group-prepend" style="width:180px">
+				<span id="workerMaterialsLabel" class="input-group-text" style="width:200px">Materials/worker:</span>
+			</div>
+			<input id="worker_max_materials" type="number" class="form-control" aria-describedby="workerMaterialLabel">
+			<div class="input-group-append">
+				<button id="btn_create_workers" class="btn btn-outline-secondary">Create workers</button>
+			</div>
+		</div>
+	</div>
+	<div id="workers" class="mt-2">
+		<div class="btn-toolbar">
+			<div class="btn-group">
+				<button class="btn btn-outline-success" data-original-title="Start">
+					<i class="bi bi-play-fill"></i>
+					Start
+				</button>
+				<button class="btn btn-outline-danger" data-original-title="Stop">
+					<i class="bi bi-stop-fill"></i>
+					Stop
+				</button>
+			</div>
+		</div>
+		<div id="workers_table">
+			<table class="table-bordered">
+				<thead>
+					<tr>
+						<th scope="col">Worker#</th>
+						<th scope="col">Materials</th>
+						<th scope="col">Success</th>
+						<th scope="col">Error</th>
+						<th scope="col" style="width:200px">Progress</th>
+						<th scope="col">Status</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody id="workers_tbody">
+					<tr id="template_worker_row" hidden="true">
+						<td class="worker-id">1</td>
+						<td class="worker-materials">12345</td>
+						<td class="worker-success">3456</td>
+						<td class="worker-errors">23</td>
+						<td class="worker-progress">
+							<div class="progress">
+  								<div id="worker_progress" class="progress-bar" role="progressbar" style="width:45%" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100">45%</div>
+							</div>
+						</td>
+						<td class="worker-status">CREATED</td>
+						<td class="worker-controls">
+							<button class="btn btn-outline-success" data-original-title="Start">
+								<i class="bi bi-play-fill"></i>
+							</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+</html>

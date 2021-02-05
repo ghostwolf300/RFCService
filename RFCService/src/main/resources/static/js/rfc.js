@@ -67,12 +67,16 @@ function initPage(){
  	}
  	else if(viewId==7){
  		MessageBar.init();
- 		SAPConnection.init();
  		MaterialRun.init();
  	}
  	else if(viewId==8){
  		MessageBar.init();
  		MaterialTemplates.init();
+ 	}
+ 	else if(viewId==9){
+ 		MessageBar.init();
+ 		SAPConnection.init();
+ 		MaterialExecute.init();
  	}
  	
  	
@@ -1097,10 +1101,20 @@ var MaterialRun=(function(){
 	function _saveRun(){
 		console.log('saving run');
 		spinnerDisabled=true;
+		_enableModal(false);
 		var runJson=_createRunJson();
 		console.log(runJson);
 		var data=JSON.stringify(runJson);
 		AjaxUtil.post('material/saveRun',data,'json',_saveData,ErrorHandler.handle);
+	}
+	
+	function _enableModal(enable){
+		if(enable){
+			$modalDiv.find('input,button').attr('disabled',false);
+		}
+		else{
+			$modalDiv.find('input,button').attr('disabled',true);
+		}
 	}
 	
 	function _deleteRun(event){
@@ -1132,6 +1146,9 @@ var MaterialRun=(function(){
 	function _startRun(event){
 		var runId=$(this).data('run_id');
 		console.log(runId);
+		var target=contextPath+'material/execute?runId='+runId;
+		console.log(target);
+		window.location.assign(target);
 	}
 	
 	function _resetRun(event){
@@ -1197,6 +1214,7 @@ var MaterialRun=(function(){
 		$modalDiv.modal('hide');
 		_refreshRuns();
 		MessageBar.showSuccess('Run data saved succesfully');
+		_enableModal(true);
 		spinnerDisabled=false;
 		
 	}
@@ -1249,15 +1267,106 @@ var MaterialRun=(function(){
 	
 })();
 
-var MaterialCreate=(function(){
+var MaterialExecute=(function(){
+	
+	var runId;
+	var statusPieChart;
+	var $btnCreateWorkers;
 	
 	function init(){
-		console.log('MaterialCreate.init')
+		console.log('MaterialExecute.init')
+		runId=$('#run_id').data('runid');
+		$btnCreateWorkers=$('#btn_create_workers');
 		_bindEventHandlers();
+		_initChart();
+		_updateStatusPie(100,5,16);
 	}
 	
 	function _bindEventHandlers(){
-		
+		$btnCreateWorkers.click(_createWorkers);
+	}
+	
+	function _initChart(){
+		var $ctx=$('#status_pie');
+		var colorSuccess='rgba(63, 191, 63, 1.0)';
+		var colorError='rgba(191, 63, 63, 1.0)';
+		var colorNoRun='rgba(114, 140, 140, 0.6)';
+		statusPieChart = new Chart($ctx, {
+            type: 'pie',
+            data: {
+                labels: ["Success", "Error", "No run"],
+                datasets: [{
+                    data: [1200, 1700, 800],
+                    backgroundColor: [
+                    	colorSuccess, 
+                    	colorError, 
+                    	colorNoRun
+                    ]
+                }]
+            },
+            options: {
+            	responsive: false,
+                title: {
+                    display: true,
+                    text: 'Run status'
+                }
+            }
+        });
+	}
+	
+	function _updateStatusPie(successCount,errorCount,noRunCount){
+		var newData=[successCount,errorCount,noRunCount];
+		statusPieChart.data.datasets[0].data=newData;		
+		statusPieChart.update();
+	}
+	
+	function _createWorkers(){
+		console.log(runId);
+		var params={
+				'runId' 		: runId,
+				'maxMaterials'	: parseInt($('#worker_max_materials').val())
+		}
+		AjaxUtil.get('material/workers/create',params,'param',_createWorkerRows,ErrorHandler.handle);
+	}
+	
+	function _createWorkerRows(workers){
+		var $tbody=$('#workers_tbody');
+		var $row;
+		workers.forEach(function(worker,index){
+			$row=$('#template_worker_row').clone(true);
+			$row.attr('hidden',false);
+			_updateWorkerRow($row,worker);
+			$tbody.append($row);
+		});
+	}
+	
+	function _updateWorkerRow($row,worker){
+		$row.find('.worker-id').text(worker.id);
+		$row.find('.worker-materials').text(worker.materials);
+		$row.find('.worker-success').text(worker.success);
+		$row.find('.worker-errors').text(worker.errors);
+		$progressBar=$row.find('div#worker_progress');
+		$progressBar.attr('aria-valuenow',worker.progress);
+		$progressBar.width(worker.progress+'%');
+		let statusText;
+		switch(worker.status){
+			case 0 :
+				statusText='CREATED';
+				break;
+			case 1 :
+				statusText='RUNNING';
+				break;
+			case 2 :
+				statusText='STOPPED';
+				break;
+			case 3 :
+				statusText='ERROR';
+				break;
+			case 4 : 
+				statusText='FINISHED';
+				break;
+		}
+		$row.find('.worker-status').text(statusText);
 	}
 	
 	return{

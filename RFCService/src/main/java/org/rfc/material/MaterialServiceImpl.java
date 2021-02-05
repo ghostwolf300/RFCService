@@ -364,5 +364,16 @@ public class MaterialServiceImpl implements MaterialService {
 		runRepo.deleteById(runId);
 		return new ResponseDTO(120,"Run id: "+runId+" deleted");
 	}
+
+	@Override
+	public RunDTO getRun(int runId) {
+		Optional<Run> opt=runRepo.findById(runId);
+		RunDTO dto=null;
+		if(opt.isPresent()) {
+			Run run=opt.get();
+			dto=new RunDTO(run);
+		}
+		return dto;
+	}
 	
 }
