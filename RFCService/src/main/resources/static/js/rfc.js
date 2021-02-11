@@ -1284,6 +1284,8 @@ var MaterialExecute=(function(){
 	
 	function _bindEventHandlers(){
 		$btnCreateWorkers.click(_createWorkers);
+		$('button.worker-start').click(_startWorker);
+		
 	}
 	
 	function _initChart(){
@@ -1334,6 +1336,7 @@ var MaterialExecute=(function(){
 		var $row;
 		workers.forEach(function(worker,index){
 			$row=$('#template_worker_row').clone(true);
+			$row.find('button.worker-start').attr('data-id',worker.id);
 			$row.attr('hidden',false);
 			_updateWorkerRow($row,worker);
 			$tbody.append($row);
@@ -1367,6 +1370,23 @@ var MaterialExecute=(function(){
 				break;
 		}
 		$row.find('.worker-status').text(statusText);
+	}
+	
+	function _startWorker(){
+		var id=$(this).data('id');
+		console.log('starting worker: '+id);
+		var params={
+				'id' 		: id
+		}
+		AjaxUtil.get('material/workers/start',params,'param',
+				function(response){
+					MessageBar.showSuccess(response.responseText);
+				}
+				,ErrorHandler.handle);
+	}
+	
+	function _stopWorker(){
+		
 	}
 	
 	return{

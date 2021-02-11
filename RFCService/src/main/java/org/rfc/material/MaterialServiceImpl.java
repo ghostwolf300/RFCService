@@ -168,7 +168,7 @@ public class MaterialServiceImpl implements MaterialService {
 		Template template=new Template(dto);
 		System.out.println("id: "+template.getId()+"\t"+template.getName());
 		templateRepo.saveAndFlush(template);
-	
+		System.out.println("template saved ok. now fields...");
 		
 		String dataTypeName=null;
 		int rowIndex;
@@ -257,7 +257,6 @@ public class MaterialServiceImpl implements MaterialService {
 		Optional<Template> template=templateRepo.findById(id);
 		if(template.isPresent()) {
 			Template t=template.get();
-			System.out.println("Field values size: "+t.getFieldValues().size());
 			TemplateDTO dto=new TemplateDTO(t);
 			return dto;
 		}

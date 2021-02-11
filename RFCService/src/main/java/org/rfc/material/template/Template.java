@@ -48,8 +48,10 @@ public class Template {
 	private String name;
 	
 	//added @OnDelete and orphanRemoval
-	@OneToMany(mappedBy="template",orphanRemoval=true,fetch=FetchType.LAZY)
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	//@OneToMany(mappedBy="template",orphanRemoval=true,fetch=FetchType.LAZY)
+	//@OnDelete(action = OnDeleteAction.CASCADE)
+	//Update and insert works... Delete doesn't delete template values
+	@OneToMany(mappedBy="template",fetch=FetchType.LAZY)
 	private Set<TemplateValue> fieldValues;
 	
 	public Template() {
@@ -88,6 +90,31 @@ public class Template {
 
 	public void setFieldValues(Set<TemplateValue> fieldValues) {
 		this.fieldValues = fieldValues;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Template other = (Template) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
 	}
 	
 }
