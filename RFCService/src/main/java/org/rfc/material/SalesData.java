@@ -1,8 +1,8 @@
-package org.rfc.material.dto;
+package org.rfc.material;
 
 import java.io.Serializable;
 
-public class SalesDataDTO implements Serializable {
+public class SalesData implements Serializable {
 
 	/**
 	 * 
@@ -16,7 +16,7 @@ public class SalesDataDTO implements Serializable {
 	private String accountAssignment;
 	private String deliveringPlant;
 	
-	public SalesDataDTO() {
+	public SalesData() {
 		super();
 	}
 

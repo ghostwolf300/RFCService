@@ -119,6 +119,23 @@
 							</button>
 						</td>
 					</tr>
+					<tr th:each="worker : ${workers}">
+						<td class="worker-id" th:text="${worker.id}"></td>
+						<td class="worker-materials" th:text="${worker.materialCount}"></td>
+						<td class="worker-success" th:text="${worker.successCount}"></td>
+						<td class="worker-errors" th:text=${worker.errorCount}></td>
+						<td class="worker-progress">
+							<div class="progress">
+  								<div id="worker_progress" class="progress-bar" role="progressbar" th:style="'width:'+${worker.progress}+'%'" th:attr="aria-valuenow=${worker.progress}" aria-valuemin="0" aria-valuemax="100" th:text="${worker.progress}+'%'"></div>
+							</div>
+						</td>
+						<td class="worker-status">CREATED</td>
+						<td class="worker-controls">
+							<button class="btn btn-outline-success worker-start" data-original-title="Start" th:data="'workerid='+${worker.id}">
+								<i class="bi bi-play-fill"></i>
+							</button>
+						</td>
+					</tr>
 				</tbody>
 			</table>
 		</div>

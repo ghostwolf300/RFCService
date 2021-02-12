@@ -1,8 +1,8 @@
-package org.rfc.material.dto;
+package org.rfc.material;
 
 import java.io.Serializable;
 
-public class ForecastParametersDTO implements Serializable {
+public class ForecastParameters implements Serializable {
 
 	/**
 	 * 
@@ -17,7 +17,7 @@ public class ForecastParametersDTO implements Serializable {
 	private double trackingLimit;
 	private String modelSelectionProc;
 	
-	public ForecastParametersDTO() {
+	public ForecastParameters() {
 		super();
 	}
 

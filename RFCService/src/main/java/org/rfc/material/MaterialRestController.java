@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Logger;
 import org.rfc.material.dto.HeaderColumnDTO;
 import org.rfc.material.dto.ResponseDTO;
 import org.rfc.material.dto.RunDTO;
-import org.rfc.material.dto.RunDataDTO;
 import org.rfc.material.dto.RunDataWrapperDTO;
 import org.rfc.material.dto.TemplateDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,8 +73,10 @@ public class MaterialRestController {
 	
 	@PostMapping(value="/material/saveRunData",consumes="application/json", produces="application/json")
 	@ResponseBody
-	public ResponseEntity<?> saveRunData(@RequestBody List<RunDataDTO> runDataList){
-		ResponseDTO response=materialService.saveRunData(runDataList);
+	public ResponseEntity<?> saveRunData(@RequestBody RunDataWrapperDTO runData){
+		System.out.println("Template ID: "+runData.getTemplateId());
+		System.out.println("Materials#: "+runData.getRunDataList().size());
+		ResponseDTO response=materialService.saveRunData(runData);
 		if(response.getStatusCode()==999) {
 			return new ResponseEntity<ResponseDTO>(response,HttpStatus.INTERNAL_SERVER_ERROR);
 		}

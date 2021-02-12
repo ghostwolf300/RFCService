@@ -14,8 +14,6 @@ import org.rfc.material.dto.HeaderColumnDTO;
 import org.rfc.material.dto.TemplateDTO;
 import org.rfc.material.run.Run;
 import org.rfc.material.run.RunRepository;
-import org.rfc.material.rundata.RunData;
-import org.rfc.material.rundata.RunDataRepository;
 import org.rfc.material.runmaterial.RunMaterial;
 import org.rfc.material.runmaterial.RunMaterialRepository;
 import org.rfc.material.template.Template;
@@ -24,7 +22,8 @@ import org.rfc.material.template.TemplateValue;
 import org.rfc.material.template.TemplateValueRepository;
 import org.rfc.material.dto.ResponseDTO;
 import org.rfc.material.dto.RunDTO;
-import org.rfc.material.dto.RunDataDTO;
+import org.rfc.material.dto.RunDataRowDTO;
+import org.rfc.material.dto.RunDataWrapperDTO;
 import org.rfc.material.dto.RunMaterialDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +32,19 @@ import org.springframework.stereotype.Service;
 public class MaterialServiceImpl implements MaterialService {
 	
 	private Map<String,List<BAPIField>> fieldMap;
+	
+	private final static String STRUCTURES[]= {
+			"HEADDATA",
+			"CLIENTDATA",
+			"MATERIALDESCRIPTION",
+			"UNITSOFMEASURE",
+			"SALESDATA",
+			"TAXCLASSIFICATIONS",
+			"PLANTDATA",
+			"VALUATIONDATA",
+			"STORAGELOCATIONDATA",
+			"FORECASTPARAMETERS"
+		};
 	
 	@Autowired
 	private TemplateRepository templateRepo;
@@ -44,10 +56,12 @@ public class MaterialServiceImpl implements MaterialService {
 	private RunRepository runRepo;
 	
 	@Autowired
-	private RunDataRepository runDataRepo;
+	private RunMaterialRepository runMaterialRepo;
 	
 	@Autowired
-	private RunMaterialRepository runMaterialRepo;
+	private MaterialRepository materialRepo;
+	
+	
 	
 	public Map<String,List<BAPIField>> getFieldMap(){
 		if(fieldMap==null) {
@@ -320,7 +334,9 @@ public class MaterialServiceImpl implements MaterialService {
 	public RunDTO saveRun(RunDTO dto) {
 		Run run=new Run(dto);
 		run=runRepo.saveAndFlush(run);
+		System.out.println("Saved run id: "+run.getId());
 		RunDTO savedRun=new RunDTO(run);
+		System.out.println("DTO id: "+savedRun.getId());
 		return savedRun;
 	}
 
@@ -335,29 +351,96 @@ public class MaterialServiceImpl implements MaterialService {
 	}
 
 	@Override
-	public ResponseDTO saveRunData(List<RunDataDTO> dtoList) {
-		List<RunData> runDataList=new ArrayList<RunData>();
-		for(RunDataDTO dto : dtoList) {
-			runDataList.add(new RunData(dto));
+	public ResponseDTO saveRunData(RunDataWrapperDTO runData) {
+
+		System.out.println("Run id is: "+runData.getRunId()+" Row count: "+runData.getRunDataList().size());
+
+		Map<String,List<Map<String,FieldValueDTO>>> templateValuesMap=createTemplateValuesMap(runData.getTemplateId());
+		
+		List<Material> allMaterials=createMaterialList(runData,templateValuesMap);
+		System.out.println("All materials: "+allMaterials.size());
+		materialRepo.deleteAll();
+		materialRepo.saveAll(allMaterials);
+		
+		List<RunMaterial> runMaterials=new ArrayList<RunMaterial>();
+		for(Material m : allMaterials) {
+			runMaterials.add(new RunMaterial(m.getRunId(),m.getMaterialId(),m.getRowNumber(),0,new Timestamp(System.currentTimeMillis())));
 		}
-		try {
-			runDataRepo.saveAll(runDataList);
-			int runId=dtoList.get(0).getRunId();
-			List<RunMaterialDTO> dtos=runDataRepo.getRunMaterials(runId);
-			List<RunMaterial> runMaterials=new ArrayList<RunMaterial>();
-			for(RunMaterialDTO dto : dtos) {
-				runMaterials.add(new RunMaterial(dto));
-			}
-			runMaterialRepo.saveAll(runMaterials);
-			runRepo.updateMaterialCount(runId, runMaterials.size());
-		}
-		catch(IllegalArgumentException ex) {
-			return new ResponseDTO(999,"Error when saving run data!");
-		}
+		runMaterialRepo.saveAll(runMaterials);
+		runRepo.updateMaterialCount(runData.getRunId(), runMaterials.size());
+		
 		
 		return new ResponseDTO(119,"Run data saved");
 	}
-
+	
+	private Map<String,List<Map<String,FieldValueDTO>>> createTemplateValuesMap(int templateId){
+		
+		Map<String,List<Map<String,FieldValueDTO>>> templateValuesMap=new HashMap<String,List<Map<String,FieldValueDTO>>>();
+		
+		for(int i=0;i<STRUCTURES.length;i++) {
+			templateValuesMap.put(STRUCTURES[i],createRowList(templateId,STRUCTURES[i]));
+		}
+		
+		return templateValuesMap;
+	}
+	
+	private List<Map<String,FieldValueDTO>> createRowList(int templateId, String structure){
+		Integer rowIndexes[]=templateValueRepo.getTableRowIndexes(templateId, structure);
+		List<Map<String,FieldValueDTO>> rows=new ArrayList<Map<String,FieldValueDTO>>(); 
+		for(int i=0;i<rowIndexes.length;i++) {
+			List<TemplateValue> templateValues=templateValueRepo.findByKeyTemplateIdAndKeyBapiStructureAndKeyRowId(templateId, structure,rowIndexes[i]);
+			Map<String,FieldValueDTO> rowMap=new HashMap<String,FieldValueDTO>();
+			for(TemplateValue tv : templateValues) {
+				rowMap.put(tv.getKey().getBapiField(),new FieldValueDTO(tv));
+			}
+			rows.add(rowMap);
+		}
+		return rows;
+	}
+	
+	private List<Material> createMaterialList(RunDataWrapperDTO runData,Map<String,List<Map<String,FieldValueDTO>>> templateValuesMap){
+		
+		List<Material> materials=new ArrayList<Material>();
+		Material m=null;
+		
+		for(RunDataRowDTO rowData : runData.getRunDataList()) {
+			m=new Material();
+			m.setRunId(runData.getRunId());
+			m.setRowNumber(rowData.getRowNumber());
+			for(int i=0;i<STRUCTURES.length;i++) {
+				List<Map<String,FieldValueDTO>> rows=templateValuesMap.get(STRUCTURES[i]);
+				for(Map<String,FieldValueDTO> row : rows) {
+					fillValues(m,STRUCTURES[i],row,rowData);
+				}
+			}
+			materials.add(m);
+		}
+		
+		return materials;
+	}
+	
+	private void fillValues(Material m,String structure,Map<String,FieldValueDTO> templateFields,RunDataRowDTO rowData) {
+		FieldValueDTO tf=null;
+		String val;
+		List<BAPIField> fields=getFieldMap().get(structure);
+		Map<String,FieldValueDTO> rowDataMap=new HashMap<String,FieldValueDTO>();
+		FieldValueDTO fieldData=null;
+		for(BAPIField field : fields) {
+			tf=templateFields.get(field.getFieldName());
+			if(tf.getValueType().equals("CONSTANT")){
+				val=tf.getValue();
+			}
+			else {
+				Integer index=Integer.parseInt(tf.getValue());
+				val=rowData.getRowData()[index];
+			}
+			//System.out.println(structure+"-"+field.getFieldName()+"\t"+val);
+			fieldData=new FieldValueDTO(tf.getField(),tf.getValueType(),val);
+			rowDataMap.put(fieldData.getField(), fieldData);
+		}
+		m.setRowData(structure, rowDataMap);
+	}
+	
 	@Override
 	public ResponseDTO deleteRun(int runId) {
 		runRepo.deleteById(runId);

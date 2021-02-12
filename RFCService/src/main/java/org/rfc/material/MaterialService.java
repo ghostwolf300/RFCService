@@ -7,7 +7,8 @@ import org.rfc.material.dto.HeaderColumnDTO;
 import org.rfc.material.dto.TemplateDTO;
 import org.rfc.material.dto.ResponseDTO;
 import org.rfc.material.dto.RunDTO;
-import org.rfc.material.dto.RunDataDTO;
+import org.rfc.material.dto.RunDataRowDTO;
+import org.rfc.material.dto.RunDataWrapperDTO;
 
 public interface MaterialService {
 	public Map<String,List<BAPIField>> getFieldMap();
@@ -17,7 +18,7 @@ public interface MaterialService {
 	public List<HeaderColumnDTO> getUploadHeaders(int templateId);
 	public List<RunDTO> getRuns(int templateId);
 	public RunDTO saveRun(RunDTO run);
-	public ResponseDTO saveRunData(List<RunDataDTO> runDataList);
+	public ResponseDTO saveRunData(RunDataWrapperDTO runData);
 	public ResponseDTO deleteRun(int runId);
 	public RunDTO getRun(int runId);
 	

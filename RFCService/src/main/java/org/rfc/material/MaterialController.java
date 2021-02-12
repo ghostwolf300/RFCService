@@ -1,6 +1,10 @@
 package org.rfc.material;
 
+import java.util.List;
+
 import org.rfc.config.SAPUserBean;
+import org.rfc.material.dto.WorkerDTO;
+import org.rfc.material.worker.WorkerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +20,9 @@ public class MaterialController {
 	
 	@Autowired
 	private MaterialService materialService;
+	
+	@Autowired
+	private WorkerService workerService;
 	
 	@RequestMapping("/main")
 	public ModelAndView createMaterial() {
@@ -45,6 +52,7 @@ public class MaterialController {
 		mv.addObject("viewId",9);
 		mv.addObject("sapUser",sapUser.getUserString());
 		mv.addObject("run",materialService.getRun(runId));
+		mv.addObject("workers",workerService.getActiveWorkers(runId));
 		mv.setViewName("create_material_exec");
 		return mv;
 	}

@@ -1,8 +1,8 @@
-package org.rfc.material.dto;
+package org.rfc.material;
 
 import java.io.Serializable;
 
-public class DescriptionDTO implements Serializable {
+public class Description implements Serializable {
 
 	/**
 	 * 
@@ -12,11 +12,11 @@ public class DescriptionDTO implements Serializable {
 	private String language;
 	private String description;
 	
-	public DescriptionDTO() {
+	public Description() {
 		super();
 	}
 	
-	public DescriptionDTO(String language,String description) {
+	public Description(String language,String description) {
 		this.language=language;
 		this.description=description;
 	}

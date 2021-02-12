@@ -2,7 +2,7 @@ package org.rfc.material.dto;
 
 import java.io.Serializable;
 
-public class RunDataDTO implements Serializable {
+public class RunDataRowDTO implements Serializable {
 	
 	/**
 	 * 
@@ -10,10 +10,9 @@ public class RunDataDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private int runId;
 	private int rowNumber;
-	private int fieldIndex;
-	private String value;
+	private String[] rowData;
 	
-	public RunDataDTO() {
+	public RunDataRowDTO() {
 		super();
 	}
 
@@ -33,20 +32,13 @@ public class RunDataDTO implements Serializable {
 		this.rowNumber = rowNumber;
 	}
 
-	public int getFieldIndex() {
-		return fieldIndex;
+	public String[] getRowData() {
+		return rowData;
 	}
 
-	public void setFieldIndex(int fieldIndex) {
-		this.fieldIndex = fieldIndex;
+	public void setRowData(String[] rowData) {
+		this.rowData = rowData;
 	}
 
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
 	
 }

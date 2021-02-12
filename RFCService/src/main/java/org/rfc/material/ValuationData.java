@@ -1,8 +1,8 @@
-package org.rfc.material.dto;
+package org.rfc.material;
 
 import java.io.Serializable;
 
-public class ValuationDataDTO implements Serializable {
+public class ValuationData implements Serializable {
 
 	/**
 	 * 
@@ -18,7 +18,7 @@ public class ValuationDataDTO implements Serializable {
 	private String costWithQtyStructure;
 	private String materialRelatedOrigin;
 	
-	public ValuationDataDTO() {
+	public ValuationData() {
 		super();
 	}
 

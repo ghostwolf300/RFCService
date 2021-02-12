@@ -1,8 +1,8 @@
-package org.rfc.material.dto;
+package org.rfc.material;
 
 import java.io.Serializable;
 
-public class PlantDataDTO implements Serializable {
+public class PlantData implements Serializable {
 
 	/**
 	 * 
@@ -32,7 +32,7 @@ public class PlantDataDTO implements Serializable {
 	private String countryOfOrigin;
 	private String commodityCode;
 	
-	public PlantDataDTO() {
+	public PlantData() {
 		super();
 	}
 	

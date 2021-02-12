@@ -1,8 +1,8 @@
-package org.rfc.material.dto;
+package org.rfc.material;
 
 import java.io.Serializable;
 
-public class StorageLocationDataDTO implements Serializable {
+public class StorageLocationData implements Serializable {
 
 	/**
 	 * 
@@ -12,7 +12,7 @@ public class StorageLocationDataDTO implements Serializable {
 	public String plant;
 	public String storageLocation;
 	
-	public StorageLocationDataDTO() {
+	public StorageLocationData() {
 		super();
 	}
 
