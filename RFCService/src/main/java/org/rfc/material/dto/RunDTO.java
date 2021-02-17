@@ -106,9 +106,8 @@ public class RunDTO implements Serializable {
 	public int getProgress() {
 		int progress=0;
 		if(materialCount>0) {
-			progress=(successCount+errorCount)/materialCount;
+			progress=(int) Math.round(((double)(successCount+errorCount)/(double)(materialCount))*100);
 		}
-		//progress=25;
 		return progress;
 	};
 	

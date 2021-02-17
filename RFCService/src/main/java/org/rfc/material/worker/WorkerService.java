@@ -9,8 +9,10 @@ public interface WorkerService {
 	public List<WorkerDTO> createWorkers(int runId,int maxMaterials);
 	public List<WorkerDTO> getActiveWorkers(int runId);
 	public void startOne(int workerId);
-	public void startAll();
+	public List<WorkerDTO> startAll(int runId);
+	public void pauseOne(int workerId);
+	public void pauseAll(int runId);
 	public void stopOne(int workerId);
-	public void stopAll();
+	public List<WorkerDTO> stopAll(int runId);
 
 }

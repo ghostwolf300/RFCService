@@ -15,5 +15,13 @@ public interface RunMaterialRepository extends JpaRepository<RunMaterial, RunMat
 	@Transactional
 	public void updateStatus(@Param(value="runId") int runId,@Param(value="material") String material,@Param(value="status") int status);
 	
+	@Modifying
+	@Query("update RunMaterial rm set rm.status=:status where rm.id.runId=:runId")
+	@Transactional
+	public void resetStatus(@Param(value="runId") int runId,@Param(value="status") int status);
+	
+	
+	public RunMaterial findByIdRunIdAndIdMaterial(int runId,String material);
 	public List<RunMaterial> findByIdRunIdAndStatus(int runId,int status);
+	
 }

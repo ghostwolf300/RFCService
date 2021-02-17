@@ -1,18 +1,19 @@
 package org.rfc.material.worker;
 
+import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 
 import org.rfc.material.Material;
 import org.rfc.material.dto.CreateMaterialResultDTO;
 import org.rfc.material.dto.WorkerDTO;
-import org.rfc.material.dto.WorkerResultDTO;
 
-public class CreateMaterialWorker extends Worker implements Callable<WorkerResultDTO> {
+
+public class CreateMaterialWorker extends Worker implements Runnable {
 	
-	private ResultHandler resultHandler;
-	private List<Material> materials;
-	private int statusCode;
+	private BlockingQueue<CreateMaterialResultDTO> resultQueue;
+	private Queue<Material> materialQueue;
 	private int errorCount;
 	private int successCount;
 	private WorkerDTO dto;
@@ -25,21 +26,11 @@ public class CreateMaterialWorker extends Worker implements Callable<WorkerResul
 		super(id,runId);
 	}
 	
-	public CreateMaterialWorker(int id, int runId,List<Material> materials,ResultHandler resultHandler) {
+	public CreateMaterialWorker(int id, int runId,List<Material> materials,BlockingQueue<CreateMaterialResultDTO> resultQueue) {
 		super(id,runId);
-		this.materials=materials;
-		this.resultHandler=resultHandler;
-		statusCode=0;
-		dto=new WorkerDTO(this.getId(),materials.size(),0,0,statusCode);
-	}
-	
-	
-	public int getStatusCode() {
-		return statusCode;
-	}
-
-	public void setStatusCode(int statusCode) {
-		this.statusCode = statusCode;
+		this.materialQueue=new LinkedList<Material>(materials);
+		this.resultQueue=resultQueue;
+		dto=new WorkerDTO(this.getId(),materialQueue.size(),0,0,this.status);
 	}
 
 	public int getErrorCount() {
@@ -67,18 +58,40 @@ public class CreateMaterialWorker extends Worker implements Callable<WorkerResul
 	}
 
 	@Override
-	public WorkerResultDTO call() throws Exception {
-		for(int i=0;i<10;i++) {
-			System.out.println("#:"+this.getId()+" Executing loop: "+i);
-			CreateMaterialResultDTO result=new CreateMaterialResultDTO();
+	public void run(){
+		status=WorkerStatus.RUNNING;
+		dto.setCurrentStatus(status);
+		Material m;
+		while((m=materialQueue.poll())!=null) {
+			if(Thread.currentThread().isInterrupted()) {
+				System.out.println("Stopping thread...");
+				status=WorkerStatus.STOPPED;
+				dto.setCurrentStatus(status);
+				break;
+			}
+			System.out.println(this.getId()+"\tCreating material: "+m.getMaterialId());
+			CreateMaterialResultDTO result=new CreateMaterialResultDTO(runId);
 			result.setWorkerId(String.valueOf(this.getId()));
-			result.setMaterial("TEST123");
+			result.setMaterial(m.getMaterialId());
 			result.setStatus(1);
-			resultHandler.handle(result);
-			Thread.sleep(2000);
+			resultQueue.add(result);
+			dto.addSuccess();
+			
+			//This is not needed when material creation logic is implemented
+			try {
+				Thread.sleep(1000);
+			} 
+			catch (InterruptedException e) {
+				System.out.println("Interrupted while sleeping!");
+				status=WorkerStatus.STOPPED;
+				dto.setCurrentStatus(status);
+				break;
+			}
 		}
-		WorkerResultDTO wr=new WorkerResultDTO();
-		return wr;
+		System.out.println(this.id+" Exiting material loop. Status: "+this.getStatus()+"\tMaterial Queue size: "+materialQueue.size());
+		if(status!=WorkerStatus.STOPPED) {
+			dto.setCurrentStatus(WorkerStatus.FINISHED);
+		}	
 	}
 
 }

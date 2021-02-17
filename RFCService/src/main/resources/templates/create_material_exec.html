@@ -10,6 +10,31 @@
 		<div id="run_id" th:attr="data-runid=${run.id}">
 			<h4 th:text="${run.name}"></h4>
 		</div>
+		
+	</div>
+	<div class="btn-toolbar mt-2">
+		<div class="btn-group">
+			<button id="start_all_workers" class="btn btn-primary" data-original-title="Start">
+				<i class="bi bi-play-fill"></i>
+				Start
+			</button>
+			<button id="pause_all_workers" class="btn btn-secondary" data-original-title="Pause">
+				<i class="bi bi-pause-fill"></i>
+				Pause
+			</button>
+			<button id="stop_all_workers" class="btn btn-outline-danger" data-original-title="Stop">
+				<i class="bi bi-stop-fill"></i>
+				Stop
+			</button>
+		</div>
+		<button id="refresh_all_workers" class="btn btn-outline-primary ml-2" data-original-title="Refresh">
+			<i class="bi bi-arrow-clockwise"></i>
+			Refresh
+		</button>
+		<button id="reset_run" class="btn btn-danger ml-auto" data-original-title="Reset">
+			<i class="bi bi-bootstrap-reboot"></i>
+			Reset
+		</button>
 	</div>
 	<div id="run_statistics">
 		<div id="progress_overall" class="progress mt-2" style="height:32px">
@@ -76,18 +101,6 @@
 		</div>
 	</div>
 	<div id="workers" class="mt-2">
-		<div class="btn-toolbar">
-			<div class="btn-group">
-				<button class="btn btn-outline-success" data-original-title="Start">
-					<i class="bi bi-play-fill"></i>
-					Start
-				</button>
-				<button class="btn btn-outline-danger" data-original-title="Stop">
-					<i class="bi bi-stop-fill"></i>
-					Stop
-				</button>
-			</div>
-		</div>
 		<div id="workers_table">
 			<table class="table-bordered">
 				<thead>
@@ -114,12 +127,17 @@
 						</td>
 						<td class="worker-status">CREATED</td>
 						<td class="worker-controls">
-							<button class="btn btn-outline-success worker-start" data-original-title="Start">
-								<i class="bi bi-play-fill"></i>
-							</button>
+							<div class="btn-group">
+								<button class="btn btn-outline-success worker-start" data-original-title="Start">
+									<i class="bi bi-play-fill"></i>
+								</button>
+								<button class="btn btn-outline-danger worker-stop" data-original-title="Stop">
+									<i class="bi bi-stop-fill"></i>
+								</button>
+							</div>
 						</td>
 					</tr>
-					<tr th:each="worker : ${workers}">
+					<tr th:each="worker : ${workers}" th:attr="data-id=${worker.id}">
 						<td class="worker-id" th:text="${worker.id}"></td>
 						<td class="worker-materials" th:text="${worker.materialCount}"></td>
 						<td class="worker-success" th:text="${worker.successCount}"></td>
@@ -131,9 +149,14 @@
 						</td>
 						<td class="worker-status">CREATED</td>
 						<td class="worker-controls">
-							<button class="btn btn-outline-success worker-start" data-original-title="Start" th:data="'workerid='+${worker.id}">
-								<i class="bi bi-play-fill"></i>
-							</button>
+							<div class="btn-group">
+								<button class="btn btn-outline-success worker-start" data-original-title="Start" th:attr="data-id=${worker.id}">
+									<i class="bi bi-play-fill"></i>
+								</button>
+								<button class="btn btn-outline-success worker-stop" data-original-title="Stop" th:attr="data-id=${worker.id}">
+									<i class="bi bi-stop-fill"></i>
+								</button>
+							</div>
 						</td>
 					</tr>
 				</tbody>

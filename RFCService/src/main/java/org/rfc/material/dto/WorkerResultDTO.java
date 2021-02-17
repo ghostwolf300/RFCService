@@ -9,6 +9,7 @@ public class WorkerResultDTO implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	private int runId;
 	private int id;
 	private int materialCount;
 	private int successCount;
@@ -22,6 +23,14 @@ public class WorkerResultDTO implements Serializable {
 	public WorkerResultDTO(int id) {
 		super();
 		this.id=id;
+	}
+
+	public int getRunId() {
+		return runId;
+	}
+
+	public void setRunId(int runId) {
+		this.runId = runId;
 	}
 
 	public int getId() {

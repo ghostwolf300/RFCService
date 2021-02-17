@@ -22,9 +22,14 @@ public interface RunRepository extends JpaRepository<Run, Integer> {
 	public void addToErrorCount(@Param(value="id") int id,@Param(value="addCount") int addCount);
 	
 	@Modifying
-	@Query("update Run r set r.errorCount=r.errorCount+:addCount where r.id=:id")
+	@Query("update Run r set r.successCount=r.successCount+:addCount where r.id=:id")
 	@Transactional
 	public void addToSuccessCount(@Param(value="id") int id,@Param(value="addCount") int addCount);
+	
+	@Modifying
+	@Query("update Run r set r.successCount=0, r.errorCount=0 where r.id=:id")
+	@Transactional
+	public void resetCounters(@Param(value="id") int id);
 	
 	
 }

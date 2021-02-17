@@ -6,15 +6,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.rfc.material.Material;
 import org.rfc.material.MaterialRepository;
+import org.rfc.material.dto.CreateMaterialResultDTO;
 import org.rfc.material.dto.WorkerDTO;
 import org.rfc.material.dto.WorkerResultDTO;
+import org.rfc.material.run.RunRepository;
 import org.rfc.material.runmaterial.RunMaterial;
 import org.rfc.material.runmaterial.RunMaterialRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +27,10 @@ import org.springframework.stereotype.Service;
 @Service("workerService")
 public class WorkerServiceImpl implements WorkerService {
 	
-	private final ExecutorService executor=Executors.newCachedThreadPool();
-	private Map<Integer,Callable<WorkerResultDTO>> workerMap=null;
+	private final ExecutorService resultExecutor=Executors.newSingleThreadExecutor();
+	private final ExecutorService workerExecutor=Executors.newCachedThreadPool();
+	private final BlockingQueue<CreateMaterialResultDTO> resultQueue=new LinkedBlockingQueue<CreateMaterialResultDTO>();
+	private Map<Integer,Runnable> workerMap=null;
 	private int workerCount=0;
 	private ResultHandler resultHandler=null;
 	
@@ -42,6 +48,9 @@ public class WorkerServiceImpl implements WorkerService {
 		};
 	
 	@Autowired
+	private RunRepository runRepo;
+	
+	@Autowired
 	private RunMaterialRepository runMaterialRepo;
 	
 	@Autowired
@@ -56,10 +65,7 @@ public class WorkerServiceImpl implements WorkerService {
 		List<Material> materials=materialRepo.findByRunId(runId);
 		System.out.println("Retrieved material count: "+materials.size());
 		
-		if(resultHandler==null) {
-			resultHandler=new ResultHandler();
-			executor.submit(resultHandler);
-		}
+		
 		List<WorkerDTO> dtos=addWorkers(materials,maxMaterials,runId);
 		return dtos;
 	}
@@ -73,7 +79,7 @@ public class WorkerServiceImpl implements WorkerService {
 		int id;
 		for(List<Material> workerMaterials : splitMaterials) {
 			id=workerCount+1;
-			CreateMaterialWorker worker=new CreateMaterialWorker(id,runId,workerMaterials,resultHandler);
+			CreateMaterialWorker worker=new CreateMaterialWorker(id,runId,workerMaterials,resultQueue);
 			workerMap.put(worker.getId(), worker);
 			workerCount++;
 			dtos.add(worker.getDto());
@@ -83,10 +89,11 @@ public class WorkerServiceImpl implements WorkerService {
 	}
 	
 	private void initWorkers() {
-		workerMap=new HashMap<Integer,Callable<WorkerResultDTO>>();
+		workerMap=new HashMap<Integer,Runnable>();
 		workerCount=0;
-		resultHandler=new ResultHandler();
-		executor.submit(resultHandler);
+		resultHandler=new ResultHandler(resultQueue,runRepo,runMaterialRepo);
+		Future<?> f=resultExecutor.submit(resultHandler);
+		resultHandler.setMyFuture(f);
 	}
 	
 	private List<List<Material>> slice(List<Material> materials, int maxRows){
@@ -109,26 +116,57 @@ public class WorkerServiceImpl implements WorkerService {
 
 	@Override
 	public void startOne(int workerId) {
-		// TODO Auto-generated method stub
-		Future<WorkerResultDTO> result=executor.submit(workerMap.get(workerId));
+		System.out.println("Starting worker "+workerId);
+		Worker worker=(Worker) workerMap.get(workerId);
+		Future<?> future=workerExecutor.submit(workerMap.get(workerId));
+		worker.setMyFuture(future);
 	}
 
 	@Override
-	public void startAll() {
+	public List<WorkerDTO> startAll(int runId) {
+		if(workerMap!=null) {
+			for(Integer workerId : workerMap.keySet()) {
+				Worker worker=(Worker) workerMap.get(workerId);
+				if(worker.getRunId()==runId 
+						&& (worker.getStatus()==WorkerStatus.READY || worker.getStatus()==WorkerStatus.STOPPED)) {
+					this.startOne(worker.getId());
+				}
+			}
+		}
+		return getActiveWorkers(runId);
+	}
+	
+	@Override
+	public void pauseOne(int workerId) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void pauseAll(int runId) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void stopOne(int workerId) {
-		// TODO Auto-generated method stub
-		
+		System.out.println("Stopping worker "+workerId);
+		Worker worker=(Worker) workerMap.get(workerId);
+		worker.getMyFuture().cancel(true);
 	}
 
 	@Override
-	public void stopAll() {
-		// TODO Auto-generated method stub
+	public List<WorkerDTO> stopAll(int runId) {
+		if(workerMap!=null) {
+			for(Integer workerId : workerMap.keySet()) {
+				Worker worker=(Worker) workerMap.get(workerId);
+				if(worker.getRunId()==runId 
+						&& worker.getStatus()==WorkerStatus.RUNNING) {
+					this.stopOne(worker.getId());
+				}
+			}
+		}
 		
+		return getActiveWorkers(runId);
 	}
 
 	@Override
@@ -144,5 +182,20 @@ public class WorkerServiceImpl implements WorkerService {
 		}
 		return dtos;
 	}
+	
+	private boolean workersExecuting() {
+		boolean executing=false;
+		for(Integer workerId : workerMap.keySet()) {
+			CreateMaterialWorker worker=(CreateMaterialWorker) workerMap.get(workerId);
+			if(worker.getStatus() == WorkerStatus.RUNNING
+					|| worker.getStatus() == WorkerStatus.PAUSED) {
+				executing=true;
+				break;
+			}
+		}
+		return executing;
+	}
+
+	
 
 }
