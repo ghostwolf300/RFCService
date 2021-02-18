@@ -123,4 +123,10 @@ public abstract class Worker implements Runnable {
 	
 	}
 	
+	protected void executeFunction() throws JCoException {
+		JCoContext.begin(destination);
+		function.execute(destination);
+		JCoContext.end(destination);
+	}
+	
 }

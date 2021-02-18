@@ -177,9 +177,7 @@ public class CreateMaterialWorker extends Worker {
 		setVALUATIONDATA(m);
 		setSTORAGELOCATIONDATA(m);
 		setFORECASTPARAMETERS(m);
-		JCoContext.begin(destination);
-		function.execute(destination);
-		JCoContext.end(destination);
+		executeFunction();
 		
 	}
 	
