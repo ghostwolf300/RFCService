@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+<div class="content-container" layout:fragment="content">
+	<h2>Create Material Menu</h2>
+	<div id="material-menu">
+		<ul>
+			<li><a th:href="@{/material/runs}">Runs</a></li>
+			<li><a th:href="@{/material/template}">Create/Edit Templates</a></li>
+		</ul>
+	</div>
+</div>
+</html>

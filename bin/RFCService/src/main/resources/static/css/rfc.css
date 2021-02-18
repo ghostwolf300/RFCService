@@ -1,0 +1,378 @@
+
+@charset "ISO-8859-1";
+
+body{
+	margin-left: 10px;
+}
+
+div#message_container{
+	margin-left: 10px;
+	margin-right: 6px;
+	
+}
+
+span#message_line{
+	padding-left: 6px;
+}
+
+.errorMessage{
+	background-color: red;
+	color: white;
+	animation: flyIn 0.5s ease-out;
+}
+
+.successMessage{
+	background-color: green;
+	color: white;
+}
+
+.warningMessage{
+	background-color: yellow;
+	color: black;
+}
+
+.infoMessage{
+	background-color: blue;
+	color: white;
+}
+
+@keyframes flyIn{
+	0%   { 
+ 		transform: translateX(200%); 		
+ 	}
+ 	100% { 
+ 		transform: translateX(0%); 
+ 	}
+}
+
+div.content{
+	margin-left: 10px;
+	margin-right: 6px;
+}
+
+div#top{
+	border: 1px solid black;
+    /*margin-left: 10px;*/
+    padding: 6px;
+}
+
+div.sap_connection{
+	margin-top: 10px;
+    /*margin-left: 10px;*/
+    margin-bottom: 10px;
+}
+
+div#orders{
+	/*margin-left: 10px;*/
+}
+
+div.order_template{
+	display: none;
+}
+
+div.order{
+	border: 1px solid black;
+    margin-top: 10px;
+    padding: 6px
+}
+
+div.order_controls{
+	margin-top: 4px;
+	/*margin-left: 6px;*/
+}
+
+div.order_header{
+	margin-top: 4px;
+    /*margin-left: 6px;*/
+    /*margin-right: 6px;*/
+    border: 1px solid black;
+    padding: 4px;
+}
+
+input.btn_remove_single{
+	position: absolute;
+    right: 10px;
+}
+
+div.order_items{
+	margin-left: 30px;
+    margin-bottom: 30px;
+    margin-top: 10px;
+    /*margin-right: 6px;*/
+    border: 1px solid black;
+    padding: 4px;
+}
+
+table.order_items_table{
+	table-layout: fixed;
+	width: 1100px;
+}
+
+table.order_items_table>thead{
+	text-align: left;
+}
+
+table.order_items_table th:nth-child(1){
+	width: 60px;
+}
+
+table.order_items_table th:nth-child(2){
+	width: 200px;
+}
+
+table.order_items_table th:nth-child(3){
+	width: 60px;
+}
+
+table.order_items_table th:nth-child(4){
+	width: 100px;
+}
+
+table.order_items_table th:nth-child(5){
+	width: 40px;
+}
+table.order_items_table th:nth-child(6){
+	width: 200px;
+}
+table.order_items_table th:nth-child(7){
+	width: 400px;
+}
+table.order_items_table th:nth-child(8){
+	width: 40px;
+}
+
+table.order_items_table tr{
+	vertical-align: top;
+}
+
+td>input{
+	width: 100%;
+	box-sizing: border-box;
+}
+td>textarea{
+	width: 100%;
+	box-sizing: border-box;
+}
+
+div.bapi_messages{
+	display: none;
+	border: 1px solid black;
+	margin-right: 6px;
+    margin-left: 30px;
+    margin-bottom: 10px;
+    padding: 6px;
+}
+
+tr.warning{
+	background-color: yellow;
+	color: black;	
+}
+
+tr.info{
+	background-color: blue;
+	color: white;
+}
+
+tr.error{
+	background-color: red;
+	color: white;
+}
+
+tr.success{
+	background-color: green;
+	color: white;	
+}
+
+.ajaxSpinner{
+	position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -50px;
+    margin-left: -50px;
+    width: 120px;
+    height: 120px;
+    background-color: white;
+    border: 1px solid black;
+}
+
+div#ajaxInner{
+	width: 75%;
+	margin: 0 auto;
+}
+
+/* Create Material */
+
+.bapi-field-list-viewport{
+	display: block;
+	overflow-y:auto;
+}
+
+.bapi-field-list-container{
+	display: table;
+	border-collapse:separate;
+	border-spacing: 5px;
+}
+
+.babi-field-list-container-row{
+	display: table-row;	
+}
+
+.babi-field-list{
+	display: table-cell;
+	width: 33%;
+	border: 1px solid black;
+	border-radius: 10px;
+	padding: 10px;
+}
+
+.hidden-fields{
+	display: none;
+}
+
+.visible-fields{
+	display: table-cell;
+}
+
+.bapi-field-list-controls{
+	display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.bapi-field-list-fields{
+	
+}
+
+.bapi-add-table-entry{
+	background: gray;
+}
+
+div.template-controls{
+	display: table;
+	border-collapse: separate;
+  	border-spacing: 10px;
+}
+
+div.template-controls-row{
+	display: table-row;
+}
+
+div.template-controls-cell{
+	display: table-cell;
+}
+
+
+div.upload-template{
+	overflow-y:auto;
+	font-size: 10px;
+}
+
+tr.center-text{
+	text-align: center;
+	vertical-align:middle;
+}
+
+div.runs-container{
+	margin-top: 10px;
+}
+
+div.runs-templates{
+	width: 200px;
+    float: left;
+}
+
+div.runs-content{
+	margin-left: 210px;
+    padding: 10px;
+}
+
+div.run-table{
+	display: table;
+	border-collapse:separate;
+	border-spacing: 20px;
+}
+
+div.run-table-row{
+	display: table-row;
+}
+
+div.run-table-cell{
+	display: table-cell;
+}
+
+div.tile-create-run{
+	border: 4px dashed blue;
+    background-color: lightblue;
+    border-radius: 10px;
+    height: 100px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 100px;
+}
+
+/* End Create Material */
+
+/* Bootstrap */
+
+#sap_login_modal {
+    color: #1fa67b;
+}
+
+    #sap_login_modal table {
+        position: relative;
+        margin: auto;
+    }
+
+        #sap_login_modal table input {
+            border-radius: 5px;
+            border: solid 1px #CCC;
+            margin: 10px;
+            padding: 3px 10px;
+            color: #000;
+        }
+
+            #sap_login_modal table input[type="button"] {
+                width: 94%;
+                background: #1fa67b;
+                color: #FFF;
+            }
+
+        #sap_login_modal table span {
+            float: left;
+            font-size: 12px;
+            color: #f00;
+            padding-left: 23px;
+        }
+
+#address_change_modal {
+    color: #1fa67b;
+}
+
+    #address_change_modal table {
+        position: relative;
+        margin: auto;
+    }
+
+        #address_change_modal table input {
+            border-radius: 5px;
+            border: solid 1px #CCC;
+            margin: 10px;
+            padding: 3px 10px;
+            color: #000;
+        }
+
+            #address_change_modal table input[type="button"] {
+                width: 94%;
+                background: #1fa67b;
+                color: #FFF;
+            }
+
+        #address_change_modal table span {
+            float: left;
+            font-size: 12px;
+            color: #f00;
+            padding-left: 23px;
+        }
+
+
+/* End Bootstrap */

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="nz.net.ultraq.thymeleaf">
+	<div th:fragment="input_field_list(name,fields,isTableEntry,active)" th:id="${name}" th:class="${active ? 'tab-pane fade in active' : 'tab-pane fade'}">
+		<h3 th:text="${#strings.toUpperCase(name)}">NAME_HERE</h3>
+		<div class="bapi-field-list-viewport">
+			<div class="bapi-field-list-container">
+				<div class="bapi-field-list-container-row">
+					<div th:id="'list_'+${name}+'_template'" class="babi-field-list hidden-fields" th:attr="data-row=0">
+						<div th:if="${isTableEntry}" class="btn-toolbar" role="toolbar">
+							<button class="btn btn-secondary copy-bapi-table-entry" type="button" th:attr="data-structure=${name}">
+								<i class="bi bi-files"></i>
+							</button>
+							<button class="btn btn-danger ml-auto del-bapi-table-entry" type="button" th:attr="data-structure=${name}">
+								<i class="bi bi-trash"></i>
+							</button>
+						</div>
+						<div class="babi-field-list-fields">
+							<table>
+								<tbody>
+									<tr th:id="${#strings.toUpperCase(name)}+'_'+${fld.fieldName}" th:each="fld : ${fields}" th:include="fragments/material :: input_row" th:with="fieldName=${fld}" th:class="'row-'+${fld.fieldName}" th:attr="data-length=${fld.length},data-type=${fld.type},data-propertyname=${fld.propertyName},data-row=0"></tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<div th:if="${isTableEntry}" th:id="'entry_'+${name}" class="babi-field-list bapi-add-table-entry">
+						<button class="btn btn-info add-bapi-table-entry" type="button" th:attr="data-structure=${name}">Add new entry</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<table>
+		<tbody>
+			<tr th:fragment="input_row">
+				<td th:text="${#strings.toUpperCase(fld.fieldName)}" class="function-field">FIELD_NAME<td>
+				<td class="input-type">
+					<select class="function-field-input-type">
+						<option selected="selected">FIELD</option>
+						<option>CONSTANT</option>
+					</select>	
+				</td>
+				<td class="input-value">
+					<input type="number" min="0" max="255">
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</html>

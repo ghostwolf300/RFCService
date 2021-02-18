@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+<div class="content-container" layout:fragment="content">
+	<div th:replace="fragments/sap_connection :: sap_connection"></div>
+	<div th:replace="fragments/bootstrap :: login"></div>
+	<div id="top">
+		<div>
+			<h4>Create SAP Purchase Order</h4>
+		</div>
+		<div id="controls">
+			<input type="file" id="btn_choose" value="Import"/>
+			<input type="button" id="btn_export" value="Export data"/>
+			<input type="hidden" id="btn_add" value="Add"/>
+			<input type="button" id="btn_save_all" value="Save all"/>
+			<label for="btn_testrun">Test run:</label>
+			<input type="checkbox" id="chk_testrun_all" checked>
+		</div>
+	</div>
+    <div th:replace="fragments/bootstrap :: address">
+    </div>
+	<div id="template">
+		<div th:replace="fragments/template :: po">
+		</div>
+	</div>
+	<div id="orders">
+		
+	</div>
+</div>
+</html>

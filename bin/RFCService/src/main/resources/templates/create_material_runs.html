@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+<div class="content-container" layout:fragment="content">
+	<div id="top">
+		<div>
+			<h4>Create Material - Runs</h4>
+		</div>
+	</div>
+	<div class="runs-container">
+		<div id="template_list" class="list-group runs-templates">
+	  		<a th:each="template : ${templates}" th:text="${template.name}" th:attr="data-id=${template.id}" class="list-group-item template-list-item" href="#"></a>
+		</div>
+		<div>
+			<div class="runs-controls">
+				<button type="button" id="btn_create_run" class="btn btn-primary" data-toggle="modal" data-target="#create_run_modal">
+  					<i class="bi bi-plus">New</i>
+				</button>	
+			</div>
+			<div class="runs-table">
+				<table class="table-bordered">
+					<thead>
+						<tr>
+							<th scope="col"></th>
+							<th scope="col">ID</th>
+							<th scope="col">Name</th>
+							<th scope="col">Test</th>
+							<th scope="col">Materials</th>
+							<th scope="col">Success</th>
+							<th scope="col">Errors</th>
+							<th scope="col" style="width:200px">Progress</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody id="runs_table_body">
+						<tr class="row-run-template hidden-fields">
+							<td class="cell-run-view">
+								<button class="btn btn-primary btn-run-view" data-original-title="Details" th:attr="data-id=-1">
+									<i class="bi bi-eye"></i>
+								</button>
+							</td>
+							<td class="cell-run-id">1</td>
+							<td class="cell-run-name">Test run</td>
+							<td class="cell-run-test">Yes</td>
+							<td class="cell-run-materials">100</td>
+							<td class="cell-run-success">10</td>
+							<td class="cell-run-errors">2</td>
+							<td class="cell-run-progress">
+								<div id="progress_overall" class="progress mt-2" style="height:32px">
+  									<div id="run_progress" class="progress-bar bg-secondary" role="progressbar" style="width:50%" aria-valuenow="50" th:text="12 / 100" aria-valuemin="0" aria-valuemax="100"></div>
+								</div>
+							</td>
+							<td class="cell-run-delete">
+								<button class="btn btn-danger btn-run-delete" data-original-title="Delete" th:attr="data-id=-1">
+									<i class="bi bi-trash-fill"></i>
+								</button>
+							</td>
+						<tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div th:replace="fragments/bootstrap :: run"></div>
+</div>
+</html>

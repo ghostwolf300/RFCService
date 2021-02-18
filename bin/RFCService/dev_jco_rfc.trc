@@ -1,0 +1,312 @@
+
+**** Error file opened at 20201023 225150 Eastern European Summer Time Rel. 3.0.20 (2019-09-05) [721.1311]
+Error:   >Fri Oct 23 22:51:50,257<    >RfcGetException (rc=3) message: CPIC-CALL: CMRCV on convId: 53800862
+
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       connection to partner 'fd5f:551e:31f6:7777::a06:7d.3299'
+            broken
+TIME        Fri Oct 23 22:51:50 2020
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -6
+MODULE      nixxi.cpp
+LINE        4605
+DETAIL      NiIWrite: P=fd5f:551e:31f6:7777::a06:7d.3299;
+            L=2002:c2c5:3222:1000:185d:4c52:d50d:dbc6:53552
+SYSTEM CALL WSASend
+ERRNO       10054
+ERRNO TEXT  WSAECONNRESET: Connection reset by peer
+COUNTER     6
+
+<RfcGetException
+
+
+Error: [1]  >Fri Oct 23 22:51:50,281<    RfcException raised by system [TET|wsapvm117|00]:
+	message: CPIC-CALL: CMRCV on convId: 53800862
+
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       connection to partner 'fd5f:551e:31f6:7777::a06:7d.3299'
+            broken
+TIME        Fri Oct 23 22:51:50 2020
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -6
+MODULE      nixxi.cpp
+LINE        4605
+DETAIL      NiIWrite: P=fd5f:551e:31f6:7777::a06:7d.3299;
+            L=2002:c2c5:3222:1000:185d:4c52:d50d:dbc6:53552
+SYSTEM CALL WSASend
+ERRNO       10054
+ERRNO TEXT  WSAECONNRESET: Connection reset by peer
+COUNTER     6
+
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 102
+	key: RFC_ERROR_COMMUNICATION
+
+
+**** Error file opened at 20201023 231617 Eastern European Summer Time Rel. 3.0.20 (2019-09-05) [721.1311]
+Error: [1]  >Fri Oct 23 23:16:17,825<    RfcException raised by system [TET|wsapvm117|00] for user [WIHSUSIVI]:
+	message: Name or password is incorrect (repeat logon)
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+
+Error: [1]  >Fri Oct 23 23:16:39,486<    RfcException raised by system [TET|wsapvm117|00] for user [WIHSUSIVI]:
+	message: Name or password is incorrect (repeat logon)
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+
+
+**** Error file opened at 20201023 231750 Eastern European Summer Time Rel. 3.0.20 (2019-09-05) [721.1311]
+Error: [1]  >Fri Oct 23 23:17:50,461<    RfcException raised by system [TET|wsapvm117|00] for user [WIHSUSIVI]:
+	message: Name or password is incorrect (repeat logon)
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+
+Error: [1]  >Fri Oct 23 23:18:19,435<    RfcException raised by system [TET|wsapvm117|00] for user [WIHSUSIVI]:
+	message: Name or password is incorrect (repeat logon)
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+
+Error: [1]  >Fri Oct 23 23:19:20,415<    RfcException raised by system [TET|wsapvm117|00] for user [WIHSUSIVI]:
+	message: Name or password is incorrect (repeat logon)
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+
+Error: [1]  >Fri Oct 23 23:20:58,961<    RfcException raised by system [TET|wsapvm117|00] for user [WIHSUSIVI]:
+	message: Name or password is incorrect (repeat logon)
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+
+
+**** Error file opened at 20201030 144303 Eastern European Standard Time Rel. 3.0.20 (2019-09-05) [721.1311]
+Error: [1]  >Fri Oct 30 14:43:03,036<    RfcException raised by system [TEP|wsapvm118|00] for user [WIHSUSIVI]:
+	message: Name or password is incorrect (repeat logon)
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+
+Error: [1]  >Fri Oct 30 14:43:03,349<    RfcException raised by system [TEP|wsapvm118|00] for user [WIHSUSIVI]:
+	message: Name or password is incorrect (repeat logon)
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+
+
+**** Error file opened at 20201030 144350 Eastern European Standard Time Rel. 3.0.20 (2019-09-05) [721.1311]
+Error: [1]  >Fri Oct 30 14:43:50,971<    RfcException raised by system [TEP|wsapvm118|00] for user [WIHSUSIVI]:
+	message: Name or password is incorrect (repeat logon)
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+
+Error:   >Fri Oct 30 15:17:49,490<    RfcException raised by system [<unknown>]:
+	message: Connect to SAP gateway failed
+	Connection parameters: TYPE=B DESTINATION=WIHSUSIVI_TEP MSHOST=tep MSSERV=3601 GROUP=TEP SAPROUTER=/H/tep PCS=1
+
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner 'fd5f:551e:31f6:7777::a06:7e.3299' not reached
+TIME        Fri Oct 30 15:17:49 2020
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      nixxi.cpp
+LINE        3289
+DETAIL      NiPConnect2: fd5f:551e:31f6:7777::a06:7e.3299
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     4
+
+	return code: RFC_FAILURE (1)
+	error group: 102
+	key: RFC_ERROR_COMMUNICATION
+
+Error:   >Fri Oct 30 15:18:37,623<    RfcException raised by system [<unknown>]:
+	message: Connect to SAP gateway failed
+	Connection parameters: TYPE=B DESTINATION=WIHSUSIVI_TEP MSHOST=tep MSSERV=3601 GROUP=TEP SAPROUTER=/H/tep PCS=1
+
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       partner 'fd5f:551e:31f6:7777::a06:7e.3299' not reached
+TIME        Fri Oct 30 15:18:37 2020
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      nixxi.cpp
+LINE        3289
+DETAIL      NiPConnect2: fd5f:551e:31f6:7777::a06:7e.3299
+SYSTEM CALL connect
+ERRNO       10060
+ERRNO TEXT  WSAETIMEDOUT: Connection timed out
+COUNTER     5
+
+	return code: RFC_FAILURE (1)
+	error group: 102
+	key: RFC_ERROR_COMMUNICATION
+
+Error:   >Fri Oct 30 15:18:52,382<    RfcException raised by system [<unknown>]:
+	message: Connect to message server on host tep failed
+	Connection parameters: TYPE=B DESTINATION=WIHSUSIVI_TEP MSHOST=tep MSSERV=3601 GROUP=TEP SAPROUTER=/H/tep PCS=1
+
+LOCATION    CPIC (TCP/IP) on local host with Unicode
+ERROR       *** ERROR ***
+TIME        Fri Oct 30 15:18:52 2020
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+DETAIL      NiErrSet
+COUNTER     3
+
+	return code: RFC_FAILURE (1)
+	error group: 102
+	key: RFC_ERROR_COMMUNICATION
+
+
+**** Error file opened at 20201031 183718 Eastern European Standard Time Rel. 3.0.20 (2019-09-05) [721.1311]
+Error: [1]  >Sat Oct 31 18:37:18,610<    RfcException raised by system [TET|wsapvm117|00] for user [TKNSUSIVI]:
+	message: User account not in validity date
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+
+Error: [1]  >Sat Oct 31 18:37:19,491<    RfcException raised by system [TET|wsapvm117|00] for user [TKNSUSIVI]:
+	message: User account not in validity date
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+
+
+**** Error file opened at 20201101 213900 Eastern European Standard Time Rel. 3.0.20 (2019-09-05) [721.1311]
+Error: [1]  >Sun Nov 01 21:39:00,461<    RfcException raised by system [TET|wsapvm117|00] for user [SA]:
+	message: Name or password is incorrect (repeat logon)
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+
+
+**** Error file opened at 20201102 130007 Eastern European Standard Time Rel. 3.0.20 (2019-09-05) [721.1311]
+Error:   >Mon Nov 02 13:00:07,748<    RfcException raised by system [<unknown>]:
+	message: Connect to message server on host tet failed
+	Connection parameters: TYPE=B DESTINATION=WIHTEASVA_TET MSHOST=tet MSSERV=3601 GROUP=TET SAPROUTER=/H/tet PCS=1
+
+LOCATION    CPIC (TCP/IP) on local host WAUTVANWS476 with Unicode
+ERROR       hostname 'tet' unknown
+TIME        Mon Nov 02 13:00:07 2020
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -2
+MODULE      ninti.c
+LINE        897
+DETAIL      NiPGetHostByName: 'tet' not found
+SYSTEM CALL getaddrinfo
+COUNTER     1
+
+	return code: RFC_FAILURE (1)
+	error group: 102
+	key: RFC_ERROR_COMMUNICATION
+
+Error:   >Mon Nov 02 13:00:37,541<    RfcException raised by system [<unknown>]:
+	message: Connect to message server on host tet failed
+	Connection parameters: TYPE=B DESTINATION=WIHSUSIVI_TET MSHOST=tet MSSERV=3601 GROUP=TET SAPROUTER=/H/tet PCS=1
+
+ERROR       hostname 'tet' unknown
+TIME        Mon Nov 02 13:00:37 2020
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -2
+MODULE      ninti.c
+LINE        897
+DETAIL      NiPGetHostByName: 'tet' not found
+SYSTEM CALL getaddrinfo
+COUNTER     1
+
+	return code: RFC_FAILURE (1)
+	error group: 102
+	key: RFC_ERROR_COMMUNICATION
+
+Error:   >Mon Nov 02 13:01:01,347<    RfcException raised by system [<unknown>]:
+	message: Connect to message server on host tet failed
+	Connection parameters: TYPE=B DESTINATION=WIHSUSIVI_TET MSHOST=tet MSSERV=3601 GROUP=TET SAPROUTER=/H/tet PCS=1
+
+ERROR       hostname 'tet' unknown
+TIME        Mon Nov 02 13:01:01 2020
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -2
+MODULE      ninti.c
+LINE        897
+DETAIL      NiPGetHostByName: 'tet' not found
+SYSTEM CALL getaddrinfo
+COUNTER     1
+
+	return code: RFC_FAILURE (1)
+	error group: 102
+	key: RFC_ERROR_COMMUNICATION
+
+
+**** Error file opened at 20201102 130229 Eastern European Standard Time Rel. 3.0.20 (2019-09-05) [721.1311]
+Error:   >Mon Nov 02 13:02:29,357<    RfcException raised by system [<unknown>]:
+	message: Connect to message server on host tet failed
+	Connection parameters: TYPE=B DESTINATION=WIHSUSIVI_TET MSHOST=tet MSSERV=3601 GROUP=TET SAPROUTER=/H/tet PCS=1
+
+LOCATION    CPIC (TCP/IP) on local host WAUTVANWS476 with Unicode
+ERROR       hostname 'tet' unknown
+TIME        Mon Nov 02 13:02:29 2020
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -2
+MODULE      ninti.c
+LINE        897
+DETAIL      NiPGetHostByName: 'tet' not found
+SYSTEM CALL getaddrinfo
+COUNTER     1
+
+	return code: RFC_FAILURE (1)
+	error group: 102
+	key: RFC_ERROR_COMMUNICATION
+
+
+**** Error file opened at 20201105 215821 Eastern European Standard Time Rel. 3.0.20 (2019-09-05) [721.1311]
+Error:   >Thu Nov 05 21:58:21,782<    RfcException raised by system [<unknown>]:
+	message: Connect to message server on host tep failed
+	Connection parameters: TYPE=B DESTINATION=WIHSUSIVI_TEP MSHOST=tep MSSERV=3601 GROUP=TEP SAPROUTER=/H/tep PCS=1
+
+LOCATION    CPIC (TCP/IP) on local host WAUTVANWS476 with Unicode
+ERROR       hostname 'tep' unknown
+TIME        Thu Nov 05 21:58:21 2020
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -2
+MODULE      ninti.c
+LINE        897
+DETAIL      NiPGetHostByName: 'tep' not found
+SYSTEM CALL getaddrinfo
+COUNTER     1
+
+	return code: RFC_FAILURE (1)
+	error group: 102
+	key: RFC_ERROR_COMMUNICATION
+
+
+**** Error file opened at 20201112 155834 Eastern European Standard Time Rel. 3.0.20 (2019-09-05) [721.1311]
+Error: [1]  >Thu Nov 12 15:58:34,538<    RfcException raised by system [TEP|wsapvm119|00] for user [WIHSUSIVI]:
+	message: Name or password is incorrect (repeat logon)
+	return code: RFC_SYS_EXCEPTION (3)
+	error group: 103
+	key: RFC_ERROR_LOGON_FAILURE
+

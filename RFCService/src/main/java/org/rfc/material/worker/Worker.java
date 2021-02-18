@@ -5,6 +5,9 @@ import java.util.concurrent.Future;
 import com.sap.conn.jco.JCoContext;
 import com.sap.conn.jco.JCoDestination;
 import com.sap.conn.jco.JCoException;
+import com.sap.conn.jco.JCoFunction;
+import com.sap.conn.jco.JCoFunctionTemplate;
+import com.sap.conn.jco.JCoRepository;
 
 public abstract class Worker implements Runnable {
 	
@@ -17,6 +20,8 @@ public abstract class Worker implements Runnable {
 	protected JCoDestination destination;
 	protected long startTime;
 	protected long endTime;
+	
+	protected JCoFunction function;
 	
 	public Worker(JCoDestination destination) {
 		super();
@@ -83,7 +88,6 @@ public abstract class Worker implements Runnable {
 	public void run() {
 		startTime=System.currentTimeMillis();
 		status=WorkerStatus.RUNNING;
-		JCoContext.begin(destination);
 		try {
 			doWork();
 		}
@@ -96,6 +100,7 @@ public abstract class Worker implements Runnable {
 			status=WorkerStatus.STOPPED;
 		}
 		finally {
+			System.out.println("Closing connection");
 			try {
 				JCoContext.end(destination);
 			} 
@@ -110,5 +115,12 @@ public abstract class Worker implements Runnable {
 	}
 	
 	protected abstract void doWork() throws JCoException,InterruptedException;
+	
+	protected void initialize(String functionName) throws JCoException {
+		JCoRepository repo=destination.getRepository();
+		JCoFunctionTemplate template=repo.getFunctionTemplate(functionName);
+		function=template.getFunction();
+	
+	}
 	
 }

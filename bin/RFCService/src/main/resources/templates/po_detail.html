@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+<div class="content-container" layout:fragment="content">
+	<div th:replace="fragments/sap_connection :: sap_connection"></div>
+	<div th:replace="fragments/bootstrap :: login"></div>
+	<div id="top">
+		<h4>Purchase Order details</h4>
+		<div id="controls" class="order_controls">
+			<label for="po">PO:</label><input id="fld_find_po" type="text">
+			<input id="btn_find_po" type="button" value="Get details">
+		</div>
+	</div>
+	<div id="details">
+		<div id="header" class="order_header">
+			<div>
+				<span id="po"></span>
+			</div>
+			<table>
+				<tbody>
+					<tr>
+						<td>PO date:</td>
+						<td><input id="po_date" type="date" readonly></td>
+						<td>Created on:</td>
+						<td><input id="created_date" type="date" readonly></td>
+						<td>Created by:</td>
+						<td><input id="created_by" type="text" readonly></td>
+					</tr>
+					<tr>
+						<td>Order type:</td>
+						<td><input id="order_type" type="text" readonly></td>
+						<td>Vendor:</td>
+						<td><input id="vendor" type="text" readonly></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>Purch. org.:</td>
+						<td><input id="purch_org" type="text" readonly></td>
+						<td>Your ref.:</td>
+						<td><input id="your_reference" type="text" readonly></td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>Purch. group:</td>
+						<td><input id="purch_group" type="text" readonly></td>
+						<td>Our ref.:</td>
+						<td><input id="our_reference" type="text" readonly></td>
+						<td></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div id="items" class="order_items">
+			<div>
+				<label for="cmb_conf_ctrl_key">Order conf. key:</label>
+				<select id="cmb_conf_ctrl_key" class="browser-default custom-select">
+					<option value="1">0001 - Confirmations</option>
+					<option value="2" selected>Z004 - Inbound delivery</option>
+				</select>
+				<input id="btn_import_from_excel" type="button" value="Import">
+				<input id="btn_save_confirmations" type="button" value="Save">
+			</div>
+			<div>
+				<table id="item_table">
+					<thead>
+						<tr>
+							<th>Item</th>
+							<th>Material</th>
+							<th>Qty</th>
+							<th>Plant</th>
+							<th>Strg. loc.</th>
+							<th>Del. date</th>
+							<th>Tax code</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

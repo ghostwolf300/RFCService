@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="nz.net.ultraq.thymeleaf">
+  <head th:insert="fragments/headerfiles :: headerfiles">
+  </head>
+  <body id="layout">
+    <!--/* Standard layout can be mixed with Layout Dialect */-->
+    <input id="contextPath" type=hidden th:value="@{/}">
+    <div th:replace="fragments/header :: header">
+    </div>
+    <div th:replace="fragments/messages :: messages">
+    </div>
+    <div class="content" id="top_container">
+      <div layout:fragment="content">
+        <!-- ============================================================================ -->
+        <!-- This content is only used for static prototyping purposes (natural templates)-->
+        <!-- and is therefore entirely optional, as this markup fragment will be included -->
+        <!-- from "fragments/header.html" at runtime.                                     -->
+        <!-- ============================================================================ -->
+        <h1>Static content for prototyping purposes only</h1>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Praesent scelerisque neque neque, ac elementum quam dignissim interdum.
+          Phasellus et placerat elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          Praesent scelerisque neque neque, ac elementum quam dignissim interdum.
+          Phasellus et placerat elit.
+        </p>
+      </div>
+    </div>
+    <div th:replace="fragments/spinner :: spinner"></div>
+  </body>
+</html>

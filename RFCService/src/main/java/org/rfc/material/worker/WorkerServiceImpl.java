@@ -16,9 +16,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.rfc.material.Material;
 import org.rfc.material.MaterialRepository;
 import org.rfc.material.dto.CreateMaterialResultDTO;
+import org.rfc.material.dto.RunDTO;
 import org.rfc.material.dto.WorkerDTO;
 import org.rfc.material.dto.WorkerResultDTO;
 import org.rfc.material.run.RunRepository;
+import org.rfc.material.run.RunService;
 import org.rfc.material.runmaterial.RunMaterial;
 import org.rfc.material.runmaterial.RunMaterialRepository;
 import org.rfc.sap.SapService;
@@ -26,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sap.conn.jco.JCoDestination;
+import com.sap.conn.jco.JCoException;
 
 @Service("workerService")
 public class WorkerServiceImpl implements WorkerService {
@@ -36,6 +39,9 @@ public class WorkerServiceImpl implements WorkerService {
 	private Map<Integer,Runnable> workerMap=null;
 	private int workerCount=0;
 	private ResultHandler resultHandler=null;
+	
+	@Autowired
+	private RunService runService;
 	
 	@Autowired
 	private SapService sapService;
@@ -93,18 +99,24 @@ public class WorkerServiceImpl implements WorkerService {
 		if(workerMap==null) {
 			initWorkers();
 		}
-
+		RunDTO run=runService.getRun(runId);
 		List<WorkerDTO> dtos=new ArrayList<WorkerDTO>();
 		List<List<Material>> splitMaterials=slice(materials,maxMaterials);
 		int id;
 		JCoDestination destination=sapService.getDestination();
-		for(List<Material> workerMaterials : splitMaterials) {
-			id=workerCount+1;
-			CreateMaterialWorker worker=new CreateMaterialWorker(id,runId,workerMaterials,resultQueue,destination);
-			workerMap.put(worker.getId(), worker);
-			workerCount++;
-			dtos.add(worker.getDto());
-			System.out.println(worker.getId()+"\t"+workerMaterials.size());
+		try {
+			for(List<Material> workerMaterials : splitMaterials) {
+				id=workerCount+1;
+				CreateMaterialWorker worker=new CreateMaterialWorker(id,run.getId(),workerMaterials,resultQueue,destination,run.isTestRun());
+				workerMap.put(worker.getId(), worker);
+				workerCount++;
+				dtos.add(worker.getDto());
+				System.out.println(worker.getId()+"\t"+workerMaterials.size());
+			}
+		}
+		catch(JCoException ex) {
+			System.out.println("Error when creating workers");
+			return null;
 		}
 		return dtos;
 	}

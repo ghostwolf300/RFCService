@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="nz.net.ultraq.thymeleaf">
+	<div th:fragment="sap_connection" id="sap_connection" class="sap_connection">
+		<button type="button" id="btn_login_sap" class="btn btn-primary" data-toggle="modal" data-target="#sap_login_modal">SAP Login</button>
+	    <span id="sap_user" th:text="${sapUser}"></span>
+	</div>
+</html>

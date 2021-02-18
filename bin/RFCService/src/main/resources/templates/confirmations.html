@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+<div class="content-container" layout:fragment="content">
+	<div th:replace="fragments/sap_connection :: sap_connection"></div>
+	<div th:replace="fragments/bootstrap :: login"></div>
+	<div id="top">
+		<h4>Order Confirmations</h4>
+		<div id="conf_controls">
+			<input type="file" id="file_import_pdf" name="file"/>
+		</div>
+	</div>
+	<div id="confirmations">
+		<div>
+			<input id="btn_send" type="button" value="Send"/>
+			<input id="btn_find_po" type="button" value="Find PO">
+		</div>
+		<div>
+			<span id="po"></span>
+		</div>
+		<div id="supplier_confirmation">
+			<table id="supplier_conf_table">
+				<thead>
+					<tr>
+						<th>Item</th>
+						<th>Supplier ID</th>
+						<th>Customer ID</th>
+						<th>Quantity</th>
+						<th>Ship date</th>
+						<th>Unit net</th>
+						<th>Total net</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+		<div id="document_viewer">
+			<embed id="pdf" width="600" height="500" alt="pdf" pluginspage="http://www.adobe.com/products/acrobat/readstep2.html">
+		</div>
+		<div id="purchase_order">
+		</div>
+	</div>
+</div>
+</html>

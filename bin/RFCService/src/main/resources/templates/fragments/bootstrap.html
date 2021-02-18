@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="nz.net.ultraq.thymeleaf">
+	<!-- Bootstrap Modal -->
+    <div th:fragment="login" id="sap_login_modal" class="modal fade" role="dialog">
+    	<div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+        	<div class="modal-header">
+        		<h4 class="modal-title">SAP Login</h4>
+            	<button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>             
+               	<div class="modal-body">
+                	<table>
+                    	<tbody>
+                    		<tr>
+                    			<td>
+                    				<label for="sap_client">SAP Client:</label>
+                    				<select id="sap_client" data-style="btn-new">
+                    					<option selected="selected">TET</option>
+                    					<option>TEP</option>
+                    					<option>WT2</option>
+                    					<option>WP2</option>
+                    				</select>
+                    			</td>
+                    		</tr>
+                        	<tr>
+                            	<td><input type="text" id="sap_username" placeholder="Username" /></td>
+                            </tr>
+                            <tr>
+                            	<td><span id="userNamSpan"></span></td>
+                           	</tr>
+                           	<tr>
+                           		<td><input type="password" id="sap_password" placeholder="Password" /></td>
+                            </tr>
+                                <tr>
+                                	<td><span id="passwordSpan"></span></td>
+                               	</tr>
+                            <tr>
+                            	<td><input type="button" id="sap_login_do" value="Login" /></td>
+                            </tr>
+                            <tr>
+                            	<td><span id="messageSpan"></span></td>
+                            </tr>
+                         </tbody>
+                   	</table>
+               	</div>
+                <div class="modal-footer">
+                	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+            <!-- END Modal content-->
+      	</div>
+    </div>
+    <!-- END Bootstrap Modal -->
+    <div th:fragment="address" id="address_change_modal" class="modal fade" role="dialog">
+    	<div class="modal-dialog">
+    		<div class="modal-content">
+		    	<div class="modal-header">
+		    		<h4 class="modal-title">Change address</h4>
+		            <button type="button" class="close" data-dismiss="modal">&times;</button>
+		    	</div>
+		    	<div class="modal-body">
+		    		<table>
+		    			<tbody>
+		    				<tr>
+		    					<td>Title:</td>
+		    					<td><input id="address_title" type="text"></td>
+		    					<td></td>
+		    				</tr>
+		    				<tr>
+		    					<td>Name 1:</td>
+		    					<td><input id="address_name1" type="text"></td>
+		    					<td></td>
+		    				</tr>
+		    				<tr>
+		    					<td>Name 2:</td>
+		    					<td><input id="address_name2" type="text"></td>
+		    					<td></td>
+		    				</tr>
+		    				<tr>
+		    					<td>Street:</td>
+		    					<td><input id="address_street" type="text"></td>
+		    					<td><input id="address_street_num" type="text"></td>
+		    				</tr>
+		    				<tr>
+		    					<td>Postcode:</td>
+		    					<td><input id="address_postcode" type="text"></td>
+		    					<td></td>
+		    				</tr>
+		    				<tr>
+		    					<td>City:</td>
+		    					<td><input id="address_city" type="text"></td>
+		    					<td></td>
+		    				</tr>
+		    				<tr>
+		    					<td><input id="btn_save_address" type="button" value="Save"></td>
+		    				</tr>
+		    			</tbody>
+		    		</table>
+		    	</div>
+		    	<div class="modal-footer">
+		    		<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		    	</div>
+	    	</div>
+    	</div>
+    </div>
+    <div th:fragment="run" id="create_run_modal" class="modal fade" role="dialog" data-backdrop="static">
+  		<div class="modal-dialog">
+    		<div class="modal-content">
+      			<div class="modal-header">
+        			<h5 class="modal-title">Create Run</h5>
+        			<button type="button" class="close" data-dismiss="modal">&times;</button>
+      			</div>
+      			<div class="modal-body">
+      				<div class="container-fluid">
+      					<div class="form-group row">
+      						<label for="run_name">Name:</label>
+        					<input id="run_name" type="text" class="form-control">
+      					</div>
+      					<div class="form-group row">
+      						<div class="form-check">
+  								<input class="form-check-input" type="checkbox" value="" id="chk_test_run">
+  								<label class="form-check-label" for="chk_test_run">Test run</label>
+							</div>
+      					</div>
+      					<div class="form-group row">
+      						<div class="input-group">
+		      					<div class="custom-file">
+		  							<input type="file" class="custom-file-input" id="customFile">
+		  							<label class="custom-file-label" for="customFile">Choose file</label>
+								</div>
+							</div>
+      					</div>
+      				</div>
+      				<div class="progress">
+  						<div id="upload_progress" class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+					</div>
+      			</div>
+      			<div class="modal-footer">
+        			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        			<button id="btn_save_run" type="button" class="btn btn-primary">Save changes</button>
+      			</div>
+    		</div>
+  		</div>
+	</div>
+</html>
