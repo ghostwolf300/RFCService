@@ -14,5 +14,7 @@ public interface WorkerService {
 	public void pauseAll(int runId);
 	public void stopOne(int workerId);
 	public List<WorkerDTO> stopAll(int runId);
+	public boolean isExecuting(int runId);
+	public int getResultQueueSize();
 
 }

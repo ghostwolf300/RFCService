@@ -68,6 +68,14 @@ public class ResultHandler implements Runnable {
 						break;
 				}
 				//update message log
+				//simulate db operation time
+				try {
+					Thread.sleep(1500);
+				} 
+				catch (InterruptedException e) {
+					System.out.println("ResultHandler interrupted while sleeping!");
+					polling=false;
+				}
 			}
 			runMaterialRepo.flush();
 			runRepo.flush();

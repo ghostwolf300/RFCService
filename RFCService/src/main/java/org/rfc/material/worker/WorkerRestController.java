@@ -80,4 +80,11 @@ public class WorkerRestController {
 		return new ResponseEntity<List<WorkerDTO>>(activeWorkers,HttpStatus.OK);
 	}
 	
+	@GetMapping(value="/isExecuting",produces="application/json")
+	@ResponseBody
+	public ResponseEntity<?> isExecuting(@RequestParam int runId){
+		boolean executing=workerService.isExecuting(runId);
+		return new ResponseEntity<Boolean>(executing,HttpStatus.OK);
+	}
+	
 }

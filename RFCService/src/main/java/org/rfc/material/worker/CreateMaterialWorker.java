@@ -9,8 +9,11 @@ import org.rfc.material.Material;
 import org.rfc.material.dto.CreateMaterialResultDTO;
 import org.rfc.material.dto.WorkerDTO;
 
+import com.sap.conn.jco.JCoDestination;
+import com.sap.conn.jco.JCoException;
 
-public class CreateMaterialWorker extends Worker implements Runnable {
+
+public class CreateMaterialWorker extends Worker {
 	
 	private BlockingQueue<CreateMaterialResultDTO> resultQueue;
 	private Queue<Material> materialQueue;
@@ -18,16 +21,16 @@ public class CreateMaterialWorker extends Worker implements Runnable {
 	private int successCount;
 	private WorkerDTO dto;
 	
-	public CreateMaterialWorker() {
-		super();
+	public CreateMaterialWorker(JCoDestination destination) {
+		super(destination);
 	}
 	
-	public CreateMaterialWorker(int id,int runId) {
-		super(id,runId);
+	public CreateMaterialWorker(int id,int runId,JCoDestination destination) {
+		super(id,runId,destination);
 	}
 	
-	public CreateMaterialWorker(int id, int runId,List<Material> materials,BlockingQueue<CreateMaterialResultDTO> resultQueue) {
-		super(id,runId);
+	public CreateMaterialWorker(int id, int runId,List<Material> materials,BlockingQueue<CreateMaterialResultDTO> resultQueue,JCoDestination destination) {
+		super(id,runId,destination);
 		this.materialQueue=new LinkedList<Material>(materials);
 		this.resultQueue=resultQueue;
 		dto=new WorkerDTO(this.getId(),materialQueue.size(),0,0,this.status);
@@ -50,6 +53,7 @@ public class CreateMaterialWorker extends Worker implements Runnable {
 	}
 
 	public WorkerDTO getDto() {
+		dto.setCurrentStatus(status);
 		return dto;
 	}
 
@@ -58,16 +62,11 @@ public class CreateMaterialWorker extends Worker implements Runnable {
 	}
 
 	@Override
-	public void run(){
-		status=WorkerStatus.RUNNING;
-		dto.setCurrentStatus(status);
+	protected void doWork() throws JCoException,InterruptedException {
 		Material m;
 		while((m=materialQueue.poll())!=null) {
 			if(Thread.currentThread().isInterrupted()) {
-				System.out.println("Stopping thread...");
-				status=WorkerStatus.STOPPED;
-				dto.setCurrentStatus(status);
-				break;
+				throw new InterruptedException();
 			}
 			System.out.println(this.getId()+"\tCreating material: "+m.getMaterialId());
 			CreateMaterialResultDTO result=new CreateMaterialResultDTO(runId);
@@ -78,20 +77,10 @@ public class CreateMaterialWorker extends Worker implements Runnable {
 			dto.addSuccess();
 			
 			//This is not needed when material creation logic is implemented
-			try {
-				Thread.sleep(1000);
-			} 
-			catch (InterruptedException e) {
-				System.out.println("Interrupted while sleeping!");
-				status=WorkerStatus.STOPPED;
-				dto.setCurrentStatus(status);
-				break;
-			}
+			Thread.sleep(1000);
+			
 		}
 		System.out.println(this.id+" Exiting material loop. Status: "+this.getStatus()+"\tMaterial Queue size: "+materialQueue.size());
-		if(status!=WorkerStatus.STOPPED) {
-			dto.setCurrentStatus(WorkerStatus.FINISHED);
-		}	
 	}
 
 }

@@ -21,8 +21,11 @@ import org.rfc.material.dto.WorkerResultDTO;
 import org.rfc.material.run.RunRepository;
 import org.rfc.material.runmaterial.RunMaterial;
 import org.rfc.material.runmaterial.RunMaterialRepository;
+import org.rfc.sap.SapService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.sap.conn.jco.JCoDestination;
 
 @Service("workerService")
 public class WorkerServiceImpl implements WorkerService {
@@ -33,6 +36,9 @@ public class WorkerServiceImpl implements WorkerService {
 	private Map<Integer,Runnable> workerMap=null;
 	private int workerCount=0;
 	private ResultHandler resultHandler=null;
+	
+	@Autowired
+	private SapService sapService;
 	
 	private final static String STRUCTURES[]= {
 			"HEADDATA",
@@ -58,6 +64,9 @@ public class WorkerServiceImpl implements WorkerService {
 	
 	@Override
 	public List<WorkerDTO> createWorkers(int runId, int maxMaterials) {
+		
+		clearWorkers(runId);
+		
 		List<RunMaterial> runMaterials=runMaterialRepo.findByIdRunIdAndStatus(runId, 0);
 		
 		System.out.println("No# run materials: "+runMaterials.size());
@@ -70,16 +79,28 @@ public class WorkerServiceImpl implements WorkerService {
 		return dtos;
 	}
 	
+	private void clearWorkers(int runId) {
+		if(workerMap!=null) {
+			stopAll(runId);
+			List<WorkerDTO> dtos=getActiveWorkers(runId);
+			for(WorkerDTO w : dtos) {
+				workerMap.remove(w.getId());	
+			}
+		}
+	}
+	
 	private List<WorkerDTO> addWorkers(List<Material> materials,int maxMaterials,int runId){
 		if(workerMap==null) {
 			initWorkers();
 		}
+
 		List<WorkerDTO> dtos=new ArrayList<WorkerDTO>();
 		List<List<Material>> splitMaterials=slice(materials,maxMaterials);
 		int id;
+		JCoDestination destination=sapService.getDestination();
 		for(List<Material> workerMaterials : splitMaterials) {
 			id=workerCount+1;
-			CreateMaterialWorker worker=new CreateMaterialWorker(id,runId,workerMaterials,resultQueue);
+			CreateMaterialWorker worker=new CreateMaterialWorker(id,runId,workerMaterials,resultQueue,destination);
 			workerMap.put(worker.getId(), worker);
 			workerCount++;
 			dtos.add(worker.getDto());
@@ -183,17 +204,24 @@ public class WorkerServiceImpl implements WorkerService {
 		return dtos;
 	}
 	
-	private boolean workersExecuting() {
+	@Override
+	public boolean isExecuting(int runId) {
 		boolean executing=false;
-		for(Integer workerId : workerMap.keySet()) {
-			CreateMaterialWorker worker=(CreateMaterialWorker) workerMap.get(workerId);
-			if(worker.getStatus() == WorkerStatus.RUNNING
-					|| worker.getStatus() == WorkerStatus.PAUSED) {
-				executing=true;
-				break;
+		if(workerMap!=null) {
+			for(Integer workerId : workerMap.keySet()) {
+				CreateMaterialWorker worker=(CreateMaterialWorker) workerMap.get(workerId);
+				if(worker.getRunId()==runId && worker.getStatus() == WorkerStatus.RUNNING) {
+					executing=true;
+					break;
+				}
 			}
 		}
 		return executing;
+	}
+
+	@Override
+	public int getResultQueueSize() {
+		return resultQueue.size();
 	}
 
 	

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 import org.rfc.material.run.Run;
+import org.rfc.material.run.RunStatus;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -22,6 +23,9 @@ public class RunDTO implements Serializable {
 	private int successCount;
 	private int errorCount;
 	private boolean testRun;
+	private RunStatus currentStatus;
+	private boolean executing;
+	private int resultQueueSize;
 	
 	public RunDTO() {
 		super();
@@ -102,6 +106,22 @@ public class RunDTO implements Serializable {
 		this.testRun = testRun;
 	}
 	
+	public RunStatus getCurrentStatus() {
+		return currentStatus;
+	}
+
+	public void setCurrentStatus(RunStatus currentStatus) {
+		this.currentStatus = currentStatus;
+	}
+
+	public boolean isExecuting() {
+		return executing;
+	}
+
+	public void setExecuting(boolean executing) {
+		this.executing = executing;
+	}
+
 	@JsonProperty(value="progress",access=JsonProperty.Access.READ_ONLY)
 	public int getProgress() {
 		int progress=0;
@@ -123,6 +143,14 @@ public class RunDTO implements Serializable {
 		int noRunCount=0;
 		noRunCount=materialCount-this.getProgressCount();
 		return noRunCount;
+	}
+
+	public int getResultQueueSize() {
+		return resultQueueSize;
+	}
+
+	public void setResultQueueSize(int resultQueueSize) {
+		this.resultQueueSize = resultQueueSize;
 	}
 
 }

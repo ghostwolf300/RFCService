@@ -498,8 +498,8 @@ var MaterialRun=(function(){
 	var $runTableDiv;
 	var $dataFileInput;
 	var $btnSaveRun;
-	var $btnStartRun;
-	var $btnDeleteRun;
+	var $btnViewRun;
+	var $btnDelRun;
 	var $btnResetRun;
 	var $uploadProgressBar;
 	
@@ -510,8 +510,8 @@ var MaterialRun=(function(){
 		$runTableDiv=$('div#run_table');
 		$dataFileInput=$('input#customFile');
 		$btnSaveRun=$('button#btn_save_run');
-		$btnStartRun=$('button#btn_start_run');
-		$btnDeleteRun=$('button#btn_delete_run');
+		$btnViewRun=$('button.btn-run-view');
+		$btnDelRun=$('button.btn-run-delete');
 		$btnResetRun=$('button#btn_reset_run');
 		$uploadProgressBar=$('div#upload_progress');
 		_bindEventHandlers();
@@ -522,8 +522,8 @@ var MaterialRun=(function(){
 		$btnCreateRun.click(_initUploadProgressBar);
 		$dataFileInput.on('change',_selectFile);
 		$btnSaveRun.click(_saveRun);
-		$btnDeleteRun.click(_deleteRun);
-		$btnStartRun.click(_startRun);
+		$btnDelRun.click(_deleteRun);
+		$btnViewRun.click(_viewRun);
 		$btnResetRun.click(_resetRun);
 	}
 	
@@ -541,36 +541,109 @@ var MaterialRun=(function(){
 	function _displayRuns(runs){
 		_clearRuns();
 		runs.forEach(_addRun);
+		runs.forEach(function(run,index){
+			var params={
+					'runId' 		: run.id
+			}
+			AjaxUtil.get('material/workers/isExecuting',params,'param',function(executing){
+				console.log('Run: '+run.id+' Executing: '+executing);
+				_pollRunStatus(run.id,executing);
+			},
+			ErrorHandler.handle);
+		});
 	}
 	
 	function _clearRuns(){
-		$runTableDiv.find('div.run-table-row')
-			.not('div.add-entry-row')
-			.not('div#row_template')
-			.remove();
+		var $tbody=$('#runs_table_body');
+		$tbody.find('tr.row-run').remove();
 	}
 	
 	function _addRun(run,index){
-		var $rowDiv=$('div#row_template').clone(true);
-		$rowDiv.attr('id','row-'+index);
-		$rowDiv.attr('data-run_id',run.id);
-		$rowDiv.removeClass('hidden-fields');
-		$rowDiv.addClass('run-table-row');
-		$rowDiv.find('h4').text(run.name);
-		$rowDiv.find('#btn_delete_run').attr('data-run_id',run.id);
-		$rowDiv.find('#btn_start_run').attr('data-run_id',run.id);
-		$rowDiv.find('#btn_reset_run').attr('data-run_id',run.id);
-		let text;
-		if(run.testRun){
-			text='TEST';
+		
+		var $tbody=$('#runs_table_body');
+		var $tr=$tbody.find('tr.row-run-template').clone(true);
+		$tr.find('td.cell-run-id').text(run.id);
+		$tr.find('td.cell-run-name').text(run.name);
+		$tr.find('td.cell-run-test').text(run.testRun);
+		$tr.find('td.cell-run-materials').text(run.materialCount);
+		$tr.find('td.cell-run-success').text(run.successCount);
+		$tr.find('td.cell-run-errors').text(run.errorCount);
+		
+		$progressBar=$tr.find('div#run_progress');
+		$progressBar.attr('aria-valuenow',run.progress);
+		$progressBar.width(run.progress+'%');
+		$progressBar.text(run.progress+'%');
+		
+		$btnView=$tr.find('button.btn-run-view');
+		$btnView.attr('data-run_id',run.id);
+		$btnDel=$tr.find('button.btn-run-delete');
+		$btnDel.attr('data-run_id',run.id);
+		
+		$tr.attr('data-run_id',run.id);
+		$tr.removeClass('hidden-fields');
+		$tr.removeClass('row-run-template');
+		$tr.addClass('row-run');
+		$tbody.append($tr);
+	}
+	
+	function _pollRunStatus(runId,poll){
+		var endPoint='material/run/status';
+		if(poll && AjaxUtil.isPolling(endPoint)==false){
+			let params={
+					'runId'	: runId
+			}
+			AjaxUtil.startPolling(endPoint,params,'param',
+			function(run){
+				_updateRun(run);
+				if(run.executing==false && run.resultQueueSize==0){
+					_pollRunStatus(runId,false);
+				}
+			},
+			ErrorHandler.handle,5000);
+		}
+		else if(poll==false){
+			AjaxUtil.stopPolling(endPoint);
 		}
 		else{
-			text='PROD';
+			//something else
 		}
-		$rowDiv.find('#txt_testOrProd').text(text);
-		$runTableDiv.append($rowDiv);
-		console.log(run.name);
 	}
+	
+	function _updateRun(run){
+		var $tbody=$('#runs_table_body');
+		var $tr=$tbody.find('tr.row-run[data-run_id="'+run.id+'"]');
+		
+		$tr.find('td.cell-run-id').text(run.id);
+		$tr.find('td.cell-run-name').text(run.name);
+		$tr.find('td.cell-run-test').text(run.testRun);
+		$tr.find('td.cell-run-materials').text(run.materialCount);
+		$tr.find('td.cell-run-success').text(run.successCount);
+		$tr.find('td.cell-run-errors').text(run.errorCount);
+		
+		$progressBar=$tr.find('div#run_progress');
+		$progressBar.attr('aria-valuenow',run.progress);
+		$progressBar.width(run.progress+'%');
+		$progressBar.text(run.progress+'%');
+		
+		if(run.executing){
+			$progressBar.removeClass('bg-secondary');
+			$progressBar.addClass('progress-bar-striped progress-bar-animated bg-primary');
+		}
+		else if(run.executing==false && run.resultQueueSize>0){
+			$progressBar.removeClass('progress-bar-striped progress-bar-animated');
+		}
+		else if(run.noRunCount==0){
+			$progressBar.removeClass('progress-bar-striped progress-bar-animated bg-primary bg-secondary');
+			$progressBar.addClass('bg-success');
+		}
+		else{
+			$progressBar.removeClass('progress-bar-striped progress-bar-animated bg-primary');
+			$progressBar.addClass('bg-secondary');
+		}
+		
+		
+	}
+	
 	
 	function _selectFile(){
         var fileName = $(this).val();
@@ -622,7 +695,7 @@ var MaterialRun=(function(){
 		return templateId;
 	}
 	
-	function _startRun(event){
+	function _viewRun(event){
 		var runId=$(this).data('run_id');
 		console.log(runId);
 		var target=contextPath+'material/execute?runId='+runId;
@@ -763,7 +836,8 @@ var MaterialExecute=(function(){
 		$btnCreateWorkers=$('#btn_create_workers');
 		_bindEventHandlers();
 		_initChart();
-		_refreshRunStatus();
+		_refresh();
+		
 	}
 	
 	function _bindEventHandlers(){
@@ -777,6 +851,12 @@ var MaterialExecute=(function(){
 		
 	}
 	
+	function _refresh(){
+		_refreshRunStatus();
+		_refreshAllWorkers();
+		_pollIfExecuting();
+	}
+	
 	function _initChart(){
 		var $ctx=$('#status_pie');
 		var colorSuccess='rgba(63, 191, 63, 1.0)';
@@ -787,7 +867,7 @@ var MaterialExecute=(function(){
             data: {
                 labels: ["Success", "Error", "No run"],
                 datasets: [{
-                    data: [1200, 1700, 800],
+                    data: [0, 0, 0],
                     backgroundColor: [
                     	colorSuccess, 
                     	colorError, 
@@ -813,6 +893,7 @@ var MaterialExecute=(function(){
 	
 	function _createWorkers(){
 		console.log(runId);
+		_clearWorkers();
 		var params={
 				'runId' 		: runId,
 				'maxMaterials'	: parseInt($('#worker_max_materials').val())
@@ -821,16 +902,19 @@ var MaterialExecute=(function(){
 	}
 	
 	function _createWorkerRows(workers){
+		//console.log(workers);
 		var $tbody=$('#workers_tbody');
 		var $row;
 		workers.forEach(function(worker,index){
-			$row=$('#template_worker_row').clone(true);
+			$row=$('tr.row-worker-template').clone(true);
 			$row.attr('data-id',worker.id);
+			$row.removeClass('row-worker-template');
+			$row.addClass('row-worker');
 			$row.find('button.worker-start').attr('data-id',worker.id);
 			$row.find('button.worker-stop').attr('data-id',worker.id);
 			$row.attr('hidden',false);
-			_updateWorkerRow($row,worker);
 			$tbody.append($row);
+			_updateWorkerRow($row,worker);
 		});
 	}
 	
@@ -890,6 +974,13 @@ var MaterialExecute=(function(){
 				'runId' 		: runId
 		}
 		AjaxUtil.get('material/run/reset',params,'param',_updateRun,ErrorHandler.handle);
+		_clearWorkers();
+		
+	}
+	
+	function _clearWorkers(){
+		var $tbody=$('#workers_tbody');
+		$tbody.find('tr.row-worker').remove();
 	}
 	
 	function _startAllWorkers(){
@@ -932,7 +1023,6 @@ var MaterialExecute=(function(){
 				});
 				if(stopPolling){
 					_pollWorkerStatus(false);
-					_pollRunStatus(false);
 				}
 			},
 			ErrorHandler.handle,5000);
@@ -952,6 +1042,18 @@ var MaterialExecute=(function(){
 		AjaxUtil.get('material/run/status',params,'param',_updateRun,ErrorHandler.handle);
 	}
 	
+	function _pollIfExecuting(){
+		var params={
+				'runId' 		: runId
+		}
+		AjaxUtil.get('material/workers/isExecuting',params,'param',function(executing){
+			console.log('Executing: '+executing);
+			_pollRunStatus(true);
+			_pollWorkerStatus(true);
+		},
+		ErrorHandler.handle);
+	}
+	
 	function _pollRunStatus(poll){
 		var endPoint='material/run/status';
 		if(poll && AjaxUtil.isPolling(endPoint)==false){
@@ -961,6 +1063,10 @@ var MaterialExecute=(function(){
 			AjaxUtil.startPolling(endPoint,params,'param',
 			function(run){
 				_updateRun(run);
+				if(run.executing==false && run.resultQueueSize==0){
+					_pollRunStatus(false);
+				}
+				
 			},
 			ErrorHandler.handle,5000);
 		}
@@ -978,11 +1084,28 @@ var MaterialExecute=(function(){
 		$('#error_count').val(run.errorCount);
 		$('#progress_count').val(run.progressCount);
 		$('#norun_count').val(run.noRunCount);
+		$('#result_queue_size').val(run.resultQueueSize);
 		
 		$progressBar=$('#run_progress');
 		$progressBar.attr('aria-valuenow',run.progress);
 		$progressBar.width(run.progress+'%');
 		$progressBar.text(run.progressCount+' / '+run.materialCount);
+		
+		if(run.executing){
+			$progressBar.removeClass('bg-secondary');
+			$progressBar.addClass('progress-bar-striped progress-bar-animated bg-primary');
+		}
+		else if(run.executing==false && run.resultQueueSize>0){
+			$progressBar.removeClass('progress-bar-striped progress-bar-animated');
+		}
+		else if(run.noRunCount==0){
+			$progressBar.removeClass('progress-bar-striped progress-bar-animated bg-primary bg-secondary');
+			$progressBar.addClass('bg-success');
+		}
+		else{
+			$progressBar.removeClass('progress-bar-striped progress-bar-animated bg-primary');
+			$progressBar.addClass('bg-secondary');
+		}
 		
 		_updateStatusPie(run.successCount,run.errorCount,run.noRunCount);
 	}
