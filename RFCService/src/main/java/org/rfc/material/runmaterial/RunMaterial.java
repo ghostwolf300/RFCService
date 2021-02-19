@@ -2,13 +2,18 @@ package org.rfc.material.runmaterial;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.rfc.material.dto.RunMaterialDTO;
+import org.rfc.material.message.Message;
 
 @Entity
 @Table(name="t_run_material")
@@ -25,6 +30,14 @@ public class RunMaterial implements Serializable {
 	private int status;
 	@Column(name="updated_ts")
 	private Timestamp updatedTs;
+	
+	@OneToMany(
+		mappedBy="runMaterial",
+		fetch=FetchType.LAZY,
+		cascade=CascadeType.ALL,
+		orphanRemoval=true
+	)
+	List<Message> messages;
 	
 	public RunMaterial() {
 		super();

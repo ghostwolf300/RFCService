@@ -124,7 +124,7 @@ public class WorkerServiceImpl implements WorkerService {
 	private void initWorkers() {
 		workerMap=new HashMap<Integer,Runnable>();
 		workerCount=0;
-		resultHandler=new ResultHandler(resultQueue,runRepo,runMaterialRepo);
+		resultHandler=new ResultHandler(resultQueue,runRepo,runMaterialRepo,null);
 		Future<?> f=resultExecutor.submit(resultHandler);
 		resultHandler.setMyFuture(f);
 	}

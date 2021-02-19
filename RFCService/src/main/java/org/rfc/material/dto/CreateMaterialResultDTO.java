@@ -13,7 +13,7 @@ public class CreateMaterialResultDTO implements Serializable {
 	private int runId;
 	private String material;
 	private int status;
-	private String workerId;
+	private int workerId;
 	private List<ReturnMessageDTO> messages;
 	
 	public CreateMaterialResultDTO(int runId) {
@@ -21,7 +21,16 @@ public class CreateMaterialResultDTO implements Serializable {
 		this.runId=runId;
 	}
 	
-	public CreateMaterialResultDTO(int runId,String material, int status, String workerId, List<ReturnMessageDTO> messages) {
+	public CreateMaterialResultDTO(int runId,String material,int workerId, List<ReturnMessageDTO> messages) {
+		super();
+		this.runId=runId;
+		this.material = material;
+		this.workerId = workerId;
+		this.messages = messages;
+		this.setStatusBasedOnMessages();
+	}
+	
+	public CreateMaterialResultDTO(int runId,String material, int status, int workerId, List<ReturnMessageDTO> messages) {
 		super();
 		this.runId=runId;
 		this.material = material;
@@ -50,10 +59,10 @@ public class CreateMaterialResultDTO implements Serializable {
 	public void setStatus(int status) {
 		this.status = status;
 	}
-	public String getWorkerId() {
+	public int getWorkerId() {
 		return workerId;
 	}
-	public void setWorkerId(String workerId) {
+	public void setWorkerId(int workerId) {
 		this.workerId = workerId;
 	}
 	public List<ReturnMessageDTO> getMessages() {
@@ -61,6 +70,38 @@ public class CreateMaterialResultDTO implements Serializable {
 	}
 	public void setMessages(List<ReturnMessageDTO> messages) {
 		this.messages = messages;
+	}
+	
+	private void setStatusBasedOnMessages() {
+		
+		boolean success=false;
+		boolean warning=false;
+		boolean error=false;
+		
+		for(ReturnMessageDTO msg : messages) {
+			switch(msg.getType()) {
+			case "S" :
+				success=true;
+				break;
+			case "W" :
+				warning=true;
+				break;
+			case "E" :
+				error=true;
+				break;
+			default	:
+				error=true;
+			}
+		}
+		if(success && !warning && !error) {
+			status=1;
+		}
+		else if(warning && !error) {
+			status=2;
+		}
+		else {
+			status=3;
+		}
 	}
 	
 	

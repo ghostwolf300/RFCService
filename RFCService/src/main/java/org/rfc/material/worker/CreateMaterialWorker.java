@@ -112,26 +112,9 @@ public class CreateMaterialWorker extends Worker {
 				throw new InterruptedException();
 			}
 			System.out.println(this.getId()+"\tCreating material: "+m.getMaterialId());
-			createMaterial(m);
-			CreateMaterialResultDTO result=new CreateMaterialResultDTO(runId);
-			handleReturnMessages(m,result);
+			CreateMaterialResultDTO result=createMaterial(m);
 			resultQueue.add(result);
 			clearTables();
-//			MaterialStatus materialStatus=handleReturnMessages(m);
-//			CreateMaterialResultDTO result=new CreateMaterialResultDTO(runId);
-//			result.setWorkerId(String.valueOf(this.getId()));
-//			result.setMaterial(m.getMaterialId());
-//			if(materialStatus==MaterialStatus.CREATED) {
-//				result.setStatus(1);
-//				resultQueue.add(result);
-//				dto.addSuccess();
-//			}
-//			else if(materialStatus==MaterialStatus.ERRORS) {
-//				
-//			}
-			//This is not needed when material creation logic is implemented
-			//Thread.sleep(1000);
-			
 		}
 		System.out.println(this.id+" Exiting material loop. Status: "+this.getStatus()+"\tMaterial Queue size: "+materialQueue.size());
 	}
@@ -166,7 +149,7 @@ public class CreateMaterialWorker extends Worker {
 		tRETURNMESSAGES=function.getTableParameterList().getTable("RETURNMESSAGES");
 	}
 	
-	private void createMaterial(Material m) throws JCoException{
+	private CreateMaterialResultDTO createMaterial(Material m) throws JCoException{
 		setHEADDATA(m);
 		setCLIENTDATA(m);
 		setMATERIALDESCRIPTION(m);
@@ -178,6 +161,7 @@ public class CreateMaterialWorker extends Worker {
 		setSTORAGELOCATIONDATA(m);
 		setFORECASTPARAMETERS(m);
 		executeFunction();
+		return handleReturnMessages(m);
 		
 	}
 	
@@ -437,7 +421,7 @@ public class CreateMaterialWorker extends Worker {
 		}
 	}
 	
-	private MaterialStatus handleReturnMessages(Material m,CreateMaterialResultDTO result) {
+	private CreateMaterialResultDTO handleReturnMessages(Material m) {
 		List<ReturnMessageDTO> messages=new ArrayList<ReturnMessageDTO>();
 		do {
 			ReturnMessageDTO message=new ReturnMessageDTO();
@@ -455,12 +439,14 @@ public class CreateMaterialWorker extends Worker {
 			messages.add(message);
 		}
 		while(tRETURNMESSAGES.nextRow());
-		result.setMessages(messages);
-		for(ReturnMessageDTO msg : messages) {
-			System.out.println(msg);
+		CreateMaterialResultDTO result=new CreateMaterialResultDTO(runId,m.getMaterialId(),id,messages);
+		if(result.getStatus()==1) {
+			dto.addSuccess();
 		}
-		//add logic here for errors, warnings...
-		return MaterialStatus.CREATED;
+		else {
+			dto.addError();
+		}
+		return result;
 	}
 	
 	private void clearTables() {

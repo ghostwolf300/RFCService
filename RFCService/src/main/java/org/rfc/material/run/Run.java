@@ -2,15 +2,20 @@ package org.rfc.material.run;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.rfc.material.dto.RunDTO;
+import org.rfc.material.message.Message;
 
 @Entity
 @Table(name="t_run")
@@ -40,6 +45,10 @@ public class Run implements Serializable {
 	
 	public Run() {
 		super();
+	}
+	
+	public Run(int id) {
+		this.id=id;
 	}
 	
 	public Run(RunDTO run) {
@@ -123,4 +132,6 @@ public class Run implements Serializable {
 	public void setTestRun(boolean testRun) {
 		this.testRun = testRun;
 	}
+
+	
 }

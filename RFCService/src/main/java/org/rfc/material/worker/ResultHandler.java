@@ -5,6 +5,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import org.rfc.material.dto.CreateMaterialResultDTO;
+import org.rfc.material.dto.ReturnMessageDTO;
+import org.rfc.material.message.MessageRepository;
 import org.rfc.material.run.RunRepository;
 import org.rfc.material.runmaterial.RunMaterialRepository;
 
@@ -17,11 +19,13 @@ public class ResultHandler implements Runnable {
 	
 	private RunRepository runRepo;
 	private RunMaterialRepository runMaterialRepo;
+	private MessageRepository messageRepo;
 	
-	public ResultHandler(BlockingQueue<CreateMaterialResultDTO> resultQueue,RunRepository runRepo,RunMaterialRepository runMaterialRepo) {
+	public ResultHandler(BlockingQueue<CreateMaterialResultDTO> resultQueue,RunRepository runRepo,RunMaterialRepository runMaterialRepo,MessageRepository messageRepo) {
 		this.resultQueue=resultQueue;
 		this.runRepo=runRepo;
 		this.runMaterialRepo=runMaterialRepo;
+		this.messageRepo=messageRepo;
 		this.polling=true;
 	}
 	
@@ -55,30 +59,35 @@ public class ResultHandler implements Runnable {
 			while((result=resultQueue.poll())!=null) {
 				System.out.println("Saving results... ID#:"+result.getWorkerId()+"\tMATERIAL: "+result.getMaterial()+"\tSTATUS: "+result.getStatus());
 				runMaterialRepo.updateStatus(result.getRunId(), result.getMaterial(), result.getStatus());
-				runMaterialRepo.flush();
+				
 				switch(result.getStatus()) {
 					case(1) : 
 						runRepo.addToSuccessCount(result.getRunId(), 1);
 						break;
 					case(2) :
-						//add to error count
+						//add to warning count
 						break;
 					case(3) :
 						runRepo.addToErrorCount(result.getRunId(), 1);
 						break;
 				}
-				//update message log
-				//simulate db operation time
-				try {
-					Thread.sleep(1500);
-				} 
-				catch (InterruptedException e) {
-					System.out.println("ResultHandler interrupted while sleeping!");
-					polling=false;
+				
+				for(ReturnMessageDTO msg : result.getMessages()) {
+					//save messages
 				}
+				runMaterialRepo.flush();
+				runRepo.flush();
+				messageRepo.flush();
+				
+				//simulate db operation time
+//				try {
+//					Thread.sleep(1500);
+//				} 
+//				catch (InterruptedException e) {
+//					System.out.println("ResultHandler interrupted while sleeping!");
+//					polling=false;
+//				}
 			}
-			runMaterialRepo.flush();
-			runRepo.flush();
 			System.out.println("No results... waiting data");
 			try {
 				Thread.sleep(5000);
