@@ -1,4 +1,4 @@
-package org.rfc.material.message;
+package org.rfc.material.messages;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,12 +12,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.rfc.material.dto.ReturnMessageDTO;
-import org.rfc.material.run.Run;
 import org.rfc.material.runmaterial.RunMaterial;
 
 @Entity
 @Table(name="t_message")
-public class Message {
+public class ReturnMessage {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -33,28 +32,38 @@ public class Message {
 	private String message;
 	@Column(name="row_num",length=3)
 	private String rowNumber;
-	@Column(name="msg_var_1",length=20)
+	@Column(name="msg_var_1",length=60)
 	private String messageVariable1;
-	@Column(name="msg_var_2",length=20)
+	@Column(name="msg_var_2",length=60)
 	private String messageVariable2;
-	@Column(name="msg_var_3",length=20)
+	@Column(name="msg_var_3",length=60)
 	private String messageVariable3;
-	@Column(name="msg_var_4",length=20)
+	@Column(name="msg_var_4",length=60)
 	private String messageVariable4;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumns({
-			@JoinColumn(name="run_id"),
-			@JoinColumn(name="material")
+			@JoinColumn(name="run_id",referencedColumnName="run_id"),
+			@JoinColumn(name="material",referencedColumnName="material")
 	})
 	private RunMaterial runMaterial;
 	
-	public Message() {
+	public ReturnMessage() {
 		super();
 	}
 	
-	public Message(ReturnMessageDTO msg) {
+	public ReturnMessage(ReturnMessageDTO msg,RunMaterial rm) {
 		super();
+		this.workerId=msg.getWorkerId();
+		this.number=msg.getNumber();
+		this.type=msg.getType();
+		this.message=msg.getMessage();
+		this.rowNumber=msg.getRow();
+		this.messageVariable1=msg.getMessageVariable1();
+		this.messageVariable2=msg.getMessageVariable2();
+		this.messageVariable3=msg.getMessageVariable3();
+		this.messageVariable4=msg.getMessageVariable4();
+		this.runMaterial=rm;
 	}
 	
 	public Integer getId() {

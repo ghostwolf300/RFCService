@@ -19,6 +19,7 @@ import org.rfc.material.dto.CreateMaterialResultDTO;
 import org.rfc.material.dto.RunDTO;
 import org.rfc.material.dto.WorkerDTO;
 import org.rfc.material.dto.WorkerResultDTO;
+import org.rfc.material.messages.ReturnMessageRepository;
 import org.rfc.material.run.RunRepository;
 import org.rfc.material.run.RunService;
 import org.rfc.material.runmaterial.RunMaterial;
@@ -46,19 +47,6 @@ public class WorkerServiceImpl implements WorkerService {
 	@Autowired
 	private SapService sapService;
 	
-	private final static String STRUCTURES[]= {
-			"HEADDATA",
-			"CLIENTDATA",
-			"MATERIALDESCRIPTION",
-			"UNITSOFMEASURE",
-			"SALESDATA",
-			"TAXCLASSIFICATIONS",
-			"PLANTDATA",
-			"VALUATIONDATA",
-			"STORAGELOCATIONDATA",
-			"FORECASTPARAMETERS"
-		};
-	
 	@Autowired
 	private RunRepository runRepo;
 	
@@ -67,6 +55,9 @@ public class WorkerServiceImpl implements WorkerService {
 	
 	@Autowired
 	private MaterialRepository materialRepo;
+	
+	@Autowired
+	private ReturnMessageRepository messageRepo;
 	
 	@Override
 	public List<WorkerDTO> createWorkers(int runId, int maxMaterials) {
@@ -124,7 +115,7 @@ public class WorkerServiceImpl implements WorkerService {
 	private void initWorkers() {
 		workerMap=new HashMap<Integer,Runnable>();
 		workerCount=0;
-		resultHandler=new ResultHandler(resultQueue,runRepo,runMaterialRepo,null);
+		resultHandler=new ResultHandler(resultQueue,runRepo,runMaterialRepo,messageRepo);
 		Future<?> f=resultExecutor.submit(resultHandler);
 		resultHandler.setMyFuture(f);
 	}

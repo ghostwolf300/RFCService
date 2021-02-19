@@ -1,4 +1,4 @@
-package org.rfc.material.message;
+package org.rfc.material.messages;
 
 import java.util.List;
 

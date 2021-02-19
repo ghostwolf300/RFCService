@@ -15,7 +15,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.rfc.material.dto.RunDTO;
-import org.rfc.material.message.Message;
+import org.rfc.material.messages.ReturnMessage;
 
 @Entity
 @Table(name="t_run")

@@ -1,13 +1,15 @@
 package org.rfc.material.worker;
 
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import org.rfc.material.dto.CreateMaterialResultDTO;
 import org.rfc.material.dto.ReturnMessageDTO;
-import org.rfc.material.message.MessageRepository;
+import org.rfc.material.messages.ReturnMessage;
+import org.rfc.material.messages.ReturnMessageRepository;
 import org.rfc.material.run.RunRepository;
+import org.rfc.material.runmaterial.RunMaterial;
+import org.rfc.material.runmaterial.RunMaterialKey;
 import org.rfc.material.runmaterial.RunMaterialRepository;
 
 public class ResultHandler implements Runnable {
@@ -19,9 +21,9 @@ public class ResultHandler implements Runnable {
 	
 	private RunRepository runRepo;
 	private RunMaterialRepository runMaterialRepo;
-	private MessageRepository messageRepo;
+	private ReturnMessageRepository messageRepo;
 	
-	public ResultHandler(BlockingQueue<CreateMaterialResultDTO> resultQueue,RunRepository runRepo,RunMaterialRepository runMaterialRepo,MessageRepository messageRepo) {
+	public ResultHandler(BlockingQueue<CreateMaterialResultDTO> resultQueue,RunRepository runRepo,RunMaterialRepository runMaterialRepo,ReturnMessageRepository messageRepo) {
 		this.resultQueue=resultQueue;
 		this.runRepo=runRepo;
 		this.runMaterialRepo=runMaterialRepo;
@@ -71,9 +73,10 @@ public class ResultHandler implements Runnable {
 						runRepo.addToErrorCount(result.getRunId(), 1);
 						break;
 				}
-				
+				RunMaterial rm=runMaterialRepo.getOne(new RunMaterialKey(result.getRunId(),result.getMaterial()));
 				for(ReturnMessageDTO msg : result.getMessages()) {
-					//save messages
+					ReturnMessage m=new ReturnMessage(msg,rm);
+					messageRepo.save(m);
 				}
 				runMaterialRepo.flush();
 				runRepo.flush();

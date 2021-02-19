@@ -1,6 +1,7 @@
 package org.rfc;
 
 import org.rfc.material.MaterialRepository;
+import org.rfc.material.messages.ReturnMessageRepository;
 import org.rfc.material.run.RunRepository;
 import org.rfc.material.runmaterial.RunMaterialRepository;
 import org.rfc.material.template.TemplateRepository;
@@ -17,7 +18,8 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 				RunRepository.class,
 				RunMaterialRepository.class,
 				TemplateRepository.class,
-				TemplateValueRepository.class
+				TemplateValueRepository.class,
+				ReturnMessageRepository.class
 				})
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class })
 public class RfcServiceApplication extends SpringBootServletInitializer {

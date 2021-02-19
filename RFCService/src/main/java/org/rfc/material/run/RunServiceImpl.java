@@ -3,6 +3,7 @@ package org.rfc.material.run;
 import java.util.Optional;
 
 import org.rfc.material.dto.RunDTO;
+import org.rfc.material.messages.ReturnMessageRepository;
 import org.rfc.material.runmaterial.RunMaterialRepository;
 import org.rfc.material.worker.WorkerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ public class RunServiceImpl implements RunService {
 	
 	@Autowired
 	private RunMaterialRepository runMaterialRepo;
+	
+	@Autowired
+	private ReturnMessageRepository messageRepo;
 	
 	@Override
 	public RunDTO getRun(int runId) {
@@ -57,6 +61,8 @@ public class RunServiceImpl implements RunService {
 		runRepo.resetCounters(runId);
 		//reset run counters
 		runMaterialRepo.resetStatus(runId, 0);
+		//clear messages
+		messageRepo.deleteByRunMaterialIdRunId(runId);
 		RunDTO dto=this.getRun(runId);
 		return dto;
 	}

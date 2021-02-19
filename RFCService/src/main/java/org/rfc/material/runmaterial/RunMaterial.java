@@ -13,7 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.rfc.material.dto.RunMaterialDTO;
-import org.rfc.material.message.Message;
+import org.rfc.material.messages.ReturnMessage;
 
 @Entity
 @Table(name="t_run_material")
@@ -37,7 +37,7 @@ public class RunMaterial implements Serializable {
 		cascade=CascadeType.ALL,
 		orphanRemoval=true
 	)
-	List<Message> messages;
+	List<ReturnMessage> returnMessages;
 	
 	public RunMaterial() {
 		super();
