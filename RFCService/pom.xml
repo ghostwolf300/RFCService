@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.rfc</groupId>
-	<artifactId>RFCService</artifactId>
+	<artifactId>MaterialCreator</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>RFCService</name>
-	<description>SAP RFC service</description>
+	<name>MaterialCreator</name>
+	<description>Create materials</description>
 	<packaging>war</packaging>
 
 	<properties>
@@ -136,6 +136,16 @@
 				<configuration>
     				<includeSystemScope>true</includeSystemScope>
   				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+        		<artifactId>tomcat7-maven-plugin</artifactId>
+        		<version>2.2</version>
+        		<configuration>
+          			<url>http://wwihgrpsrv441:8080/manager/text</url>
+          			<server>wwihgrpsrv441</server>
+          			<path>/MaterialCreator</path>
+        		</configuration>
 			</plugin>
 		</plugins>
 		<finalName>${project.artifactId}</finalName>
