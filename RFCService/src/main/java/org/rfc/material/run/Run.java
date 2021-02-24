@@ -16,6 +16,7 @@ import javax.persistence.Table;
 
 import org.rfc.material.dto.RunDTO;
 import org.rfc.material.messages.ReturnMessage;
+import org.rfc.material.runmaterial.RunMaterial;
 
 @Entity
 @Table(name="t_run")
@@ -42,6 +43,15 @@ public class Run implements Serializable {
 	private boolean testRun;
 	@Column(name="template_id")
 	private int templateId;
+	
+	//Added this to create relationship
+	@OneToMany(
+			mappedBy="run",
+			fetch=FetchType.LAZY,
+			cascade=CascadeType.ALL,
+			orphanRemoval=true
+		)
+	private List<RunMaterial> runMaterials;
 	
 	public Run() {
 		super();
@@ -131,6 +141,14 @@ public class Run implements Serializable {
 
 	public void setTestRun(boolean testRun) {
 		this.testRun = testRun;
+	}
+
+	public List<RunMaterial> getRunMaterials() {
+		return runMaterials;
+	}
+
+	public void setRunMaterials(List<RunMaterial> runMaterials) {
+		this.runMaterials = runMaterials;
 	}
 
 	

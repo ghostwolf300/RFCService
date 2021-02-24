@@ -13,6 +13,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.rfc.material.Material;
 import org.rfc.material.MaterialRepository;
 import org.rfc.material.dto.CreateMaterialResultDTO;
@@ -33,6 +35,8 @@ import com.sap.conn.jco.JCoException;
 
 @Service("workerService")
 public class WorkerServiceImpl implements WorkerService {
+	
+	private static final Logger logger=LogManager.getLogger(WorkerService.class);
 	
 	private final ExecutorService resultExecutor=Executors.newSingleThreadExecutor();
 	private final ExecutorService workerExecutor=Executors.newCachedThreadPool();
@@ -62,7 +66,8 @@ public class WorkerServiceImpl implements WorkerService {
 	@Override
 	public List<WorkerDTO> createWorkers(int runId, int maxMaterials) {
 		
-		clearWorkers(runId);
+		//clearWorkers(runId);
+		removeAll(runId);
 		
 		List<RunMaterial> runMaterials=runMaterialRepo.findByIdRunIdAndStatus(runId, 0);
 		
@@ -74,16 +79,6 @@ public class WorkerServiceImpl implements WorkerService {
 		
 		List<WorkerDTO> dtos=addWorkers(materials,maxMaterials,runId);
 		return dtos;
-	}
-	
-	private void clearWorkers(int runId) {
-		if(workerMap!=null) {
-			stopAll(runId);
-			List<WorkerDTO> dtos=getActiveWorkers(runId);
-			for(WorkerDTO w : dtos) {
-				workerMap.remove(w.getId());	
-			}
-		}
 	}
 	
 	private List<WorkerDTO> addWorkers(List<Material> materials,int maxMaterials,int runId){
@@ -227,6 +222,17 @@ public class WorkerServiceImpl implements WorkerService {
 		return resultQueue.size();
 	}
 
-	
+	@Override
+	public void removeAll(int runId) {
+		if(workerMap!=null) {
+			if(isExecuting(runId)) {
+				stopAll(runId);
+			}
+			List<WorkerDTO> dtos=getActiveWorkers(runId);
+			for(WorkerDTO w : dtos) {
+				workerMap.remove(w.getId());	
+			}
+		}
+	}
 
 }

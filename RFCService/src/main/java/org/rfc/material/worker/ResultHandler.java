@@ -3,6 +3,9 @@ package org.rfc.material.worker;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.rfc.material.dto.CreateMaterialResultDTO;
 import org.rfc.material.dto.ReturnMessageDTO;
 import org.rfc.material.messages.ReturnMessage;
@@ -13,6 +16,8 @@ import org.rfc.material.runmaterial.RunMaterialKey;
 import org.rfc.material.runmaterial.RunMaterialRepository;
 
 public class ResultHandler implements Runnable {
+	
+	private static final Logger logger=LogManager.getLogger(ResultHandler.class);
 	
 	private boolean polling;
 	private int saveCount=0;
@@ -55,11 +60,11 @@ public class ResultHandler implements Runnable {
 				polling=false;
 				break;
 			}
-			System.out.println("Queue size: "+resultQueue.size());
+			//System.out.println("Queue size: "+resultQueue.size());
 			CreateMaterialResultDTO result=null;
 			
 			while((result=resultQueue.poll())!=null) {
-				System.out.println("Saving results... ID#:"+result.getWorkerId()+"\tMATERIAL: "+result.getMaterial()+"\tSTATUS: "+result.getStatus());
+				//System.out.println("Saving results... ID#:"+result.getWorkerId()+"\tMATERIAL: "+result.getMaterial()+"\tSTATUS: "+result.getStatus());
 				runMaterialRepo.updateStatus(result.getRunId(), result.getMaterial(), result.getStatus());
 				
 				switch(result.getStatus()) {
@@ -81,17 +86,8 @@ public class ResultHandler implements Runnable {
 				runMaterialRepo.flush();
 				runRepo.flush();
 				messageRepo.flush();
-				
-				//simulate db operation time
-//				try {
-//					Thread.sleep(1500);
-//				} 
-//				catch (InterruptedException e) {
-//					System.out.println("ResultHandler interrupted while sleeping!");
-//					polling=false;
-//				}
 			}
-			System.out.println("No results... waiting data");
+			//System.out.println("No results... waiting data");
 			try {
 				Thread.sleep(5000);
 			} 
@@ -101,7 +97,7 @@ public class ResultHandler implements Runnable {
 			}
 			
 		}
-		System.out.println("Result handler shutting down...");
+		logger.log(Level.INFO, "Result handler shutting down.");
 	}
 	
 	public int getQueueSize() {

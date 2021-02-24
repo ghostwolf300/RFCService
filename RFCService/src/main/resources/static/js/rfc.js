@@ -588,11 +588,13 @@ var MaterialRun=(function(){
 	
 	function _pollRunStatus(runId,poll){
 		var endPoint='material/run/status';
-		if(poll && AjaxUtil.isPolling(endPoint)==false){
+		var pollId=AjaxUtil.createPollId(endPoint,runId);
+		console.log('runId: '+pollId);
+		if(poll && AjaxUtil.isPolling(pollId)==false){
 			let params={
 					'runId'	: runId
 			}
-			AjaxUtil.startPolling(endPoint,params,'param',
+			AjaxUtil.startPolling(pollId,endPoint,params,'param',
 			function(run){
 				_updateRun(run);
 				if(run.executing==false && run.resultQueueSize==0){
@@ -602,7 +604,7 @@ var MaterialRun=(function(){
 			ErrorHandler.handle,5000);
 		}
 		else if(poll==false){
-			AjaxUtil.stopPolling(endPoint);
+			AjaxUtil.stopPolling(pollId);
 		}
 		else{
 			//something else
@@ -892,13 +894,30 @@ var MaterialExecute=(function(){
 	}
 	
 	function _createWorkers(){
+		spinnerDisabled=false;
 		console.log(runId);
 		_clearWorkers();
 		var params={
 				'runId' 		: runId,
 				'maxMaterials'	: parseInt($('#worker_max_materials').val())
 		}
-		AjaxUtil.get('material/workers/create',params,'param',_createWorkerRows,ErrorHandler.handle);
+		AjaxUtil.get('material/workers/create',params,'param',_createWorkerRows,ErrorHandler.handle,_loadingHandler);
+		//$('div#worker_creation').addClass('hidden-fields');
+		//$('div#workers').removeClass('hidden-fields');
+	}
+	
+	function _loadingHandler(loading){
+		console.log('this is cool loading handler: '+loading);
+		if(loading){
+			//maybe add some spinner
+			$('div#worker_creation').addClass('hidden-fields');
+			//$('#loader').removeClass('display-none');
+		}
+		else{
+			//maybe remove some spinner
+			//$('#loader').addClass('display-none');
+			$('div#workers').removeClass('hidden-fields');
+		}
 	}
 	
 	function _createWorkerRows(workers){
@@ -970,11 +989,14 @@ var MaterialExecute=(function(){
 	}
 	
 	function _resetRun(){
+		spinnerDisabled=false;
 		var params={
 				'runId' 		: runId
 		}
 		AjaxUtil.get('material/run/reset',params,'param',_updateRun,ErrorHandler.handle);
 		_clearWorkers();
+		$('div#worker_creation').removeClass('hidden-fields');
+		$('div#workers').addClass('hidden-fields');
 		
 	}
 	
@@ -1008,11 +1030,12 @@ var MaterialExecute=(function(){
 	
 	function _pollWorkerStatus(poll){
 		var endPoint='material/workers/status';
-		if(poll && AjaxUtil.isPolling(endPoint)==false){
+		var pollId=AjaxUtil.createPollId(endPoint,runId);
+		if(poll && AjaxUtil.isPolling(pollId)==false){
 			let params={
 					'runId'	: runId
 			}
-			AjaxUtil.startPolling(endPoint,params,'param',
+			AjaxUtil.startPolling(pollId,endPoint,params,'param',
 			function(workers){
 				_updateWorkerRows(workers);
 				let stopPolling=true;
@@ -1028,7 +1051,7 @@ var MaterialExecute=(function(){
 			ErrorHandler.handle,5000);
 		}
 		else if(poll==false){
-			AjaxUtil.stopPolling(endPoint);
+			AjaxUtil.stopPolling(pollId);
 		}
 		else{
 			//something else
@@ -1056,11 +1079,12 @@ var MaterialExecute=(function(){
 	
 	function _pollRunStatus(poll){
 		var endPoint='material/run/status';
-		if(poll && AjaxUtil.isPolling(endPoint)==false){
+		var pollId=AjaxUtil.createPollId(endPoint,runId);
+		if(poll && AjaxUtil.isPolling(pollId)==false){
 			let params={
 					'runId'	: runId
 			}
-			AjaxUtil.startPolling(endPoint,params,'param',
+			AjaxUtil.startPolling(pollId,endPoint,params,'param',
 			function(run){
 				_updateRun(run);
 				if(run.executing==false && run.resultQueueSize==0){
@@ -1071,7 +1095,7 @@ var MaterialExecute=(function(){
 			ErrorHandler.handle,5000);
 		}
 		else if(poll==false){
-			AjaxUtil.stopPolling(endPoint);
+			AjaxUtil.stopPolling(pollId);
 		}
 		else{
 			//something else
@@ -1151,13 +1175,19 @@ var AjaxUtil=(function(){
 		});
 	}
 	
-	function get(endPoint,data,dataType,successHandler,failureHandler){
+	function get(endPoint,data,dataType,successHandler,failureHandler,loadingHandler){
 		var url=contextPath+endPoint;
 		$.ajax({
 			url : url,
 			method : "GET",
 			data : data,
-			dataType : "json"
+			dataType : "json",
+			beforeSend : function(){
+				//console.log('beforeSend event...');
+				if(loadingHandler){
+					loadingHandler(true);
+				}
+			}
 		}).done(function(response){
 			successHandler(response);
 		}).fail(function(e){
@@ -1168,11 +1198,14 @@ var AjaxUtil=(function(){
 				console.log('no failure handler');
 			}
 		}).always(function(){
-			
+			//console.log('always/finally event');
+			if(loadingHandler){
+				loadingHandler(false);
+			}
 		});
 	}
 	
-	function _poll(endPoint,data,dataType,successHandler,failureHandler,intervalMs){
+	function _poll(pollId,endPoint,data,dataType,successHandler,failureHandler,intervalMs){
 		var url=contextPath+endPoint;
 		spinnerDisabled=true;
 		var timeout;
@@ -1187,7 +1220,7 @@ var AjaxUtil=(function(){
 				dataType : "json",
 				timeout : 2000
 			}).done(function(response){
-				console.log('polling end-point '+endPoint);
+				console.log(pollId+': polling end-point '+endPoint);
 				successHandler(response);
 			}).fail(function(e){
 				if(failureHandler){
@@ -1197,32 +1230,32 @@ var AjaxUtil=(function(){
 					console.log('no failure handler');
 				}
 			}).always(function(){
-				_poll(endPoint,data,dataType,successHandler,failureHandler,intervalMs);
+				_poll(pollId,endPoint,data,dataType,successHandler,failureHandler,intervalMs);
 			});
 		},intervalMs);
-		if(pollMap.get(endPoint)==false){
-			console.log('stop polling end-point '+endPoint);
+		if(pollMap.get(pollId)==false){
+			console.log(pollId+': stop polling end-point '+endPoint);
 			clearTimeout(timeout);
-			pollMap.delete(endPoint);
+			pollMap.delete(pollId);
 		}
 	}
 	
-	function startPolling(endPoint,data,dataType,successHandler,failureHandler,intervalMs){
-		if(pollMap.has(endPoint)==false){
+	function startPolling(pollId,endPoint,data,dataType,successHandler,failureHandler,intervalMs){
+		if(pollMap.has(pollId)==false){
 			console.log('start polling end-point '+endPoint);
 			pollMap.set(endPoint,true);
-			_poll(endPoint,data,dataType,successHandler,failureHandler,intervalMs);
+			_poll(pollId,endPoint,data,dataType,successHandler,failureHandler,intervalMs);
 		}
 		
 	}
 	
-	function stopPolling(endPoint){
+	function stopPolling(pollId){
 		console.log('trying to stop polling now');
-		pollMap.set(endPoint,false);
+		pollMap.set(pollId,false);
 	}
 	
-	function isPolling(endPoint){
-		if(pollMap.has(endPoint)){
+	function isPolling(pollId){
+		if(pollMap.has(pollId)){
 			return true;
 		}
 		else{
@@ -1230,12 +1263,24 @@ var AjaxUtil=(function(){
 		}
 	}
 	
+	function createPollId(endPoint,unique){
+		var str=endPoint+unique;
+		var hash = 0, i, chr;
+		for (i = 0; i < str.length; i++) {
+			chr   = str.charCodeAt(i);
+		    hash  = ((hash << 5) - hash) + chr;
+		    hash |= 0; // Convert to 32bit integer
+		}
+		return hash;
+	}
+	
 	return{
 		post 			: post,
 		get				: get,
 		startPolling	: startPolling,
 		stopPolling		: stopPolling,
-		isPolling		: isPolling
+		isPolling		: isPolling,
+		createPollId	: createPollId
 	}
 	
 })();

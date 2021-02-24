@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.rfc.material.Description;
 import org.rfc.material.ForecastParameters;
 import org.rfc.material.Material;
@@ -16,6 +19,7 @@ import org.rfc.material.ValuationData;
 import org.rfc.material.dto.CreateMaterialResultDTO;
 import org.rfc.material.dto.ReturnMessageDTO;
 import org.rfc.material.dto.WorkerDTO;
+import org.springframework.boot.logging.LogLevel;
 
 import com.sap.conn.jco.JCoContext;
 import com.sap.conn.jco.JCoDestination;
@@ -26,6 +30,8 @@ import com.sap.conn.jco.JCoTable;
 
 
 public class CreateMaterialWorker extends Worker {
+	
+	private static final Logger logger=LogManager.getLogger(CreateMaterialWorker.class);
 	
 	public static final String RFC_NAME="BAPI_MATERIAL_SAVEREPLICA";
 	
@@ -111,12 +117,13 @@ public class CreateMaterialWorker extends Worker {
 			if(Thread.currentThread().isInterrupted()) {
 				throw new InterruptedException();
 			}
-			System.out.println(this.getId()+"\tCreating material: "+m.getMaterialId());
+			//System.out.println(this.getId()+"\tCreating material: "+m.getMaterialId());
 			CreateMaterialResultDTO result=createMaterial(m);
 			resultQueue.add(result);
 			clearTables();
 		}
-		System.out.println(this.id+" Exiting material loop. Status: "+this.getStatus()+"\tMaterial Queue size: "+materialQueue.size());
+		logger.log(Level.DEBUG,"Worker: "+this.id+" Exiting material loop. Status: "+this.getStatus()+"\tLast material: "+m.getMaterialId()+"\tMaterial Queue size: "+materialQueue.size());
+		//System.out.println("Worker: "+this.id+" Exiting material loop. Status: "+this.getStatus()+"\tLast material: "+m.getMaterialId()+"\tMaterial Queue size: "+materialQueue.size());
 	}
 	
 	private void initialize() throws JCoException {

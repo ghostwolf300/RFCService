@@ -2,6 +2,8 @@ package org.rfc.material;
 
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.rfc.config.SAPUserBean;
 import org.rfc.material.dto.WorkerDTO;
 import org.rfc.material.worker.WorkerService;
@@ -14,6 +16,8 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 @RequestMapping("/material")
 public class MaterialController {
+	
+	private static final Logger logger=LogManager.getLogger(MaterialController.class);
 	
 	@Autowired
 	private SAPUserBean sapUser;

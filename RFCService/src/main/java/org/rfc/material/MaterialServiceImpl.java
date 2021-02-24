@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.rfc.material.dto.FieldValueDTO;
 import org.rfc.material.dto.HeaderColumnDTO;
 import org.rfc.material.dto.TemplateDTO;
@@ -30,6 +32,8 @@ import org.springframework.stereotype.Service;
 
 @Service("materialService")
 public class MaterialServiceImpl implements MaterialService {
+	
+	private static final Logger logger=LogManager.getLogger(MaterialService.class);
 	
 	private Map<String,List<BAPIField>> fieldMap;
 	
@@ -354,17 +358,19 @@ public class MaterialServiceImpl implements MaterialService {
 	public ResponseDTO saveRunData(RunDataWrapperDTO runData) {
 
 		System.out.println("Run id is: "+runData.getRunId()+" Row count: "+runData.getRunDataList().size());
-
+		
 		Map<String,List<Map<String,FieldValueDTO>>> templateValuesMap=createTemplateValuesMap(runData.getTemplateId());
 		
 		List<Material> allMaterials=createMaterialList(runData,templateValuesMap);
 		System.out.println("All materials: "+allMaterials.size());
-		materialRepo.deleteAll();
+		
+		materialRepo.deleteByRunId(runData.getRunId());
 		materialRepo.saveAll(allMaterials);
 		
+		Run run=runRepo.getOne(runData.getRunId());
 		List<RunMaterial> runMaterials=new ArrayList<RunMaterial>();
 		for(Material m : allMaterials) {
-			runMaterials.add(new RunMaterial(m.getRunId(),m.getMaterialId(),m.getRowNumber(),0,new Timestamp(System.currentTimeMillis())));
+			runMaterials.add(new RunMaterial(run,m.getMaterialId(),m.getRowNumber(),0,new Timestamp(System.currentTimeMillis())));
 		}
 		runMaterialRepo.saveAll(runMaterials);
 		runRepo.updateMaterialCount(runData.getRunId(), runMaterials.size());

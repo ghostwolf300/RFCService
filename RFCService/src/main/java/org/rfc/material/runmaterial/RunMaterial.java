@@ -9,11 +9,15 @@ import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.rfc.material.dto.RunMaterialDTO;
 import org.rfc.material.messages.ReturnMessage;
+import org.rfc.material.run.Run;
 
 @Entity
 @Table(name="t_run_material")
@@ -30,6 +34,12 @@ public class RunMaterial implements Serializable {
 	private int status;
 	@Column(name="updated_ts")
 	private Timestamp updatedTs;
+	
+	//Added this to create relationship
+	@MapsId("runId")
+	@ManyToOne(fetch=FetchType.LAZY)
+	//@JoinColumn(name="run_id",referencedColumnName="id")
+	private Run run;
 	
 	@OneToMany(
 		mappedBy="runMaterial",
@@ -48,6 +58,14 @@ public class RunMaterial implements Serializable {
 		this.rowNumber=rowNumber;
 		this.status=status;
 		this.updatedTs=updatedTs;
+	}
+	
+	public RunMaterial(Run run,String material,int rowNumber,int status,Timestamp updatedTs) {
+		id=new RunMaterialKey(run.getId(),material);
+		this.rowNumber=rowNumber;
+		this.status=status;
+		this.updatedTs=updatedTs;
+		this.run=run;
 	}
 	
 	public RunMaterial(RunMaterialDTO dto) {
@@ -87,6 +105,22 @@ public class RunMaterial implements Serializable {
 
 	public void setUpdatedTs(Timestamp updatedTs) {
 		this.updatedTs = updatedTs;
+	}
+
+	public Run getRun() {
+		return run;
+	}
+
+	public void setRun(Run run) {
+		this.run = run;
+	}
+
+	public List<ReturnMessage> getReturnMessages() {
+		return returnMessages;
+	}
+
+	public void setReturnMessages(List<ReturnMessage> returnMessages) {
+		this.returnMessages = returnMessages;
 	}
 	
 }

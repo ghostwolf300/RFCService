@@ -2,6 +2,10 @@ package org.rfc.material.worker;
 
 import java.util.concurrent.Future;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.sap.conn.jco.JCoContext;
 import com.sap.conn.jco.JCoDestination;
 import com.sap.conn.jco.JCoException;
@@ -10,6 +14,8 @@ import com.sap.conn.jco.JCoFunctionTemplate;
 import com.sap.conn.jco.JCoRepository;
 
 public abstract class Worker implements Runnable {
+	
+	private static final Logger logger=LogManager.getLogger(Worker.class);
 	
 	protected int id;
 	protected int runId;
@@ -86,31 +92,36 @@ public abstract class Worker implements Runnable {
 	}
 	
 	public void run() {
+		logger.log(Level.INFO, "runId: "+runId+" workerId: "+id+"\tStarting run...");
 		startTime=System.currentTimeMillis();
 		status=WorkerStatus.RUNNING;
 		try {
 			doWork();
 		}
 		catch(JCoException ex) {
-			System.out.println("Worker: "+id+" SAP connector error!");
+			logger.log(Level.ERROR,"runId:"+runId+", workerId:"+id+"\tSAP Connector error! "+ex.getMessage());
 			status=WorkerStatus.ERROR;
 		} 
 		catch (InterruptedException ex) {
-			System.out.println("Worker: "+id+" Interrupted!");
+			logger.log(Level.INFO, "runId: "+runId+" workerId: "+id+"\tWorker interrupted.");
 			status=WorkerStatus.STOPPED;
 		}
 		finally {
-			System.out.println("Closing connection");
+			logger.log(Level.INFO,"runId:"+runId+", workerId:"+id+"\tRun finished. Closing connection...");
 			try {
 				JCoContext.end(destination);
 			} 
 			catch (JCoException e) {
-				e.printStackTrace();
+				logger.log(Level.ERROR,"runId:"+runId+", workerId:"+id+"\tError while closing connection! "+e.getMessage());
+				//e.printStackTrace();
 			}
+			if(status==WorkerStatus.RUNNING) {
+				status=WorkerStatus.FINISHED;
+			}
+			endTime=System.currentTimeMillis();
+			logger.log(Level.INFO,"runId:"+runId+", workerId:"+id+"\tRun finished. Status="+status);
 		}
-		if(status==WorkerStatus.RUNNING) {
-			status=WorkerStatus.FINISHED;
-		}
+		
 		
 	}
 	
@@ -127,6 +138,14 @@ public abstract class Worker implements Runnable {
 		JCoContext.begin(destination);
 		function.execute(destination);
 		JCoContext.end(destination);
+	}
+	
+	protected long getCurrentRunTime() {
+		return System.currentTimeMillis()-startTime;
+	}
+	
+	protected long getTotalRunTime() {
+		return endTime-startTime;
 	}
 	
 }

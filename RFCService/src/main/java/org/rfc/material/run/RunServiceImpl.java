@@ -2,6 +2,9 @@ package org.rfc.material.run;
 
 import java.util.Optional;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.rfc.material.dto.RunDTO;
 import org.rfc.material.messages.ReturnMessageRepository;
 import org.rfc.material.runmaterial.RunMaterialRepository;
@@ -11,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 @Service("runService")
 public class RunServiceImpl implements RunService {
+	
+	private static final Logger logger=LogManager.getLogger(RunService.class);
 	
 	@Autowired
 	private WorkerService workerService;
@@ -44,24 +49,27 @@ public class RunServiceImpl implements RunService {
 
 	@Override
 	public RunDTO resetRun(int runId) {
-		
-		workerService.stopAll(runId);
+		logger.log(Level.INFO,"resetRun runId: "+runId+"\tReset run.");
+		//This also stops running workers first
+		workerService.removeAll(runId);
+		logger.log(Level.DEBUG,"resetRun runId: "+runId+"\tWaiting results to be stored in db.");
 		int queueSize;
 		while((queueSize=workerService.getResultQueueSize())>0) {
-			System.out.println("Result queue size is "+queueSize+". Waiting 5s.");
+			logger.log(Level.DEBUG,"resetRun runId: "+runId+"\tResult queue size: "+queueSize+". Waiting 5s.");
 			try {
 				Thread.sleep(5000);
 			} 
 			catch (InterruptedException e) {
-				System.out.println("Result queue wait interrupted!");
+				logger.log(Level.DEBUG,"resetRun runId: "+runId+"\tResult queue wait interrupted!");
 			}
 		}
-		
+		logger.log(Level.DEBUG,"resetRun runId: "+runId+"\tReseting counters.");
 		//set all material status to 0
 		runRepo.resetCounters(runId);
 		//reset run counters
 		runMaterialRepo.resetStatus(runId, 0);
 		//clear messages
+		logger.log(Level.DEBUG,"resetRun runId: "+runId+"\tRemoving messages.");
 		messageRepo.deleteByRunMaterialIdRunId(runId);
 		RunDTO dto=this.getRun(runId);
 		return dto;

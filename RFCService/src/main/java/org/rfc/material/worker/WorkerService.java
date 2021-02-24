@@ -16,5 +16,6 @@ public interface WorkerService {
 	public List<WorkerDTO> stopAll(int runId);
 	public boolean isExecuting(int runId);
 	public int getResultQueueSize();
+	public void removeAll(int runId);
 
 }
