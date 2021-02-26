@@ -14,6 +14,10 @@ public class CreateMaterialResultDTO implements Serializable {
 	private String material;
 	private int status;
 	private int workerId;
+	private int successCount;
+	private int warningCount;
+	private int errorCount;
+	private int infoCount;
 	private List<ReturnMessageDTO> messages;
 	
 	public CreateMaterialResultDTO(int runId) {
@@ -65,6 +69,38 @@ public class CreateMaterialResultDTO implements Serializable {
 	public void setWorkerId(int workerId) {
 		this.workerId = workerId;
 	}
+	public int getSuccessCount() {
+		return successCount;
+	}
+
+	public void setSuccessCount(int successCount) {
+		this.successCount = successCount;
+	}
+
+	public int getWarningCount() {
+		return warningCount;
+	}
+
+	public void setWarningCount(int warningCount) {
+		this.warningCount = warningCount;
+	}
+
+	public int getErrorCount() {
+		return errorCount;
+	}
+
+	public void setErrorCount(int errorCount) {
+		this.errorCount = errorCount;
+	}
+
+	public int getInfoCount() {
+		return infoCount;
+	}
+
+	public void setInfoCount(int infoCount) {
+		this.infoCount = infoCount;
+	}
+
 	public List<ReturnMessageDTO> getMessages() {
 		return messages;
 	}
@@ -82,12 +118,15 @@ public class CreateMaterialResultDTO implements Serializable {
 			switch(msg.getType()) {
 			case "S" :
 				success=true;
+				successCount++;
 				break;
 			case "W" :
 				warning=true;
+				warningCount++;
 				break;
 			case "E" :
 				error=true;
+				errorCount++;
 				break;
 			default	:
 				error=true;

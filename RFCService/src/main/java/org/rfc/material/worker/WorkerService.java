@@ -2,6 +2,7 @@ package org.rfc.material.worker;
 
 import java.util.List;
 
+import org.rfc.material.dto.FeedLineDTO;
 import org.rfc.material.dto.WorkerDTO;
 
 public interface WorkerService {
@@ -17,5 +18,6 @@ public interface WorkerService {
 	public boolean isExecuting(int runId);
 	public int getResultQueueSize();
 	public void removeAll(int runId);
+	public List<FeedLineDTO> getFeedLines(int runId);
 
 }

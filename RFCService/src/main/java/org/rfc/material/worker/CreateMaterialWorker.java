@@ -1,5 +1,6 @@
 package org.rfc.material.worker;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.rfc.material.SalesData;
 import org.rfc.material.StorageLocationData;
 import org.rfc.material.ValuationData;
 import org.rfc.material.dto.CreateMaterialResultDTO;
+import org.rfc.material.dto.FeedLineDTO;
 import org.rfc.material.dto.ReturnMessageDTO;
 import org.rfc.material.dto.WorkerDTO;
 import org.springframework.boot.logging.LogLevel;
@@ -76,8 +78,8 @@ public class CreateMaterialWorker extends Worker {
 		initialize();
 	}
 	
-	public CreateMaterialWorker(int id, int runId,List<Material> materials,BlockingQueue<CreateMaterialResultDTO> resultQueue,JCoDestination destination,boolean testRun) throws JCoException {
-		super(id,runId,destination);
+	public CreateMaterialWorker(int id, int runId,List<Material> materials,BlockingQueue<CreateMaterialResultDTO> resultQueue,BlockingQueue<FeedLineDTO> feedQueue,JCoDestination destination,boolean testRun) throws JCoException {
+		super(id,runId,destination,feedQueue);
 		this.materialQueue=new LinkedList<Material>(materials);
 		this.resultQueue=resultQueue;
 		this.testRun=testRun;
@@ -113,17 +115,17 @@ public class CreateMaterialWorker extends Worker {
 	@Override
 	protected void doWork() throws JCoException,InterruptedException {
 		Material m;
+		logger.log(Level.INFO,"runId: "+runId+" workerId:"+id+"\tStarting work. Status: "+this.getStatus()+"\tDB queue size: "+materialQueue.size());
 		while((m=materialQueue.poll())!=null) {
+			CreateMaterialResultDTO result=createMaterial(m);
+			resultQueue.add(result);
+			feedQueue.add(new FeedLineDTO(new Timestamp(System.currentTimeMillis()),"Worker "+id,result.getMaterial()+" executed. Status: "+result.getStatus()+" S: "+result.getSuccessCount()+" W: "+result.getWarningCount()+" E: "+result.getErrorCount()));
+			clearTables();
 			if(Thread.currentThread().isInterrupted()) {
 				throw new InterruptedException();
 			}
-			//System.out.println(this.getId()+"\tCreating material: "+m.getMaterialId());
-			CreateMaterialResultDTO result=createMaterial(m);
-			resultQueue.add(result);
-			clearTables();
 		}
-		logger.log(Level.DEBUG,"Worker: "+this.id+" Exiting material loop. Status: "+this.getStatus()+"\tLast material: "+m.getMaterialId()+"\tMaterial Queue size: "+materialQueue.size());
-		//System.out.println("Worker: "+this.id+" Exiting material loop. Status: "+this.getStatus()+"\tLast material: "+m.getMaterialId()+"\tMaterial Queue size: "+materialQueue.size());
+		logger.log(Level.INFO,"runId: "+runId+" workerId:"+id+"\tJob done! Status: "+this.getStatus()+"\tDB queue size: "+materialQueue.size());
 	}
 	
 	private void initialize() throws JCoException {

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.rfc.material.dto.FeedLineDTO;
 import org.rfc.material.dto.ResponseDTO;
 import org.rfc.material.dto.WorkerDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,11 +74,25 @@ public class WorkerRestController {
 		return new ResponseEntity<List<WorkerDTO>>(workers,HttpStatus.OK);
 	}
 	
+	@GetMapping(value="/deleteAll",produces="application/json")
+	@ResponseBody
+	public ResponseEntity<?> deleteAllWorkers(@RequestParam int runId){
+		workerService.removeAll(runId);
+		return new ResponseEntity<ResponseDTO>(new ResponseDTO(555,"Current workers deleted"),HttpStatus.OK);
+	}
+	
 	@GetMapping(value="/status",produces="application/json")
 	@ResponseBody
 	public ResponseEntity<?> queryStatus(@RequestParam int runId){
 		List<WorkerDTO> activeWorkers=workerService.getActiveWorkers(runId);
 		return new ResponseEntity<List<WorkerDTO>>(activeWorkers,HttpStatus.OK);
+	}
+	
+	@GetMapping(value="/feed",produces="application/json")
+	@ResponseBody
+	public ResponseEntity<?> queryFeed(@RequestParam int runId){
+		List<FeedLineDTO> feedLines=workerService.getFeedLines(runId);
+		return new ResponseEntity<List<FeedLineDTO>>(feedLines,HttpStatus.OK);
 	}
 	
 	@GetMapping(value="/isExecuting",produces="application/json")

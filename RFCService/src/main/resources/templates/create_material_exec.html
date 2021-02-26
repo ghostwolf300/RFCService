@@ -57,7 +57,7 @@
 							<i class="bi bi-trash"></i>
 						</button>
 					</div>
-					<div id="workers_table">
+					<div id="workers_table" class="worker-table">
 						<table class="table-bordered">
 							<thead>
 								<tr>
@@ -105,14 +105,12 @@
 									</td>
 									<td class="worker-status">CREATED</td>
 									<td class="worker-controls">
-										<div class="btn-group">
-											<button class="btn btn-outline-success worker-start" data-original-title="Start" th:attr="data-id=${worker.id}">
-												<i class="bi bi-play-fill"></i>
-											</button>
-											<button class="btn btn-outline-danger worker-stop" data-original-title="Stop" th:attr="data-id=${worker.id}">
-												<i class="bi bi-stop-fill"></i>
-											</button>
-										</div>
+										<button class="btn btn-outline-success worker-start" th:classappend="${#strings.equals(worker.currentStatus,'RUNNING')}==true ? 'hidden-fields'" data-original-title="Start" th:attr="data-id=${worker.id}">
+											<i class="bi bi-play-fill"></i>
+										</button>
+										<button class="btn btn-outline-danger worker-stop" th:classappend="${#strings.equals(worker.currentStatus,'RUNNING')}==false or ${#strings.equals(worker.currentStatus,'READY')}==true ? 'hidden-fields'" data-original-title="Stop" th:attr="data-id=${worker.id}">
+											<i class="bi bi-stop-fill"></i>
+										</button>
 									</td>
 								</tr>
 							</tbody>
@@ -176,7 +174,11 @@
 				</div>
 			</div>
 			<div id="run_feed" class="col">
-				Run feed here...
+				<div class="run-feed">
+					<label for="run_feed_lines">Run feed:</label>
+					<textarea id="run_feed_lines" name="run_feed_lines" rows="12" cols="60" readonly>
+					</textarea>
+				</div>
 			</div>
 		</div>
 	</div>

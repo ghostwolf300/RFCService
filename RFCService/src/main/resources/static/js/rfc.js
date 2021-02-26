@@ -849,6 +849,7 @@ var MaterialExecute=(function(){
 		$('button#refresh_all_workers').click(_refreshRunStatus);
 		$('button#start_all_workers').click(_startAllWorkers);
 		$('button#stop_all_workers').click(_stopAllWorkers);
+		$('button#delete_all_workers').click(_deleteAllWorkers);
 		$('button#reset_run').click(_resetRun);
 		
 	}
@@ -958,10 +959,27 @@ var MaterialExecute=(function(){
 		$progressBar.width(worker.progress+'%');
 		$progressBar.text(worker.progress+'%');
 		$row.find('.worker-status').text(worker.currentStatus);
+		$startButton=$row.find('button.worker-start');
+		$stopButton=$row.find('button.worker-stop');
+		console.log(worker.id+' '+worker.currentStatus);
+		if(worker.currentStatus=='READY' || worker.currentStatus=='STOPPED' || worker.currentStatus=='ERROR'){
+			$startButton.removeClass('hidden-fields');
+			$stopButton.addClass('hidden-fields');
+		}
+		else if(worker.currentStatus=='RUNNING'){
+			$startButton.addClass('hidden-fields');
+			$stopButton.removeClass('hidden-fields');
+		}
+		else if(worker.currentStatus=='FINISHED'){
+			$startButton.addClass('hidden-fields');
+			$stopButton.addClass('hidden-fields');
+		}
+		
 	}
 	
 	function _startWorker(){
-		var id=$(this).data('id');
+		var $button=$(this);
+		var id=$button.data('id');
 		console.log('starting worker: '+id);
 		var params={
 				'id' 		: id
@@ -969,23 +987,45 @@ var MaterialExecute=(function(){
 		AjaxUtil.get('material/workers/start',params,'param',
 				function(response){
 					MessageBar.showSuccess(response.responseText);
+					$button.addClass('hidden-fields');
+					$('button.worker-stop[data-id='+id+']').removeClass('hidden-fields');
+					_pollWorkerStatus(true);
+					_pollRunStatus(true);
+					_pollRunFeed(true);
 				}
 				,ErrorHandler.handle);
-		_pollWorkerStatus(true);
-		_pollRunStatus(true);
 	}
 	
 	function _stopWorker(){
-		var id=$(this).data('id');
+		var $button=$(this);
+		var id=$button.data('id');
 		console.log('stopping worker: '+id);
 		var params={
 				'id' 		: id
 		}
-		AjaxUtil.get('material/workers/stop',params,'param',
-				function(response){
-					MessageBar.showSuccess(response.responseText);
-				}
-				,ErrorHandler.handle);
+		AjaxUtil.get('material/workers/stop',params,'param',function(response){
+			MessageBar.showSuccess(response.responseText);
+			$button.addClass('hidden-fields');
+			$('button.worker-start[data-id='+id+']').removeClass('hidden-fields');
+		},
+		ErrorHandler.handle);
+	}
+	
+	function _deleteAllWorkers(){
+		console.log('deleting current workers');
+		spinnerDisabled=false;
+		var params={
+				'runId' 		: runId
+		}
+		AjaxUtil.get('material/workers/deleteAll',params,'param',function(response){
+			MessageBar.showSuccess(response.message);
+			//_pollWorkerStatus(false);
+			//_pollRunStatus(false);
+			_clearWorkers();
+			$('div#worker_creation').removeClass('hidden-fields');
+			$('div#workers').addClass('hidden-fields');
+		},
+		ErrorHandler.handle);
 	}
 	
 	function _resetRun(){
@@ -993,11 +1033,14 @@ var MaterialExecute=(function(){
 		var params={
 				'runId' 		: runId
 		}
-		AjaxUtil.get('material/run/reset',params,'param',_updateRun,ErrorHandler.handle);
-		_clearWorkers();
-		$('div#worker_creation').removeClass('hidden-fields');
-		$('div#workers').addClass('hidden-fields');
-		
+		AjaxUtil.get('material/run/reset',params,'param',function(run){
+			_updateRun(run);
+			_clearWorkers();
+			//_clearFeed();
+			$('div#worker_creation').removeClass('hidden-fields');
+			$('div#workers').addClass('hidden-fields');
+		},
+		ErrorHandler.handle);
 	}
 	
 	function _clearWorkers(){
@@ -1006,12 +1049,17 @@ var MaterialExecute=(function(){
 	}
 	
 	function _startAllWorkers(){
+		spinnerDisabled=false;
 		var params={
 				'runId' 		: runId
 		}
-		AjaxUtil.get('material/workers/startAll',params,'param',_updateWorkerRows,ErrorHandler.handle);
-		_pollWorkerStatus(true);
-		_pollRunStatus(true);
+		AjaxUtil.get('material/workers/startAll',params,'param',function(workers){
+			_updateWorkerRows(workers);
+			_pollWorkerStatus(true);
+			_pollRunStatus(true);
+			_pollRunFeed(true);
+		},
+		ErrorHandler.handle);
 	}
 	
 	function _stopAllWorkers(){
@@ -1102,6 +1150,39 @@ var MaterialExecute=(function(){
 		}
 	}
 	
+	function _pollRunFeed(poll){
+		var endPoint='material/workers/feed';
+		var pollId=AjaxUtil.createPollId(endPoint,runId);
+		if(poll && AjaxUtil.isPolling(pollId)==false){
+			let params={
+					'runId'	: runId
+			}
+			AjaxUtil.startPolling(pollId,endPoint,params,'param',
+			function(feedLines){
+				_updateFeed(feedLines);
+			},
+			ErrorHandler.handle,5000);
+		}
+		else if(poll==false){
+			AjaxUtil.stopPolling(pollId);
+		}
+		else{
+			//something else
+		}
+	}
+	
+	function _clearFeed(){
+		var $feed=$('#run_feed_lines');
+		$feed.val('');
+	}
+	
+	function _updateFeed(feedLines){
+		var $feed=$('#run_feed_lines');
+		feedLines.forEach(function(line){
+			$feed.val($feed.val()+line.lineFeedText+"\n");
+		});
+	}
+	
 	function _updateRun(run){
 		$('#material_count').val(run.materialCount);
 		$('#success_count').val(run.successCount);
@@ -1117,6 +1198,7 @@ var MaterialExecute=(function(){
 		
 		if(run.executing){
 			$progressBar.removeClass('bg-secondary');
+			$progressBar.removeClass('bg-success');
 			$progressBar.addClass('progress-bar-striped progress-bar-animated bg-primary');
 		}
 		else if(run.executing==false && run.resultQueueSize>0){

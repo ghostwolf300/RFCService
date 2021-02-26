@@ -226,7 +226,7 @@ div#ajaxInner{
 }
 
 .hidden-fields{
-	display: none;
+	display: none !important;
 }
 
 .visible-fields{
@@ -308,6 +308,17 @@ div.tile-create-run{
     text-align: center;
     vertical-align: middle;
     line-height: 100px;
+}
+
+div.worker-table{
+	height: 300px;
+	overflow :auto;
+}
+
+textarea#run_feed_lines{
+	font-size: 10px;
+    width: 480px;
+    height: 300px;
 }
 
 /* End Create Material */

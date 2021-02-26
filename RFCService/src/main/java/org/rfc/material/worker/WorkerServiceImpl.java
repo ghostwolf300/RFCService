@@ -13,15 +13,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.rfc.material.Material;
 import org.rfc.material.MaterialRepository;
 import org.rfc.material.dto.CreateMaterialResultDTO;
+import org.rfc.material.dto.FeedLineDTO;
 import org.rfc.material.dto.RunDTO;
 import org.rfc.material.dto.WorkerDTO;
 import org.rfc.material.dto.WorkerResultDTO;
 import org.rfc.material.messages.ReturnMessageRepository;
+import org.rfc.material.run.Run;
 import org.rfc.material.run.RunRepository;
 import org.rfc.material.run.RunService;
 import org.rfc.material.runmaterial.RunMaterial;
@@ -41,6 +44,7 @@ public class WorkerServiceImpl implements WorkerService {
 	private final ExecutorService resultExecutor=Executors.newSingleThreadExecutor();
 	private final ExecutorService workerExecutor=Executors.newCachedThreadPool();
 	private final BlockingQueue<CreateMaterialResultDTO> resultQueue=new LinkedBlockingQueue<CreateMaterialResultDTO>();
+	private final Map<Integer,BlockingQueue<FeedLineDTO>> feedMap=new HashMap<Integer,BlockingQueue<FeedLineDTO>>();
 	private Map<Integer,Runnable> workerMap=null;
 	private int workerCount=0;
 	private ResultHandler resultHandler=null;
@@ -69,22 +73,51 @@ public class WorkerServiceImpl implements WorkerService {
 		//clearWorkers(runId);
 		removeAll(runId);
 		
+		Optional<Run> opt=runRepo.findById(runId);
+		RunDTO run=null;
+		if(opt.isPresent()) {
+			run=new RunDTO(opt.get());
+		}
 		List<RunMaterial> runMaterials=runMaterialRepo.findByIdRunIdAndStatus(runId, 0);
-		
-		System.out.println("No# run materials: "+runMaterials.size());
-		
-		List<Material> materials=materialRepo.findByRunId(runId);
-		System.out.println("Retrieved material count: "+materials.size());
-		
+		List<Material> materials=null;
+		if(run.getProgressCount()==0) {
+			materials=materialRepo.findByRunId(runId);
+		}
+		else {
+			materials=materialRepo.findByRunIdAndMaterialIdIn(runId, getMaterialIds(runMaterials));
+		}
+		logger.log(Level.INFO, "runId: "+runId+"\tMaterials with no-run status: "+materials.size());
 		
 		List<WorkerDTO> dtos=addWorkers(materials,maxMaterials,runId);
+		logger.log(Level.INFO, "runId: "+runId+"\tWorkers created: "+dtos.size());
 		return dtos;
+	}
+	
+	private void initFeedQueue(int runId){
+		BlockingQueue<FeedLineDTO> feedQueue=null;
+		if(feedMap.containsKey(runId)) {
+			feedQueue=feedMap.get(runId);
+			feedQueue.clear();
+		}
+		else {
+			feedQueue=new LinkedBlockingQueue<FeedLineDTO>();
+			feedMap.put(runId, feedQueue);
+		}
+	}
+	
+	private List<String> getMaterialIds(List<RunMaterial> runMaterials){
+		List<String> ids=new ArrayList<String>();
+		for(RunMaterial rm : runMaterials) {
+			ids.add(rm.getId().getMaterial());
+		}
+		return ids;
 	}
 	
 	private List<WorkerDTO> addWorkers(List<Material> materials,int maxMaterials,int runId){
 		if(workerMap==null) {
 			initWorkers();
 		}
+		initFeedQueue(runId);
 		RunDTO run=runService.getRun(runId);
 		List<WorkerDTO> dtos=new ArrayList<WorkerDTO>();
 		List<List<Material>> splitMaterials=slice(materials,maxMaterials);
@@ -93,7 +126,7 @@ public class WorkerServiceImpl implements WorkerService {
 		try {
 			for(List<Material> workerMaterials : splitMaterials) {
 				id=workerCount+1;
-				CreateMaterialWorker worker=new CreateMaterialWorker(id,run.getId(),workerMaterials,resultQueue,destination,run.isTestRun());
+				CreateMaterialWorker worker=new CreateMaterialWorker(id,run.getId(),workerMaterials,resultQueue,feedMap.get(runId),destination,run.isTestRun());
 				workerMap.put(worker.getId(), worker);
 				workerCount++;
 				dtos.add(worker.getDto());
@@ -147,7 +180,7 @@ public class WorkerServiceImpl implements WorkerService {
 			for(Integer workerId : workerMap.keySet()) {
 				Worker worker=(Worker) workerMap.get(workerId);
 				if(worker.getRunId()==runId 
-						&& (worker.getStatus()==WorkerStatus.READY || worker.getStatus()==WorkerStatus.STOPPED)) {
+						&& (worker.getStatus()==WorkerStatus.READY || worker.getStatus()==WorkerStatus.STOPPED || worker.getStatus()==WorkerStatus.ERROR)) {
 					this.startOne(worker.getId());
 				}
 			}
@@ -233,6 +266,23 @@ public class WorkerServiceImpl implements WorkerService {
 				workerMap.remove(w.getId());	
 			}
 		}
+	}
+
+	@Override
+	public List<FeedLineDTO> getFeedLines(int runId) {
+		List<FeedLineDTO> feedLines=null;
+		int maxLines=100;
+		int lineCount=0;
+		if(feedMap.containsKey(runId)) {
+			feedLines=new ArrayList<FeedLineDTO>();
+			BlockingQueue<FeedLineDTO> feedQueue=feedMap.get(runId);
+			FeedLineDTO fl=null;
+			while((fl=feedQueue.poll())!=null && lineCount<maxLines) {
+				feedLines.add(fl);
+				lineCount++;
+			}
+		}
+		return feedLines;
 	}
 
 }

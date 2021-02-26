@@ -1,10 +1,12 @@
 package org.rfc.material.worker;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.rfc.material.dto.FeedLineDTO;
 
 import com.sap.conn.jco.JCoContext;
 import com.sap.conn.jco.JCoDestination;
@@ -26,6 +28,7 @@ public abstract class Worker implements Runnable {
 	protected JCoDestination destination;
 	protected long startTime;
 	protected long endTime;
+	protected BlockingQueue<FeedLineDTO> feedQueue;
 	
 	protected JCoFunction function;
 	
@@ -41,6 +44,15 @@ public abstract class Worker implements Runnable {
 		this.runId = runId;
 		this.destination=destination;
 		this.status=WorkerStatus.READY;
+	}
+	
+	public Worker(int id, int runId,JCoDestination destination,BlockingQueue<FeedLineDTO> feedQueue) {
+		super();
+		this.id = id;
+		this.runId = runId;
+		this.destination=destination;
+		this.status=WorkerStatus.READY;
+		this.feedQueue=feedQueue;
 	}
 
 	public int getId() {
@@ -91,6 +103,14 @@ public abstract class Worker implements Runnable {
 		return endTime;
 	}
 	
+	public BlockingQueue<FeedLineDTO> getFeedQueue() {
+		return feedQueue;
+	}
+
+	public void setFeedQueue(BlockingQueue<FeedLineDTO> feedQueue) {
+		this.feedQueue = feedQueue;
+	}
+
 	public void run() {
 		logger.log(Level.INFO, "runId: "+runId+" workerId: "+id+"\tStarting run...");
 		startTime=System.currentTimeMillis();
